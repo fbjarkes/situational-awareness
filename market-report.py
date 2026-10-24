@@ -141,30 +141,41 @@ def chart_svg(report: dict) -> str:
     return "".join(parts) + "</svg>"
 
 
-def render_html(report: dict) -> str:
-    cards = []
-    rows = {}
-    for symbol, color in zip(SYMBOLS, COLORS):
-        s = report["series"][symbol]
-        cards.append(f'<article style="border-top:3px solid {color}"><h2>{symbol.split(":")[1]}</h2><strong>{s["latest"]["close"]:.2f}</strong><p>Daily: {change_text(s["daily_change"])}</p><p>Five sessions: {change_text(s["five_session_change"])}</p><small>Observed {s["latest"]["date"]}</small></article>')
-        for b in s["observations"]:
-            rows.setdefault(b["date"], {})[symbol] = b["close"]
-    table = "".join("<tr><td>" + d + "</td>" + "".join(f'<td>{rows[d][s]:.2f}</td>' if s in rows[d] else '<td>—</td>' for s in SYMBOLS) + "</tr>" for d in sorted(rows, reverse=True)[:10])
-    changes = [report["series"][s]["daily_change"] for s in SYMBOLS]
-    if all(v is not None and v < 0 for v in changes):
-        recap = "Both indicators declined in their latest available sessions."
-    elif all(v is not None and v > 0 for v in changes):
-        recap = "Both indicators rose in their latest available sessions."
+def breadth_interpretation(report: dict) -> str:
+    series = [report["series"][symbol] for symbol in SYMBOLS]
+    daily = [s["daily_change"] for s in series]
+    weekly = [s["five_session_change"] for s in series]
+    if all(v is not None and v < 0 for v in daily):
+        recap = "Both breadth indicators weakened in their latest sessions."
+    elif all(v is not None and v > 0 for v in daily):
+        recap = "Both breadth indicators strengthened in their latest sessions."
     else:
-        recap = "The latest daily changes were mixed, unchanged, or unavailable."
+        recap = "The latest readings show mixed, unchanged, or incomplete breadth signals."
+    if all(v is not None and v > 0 for v in weekly):
+        recap += " Both remain above their levels five sessions earlier, indicating an improving short-term trend."
+    elif all(v is not None and v < 0 for v in weekly):
+        recap += " Both are below their levels five sessions earlier, indicating a weakening short-term trend."
+    return recap
+
+
+def render_section(title: str, visual: str, interpretation: str) -> str:
+    """Shared report template: one chart or table followed by a brief interpretation."""
+    return f'<section class="section"><h2>{escape(title)}</h2>{visual}<p class="interpretation">{escape(interpretation)}</p></section>'
+
+
+def render_html(report: dict) -> str:
+    legend = "".join(
+        f'<span style="color:{color}">{symbol.split(":")[1]} {report["series"][symbol]["latest"]["close"]:.2f}</span>'
+        for symbol, color in zip(SYMBOLS, COLORS)
+    )
+    dates = sorted({s["latest"]["date"] for s in report["series"].values()})
+    visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>Observed {escape(" / ".join(dates))} · TradingView · {report["lookback_months"]}-month view</small>'
+    section = render_section("Market breadth", visual, breadth_interpretation(report))
     warnings = "".join(f'<p class="warning">{escape(w)}</p>' for w in report["warnings"])
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Market report · {report['requested_date']}</title>
-<style>body{{background:#0b1220;color:#e4edf8;font:16px system-ui;margin:0}}main{{max-width:1100px;margin:auto;padding:40px 24px}}h1{{font-size:32px}}h2{{font-size:18px}}p,small,footer{{color:#aebed1}}.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}}article,.panel{{background:#131e2f;border-radius:12px;padding:24px;margin:20px 0}}strong{{font-size:44px}}svg{{width:100%;height:auto}}svg text{{fill:#aebed1;font-size:12px}}.legend{{display:flex;gap:24px}}table{{width:100%;border-collapse:collapse}}td,th{{text-align:right;padding:10px;border-bottom:1px solid #2d3c50}}td:first-child,th:first-child{{text-align:left}}.warning{{background:#4c3617;padding:12px;border-radius:8px}}footer{{font-size:12px;line-height:1.7;overflow-wrap:anywhere}}</style>
-<main><p>DAILY SITUATIONAL AWARENESS</p><h1>Market breadth</h1><p>Requested date: {report['requested_date']} · {report['lookback_months']}-month view · TradingView</p>
-{warnings}<div class="cards">{''.join(cards)}</div><section class="panel"><div class="legend"><span style="color:{COLORS[0]}">● MMOH</span><span style="color:{COLORS[1]}">● MMOF</span></div>{chart_svg(report)}<p>{recap}</p><small>Daily closing values; shared scale. Definitions and interpretation thresholds have not yet been verified.</small></section>
-<section class="panel"><h2>Recent observations</h2><table><thead><tr><th>Date</th><th>MMOH</th><th>MMOF</th></tr></thead><tbody>{table}</tbody></table></section>
-<footer>Provider: {escape(report['provider'])} · Source: {escape(report['source'])}<br>Data fetched: {escape(str(report['data_fetched_at']))} · Report generated: {report['generated_at']}<br>{escape(report['daily_bar_policy'])}<br>{escape(report['historical_note'])}</footer></main></html>'''
+<style>body{{background:#0b1220;color:#e4edf8;font:16px system-ui;margin:0}}main{{max-width:1000px;margin:auto;padding:32px 24px}}h1{{font-size:24px;font-weight:500;margin-bottom:32px}}h1 small{{font-size:14px;color:#aebed1}}h2{{font-size:20px;margin:0 0 20px}}.section{{margin-bottom:40px}}svg{{width:100%;height:auto}}svg text{{fill:#aebed1;font-size:12px}}.legend{{display:flex;gap:24px;font-size:14px}}small{{color:#aebed1;font-size:12px}}.interpretation{{line-height:1.65;max-width:85ch}}.warning{{background:#4c3617;padding:12px;border-radius:8px}}</style>
+<main><h1>Daily situational awareness <small>{report['requested_date']}</small></h1>{warnings}{section}</main></html>'''
 
 
 def main(argv: list[str] | None = None) -> int:

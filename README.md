@@ -5,6 +5,29 @@ Python + uv proof of concept, starting with TradingView `INDEX:MMOH` and
 a JSON report containing the plotted observations and metadata, and a terminal
 summary. No browser assets or external chart service are required.
 
+## Report section template
+
+Each datapoint has a heading, one simple chart or table, and a one- or
+two-sentence interpretation. Breadth uses one shared MMOH/MMOF line chart;
+latest values appear in its legend. Technical provenance stays in JSON.
+Material data-quality warnings remain visible in the report.
+
+Next planned section: SPDR sector analysis, using a sector table with RS-1,
+RS-3, and RS-6 columns for 1-, 3-, and 6-month relative returns. Proposed
+calculation: sector ETF return minus SPY return, expressed in percentage
+points, with matched observation dates and a consistent adjustment policy.
+Positive values indicate outperformance. The sector section is not yet
+implemented.
+
+## Knowledge library
+
+The version-controlled [knowledge bundle](knowledge/index.md) follows the
+[official OKF v0.2 specification](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md).
+It contains indicator references, an explicitly unvalidated breadth hypothesis,
+and the proposed sector RS methodology. Concept metadata uses YAML frontmatter;
+explanations and evidence live in Markdown. The `market_report` extension is
+project-specific and is not yet consumed by the report generator.
+
 ## Run
 
 From this directory:
