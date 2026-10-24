@@ -1,18 +1,21 @@
 ---
 type: Market Insight
 title: Extreme low breadth
-description: Unvalidated below-20 breadth hypothesis.
+description: Below-20 breadth hypothesis with preliminary individual-indicator crossing evidence.
 tags: [breadth, MMOH, MMOF, research]
 status: draft
 generated:
   by: codex/market-report-poc
 sources:
+  - id: crossing-study
+    resource: /references/breadth-crossing-study.md
+    title: Exploratory breadth downward-crossing event study
   - id: project-hypothesis
     resource: /references/project-decisions.md
     title: Project discussion and proposed hypotheses
 market_report:
   section: breadth
-  evidence_status: hypothesis
+  evidence_status: exploratory
   enabled: false
   priority: high
   condition:
@@ -27,8 +30,20 @@ market_report:
 # Hypothesis
 
 The user proposed that MMOH/MMOF values below 20 are rare and may identify
-attractive buying opportunities.[^project-hypothesis] Neither rarity nor
-subsequent performance has been established.
+attractive buying opportunities.[^project-hypothesis] Preliminary individual
+crossing results are recorded below; rarity and a robust trading edge remain unestablished.
+
+# Preliminary evidence
+
+An exploratory study covers 2002-01-02 through 2026-10-23 and tests each index
+separately crossing from at-or-above to below 30, 25, and 20.[^crossing-study]
+For below-20 crossings, mean 50-session SPY price returns were 4.68% for MMOH
+(32 events) and 5.19% for MMOF (40 events), versus 1.80% unconditionally.
+At 200 sessions, means were 10.21% and 8.73%, versus 7.74% unconditionally.
+
+These tests do not validate this file's both-below condition. See the
+[full study](/references/breadth-crossing-study.md) for all requested horizons,
+medians, win rates, methodology, snapshot hashes, and limitations.
 
 # Scope
 
@@ -47,8 +62,12 @@ this is a proposed research variant, not a confirmed user requirement.
 
 # Limitations
 
-No empirical study or verification event is recorded. Low readings alone do
-not establish timing, expected return, or a trade recommendation.
+The study is descriptive: events overlap and cluster, dividends and execution
+costs are excluded, and signal-close returns assume no execution delay.
+No independent verification or statistical significance test is recorded.
+Low readings alone do not establish a trade recommendation.
 Keep this rule disabled until evidence and report wording have been reviewed.
 
 [^project-hypothesis]: User-proposed observation recorded in the project decisions reference.
+
+[^crossing-study]: Reproducible exploratory SPY price-return study using downloaded TradingView daily observations.

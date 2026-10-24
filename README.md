@@ -114,6 +114,15 @@ Equivalent cron example on a machine whose scheduler timezone is Stockholm
 0 7 * * * cd /path/to/situational-awareness && /path/to/uv run market-report.py --provider tradingview --refresh >> market-report.log 2>&1
 ```
 
+## Breadth event study
+
+`uv run breadth-study.py` reproduces the threshold study using local TradingView
+downloads in `data/research/`. It writes event-level CSV, summary CSV, methodology,
+and snapshot hashes to `reports/breadth-study/`. Inputs and generated outputs are
+ignored by Git; a research summary is preserved in the
+[knowledge library](knowledge/references/breadth-crossing-study.md).
+The script analyzes existing downloads; it does not refresh them.
+
 ## Verification
 
 ```powershell
