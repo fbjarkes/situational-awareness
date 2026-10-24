@@ -8,6 +8,7 @@ import unittest
 spec = importlib.util.spec_from_file_location("market_report", Path(__file__).with_name("market-report.py"))
 report = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(report)
+knowledge = report.knowledge
 
 
 class ReportTests(unittest.TestCase):
@@ -50,9 +51,30 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(result["series"]["INDEX:MMOF"]["as_of"], "close 2026-10-23")
         self.assertTrue(any("MMOF: using the 2026-10-23 close" in n for n in result["notes"]))
         self.assertTrue(any("different dates" in n for n in result["notes"]))
-        html = report.render_html(result)
+        html = report.render_html(report.attach_knowledge(result, {}))
         self.assertIn("(close 2026-10-23)", html)
         self.assertIn("(intraday 2026-10-24 15:00 ET)", html)
+
+    def test_sections_retrieve_knowledge_with_fallback_text(self):
+        result = report.attach_knowledge(report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24)),
+                                         knowledge.load_concepts())
+        breadth = result["sections"]["breadth"]
+        paths = {k["path"] for k in breadth["knowledge"]}
+        self.assertIn("/breadth/mmof.md", paths)
+        self.assertEqual(breadth["interpretation"]["method"], "direction-only")
+
+    def test_apply_interpretations_validates_date_and_sources(self):
+        concepts = knowledge.load_concepts()
+        result = report.attach_knowledge(report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24)), concepts)
+        entry = {"text": "MMOF is above every studied threshold.", "sources": ["/breadth/mmof.md"]}
+        report.apply_interpretations(result, {"requested_date": "2026-10-23", "sections": {"breadth": entry}}, concepts)
+        self.assertEqual(result["sections"]["breadth"]["interpretation"],
+                         {"method": "knowledge-retrieval", **entry})
+        with self.assertRaisesRegex(ValueError, "unknown knowledge paths"):
+            report.apply_interpretations(result, {"requested_date": "2026-10-23",
+                                                  "sections": {"breadth": {"text": "x", "sources": ["/nope.md"]}}}, concepts)
+        with self.assertRaisesRegex(ValueError, "report is 2026-10-23"):
+            report.apply_interpretations(result, {"requested_date": "2026-10-22", "sections": {}}, concepts)
 
     def test_missing_and_stale_observations(self):
         with self.assertRaisesRegex(ValueError, "No observations"):
@@ -76,6 +98,25 @@ class ReportTests(unittest.TestCase):
             html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
             self.assertIn("<svg", html)
             self.assertIn("MMOF", html)
+
+    def test_cli_context_then_render(self):
+        (report.ROOT / "reports").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            snapshot = Path(folder) / "fixture.json"
+            snapshot.write_text(json.dumps(self.payload()), encoding="utf-8")
+            self.assertEqual(report.main(["--date", "2026-10-23", "--snapshot", str(snapshot),
+                                          "--output", folder, "--context"]), 0)
+            context = (Path(folder) / "market-context-2026-10-23.md").read_text(encoding="utf-8")
+            self.assertIn("#### /breadth/mmof.md", context)
+            self.assertIn("previous close 22.00 on 2026-10-22", context)
+            interpretations = Path(folder) / "market-interpretations-2026-10-23.json"
+            interpretations.write_text(json.dumps({"requested_date": "2026-10-23", "sections": {
+                "breadth": {"text": "Grounded sentence.", "sources": ["/breadth/mmof.md"]}}}), encoding="utf-8")
+            self.assertEqual(report.main(["render", "--report", str(Path(folder) / "market-report-2026-10-23.json"),
+                                          "--interpretations", str(interpretations)]), 0)
+            self.assertIn("Grounded sentence.", (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8"))
+            data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
+            self.assertEqual(data["sections"]["breadth"]["interpretation"]["sources"], ["/breadth/mmof.md"])
 
 
 if __name__ == "__main__":

@@ -13,8 +13,11 @@ from pathlib import Path
 import sys
 from zoneinfo import ZoneInfo
 
+import knowledge
+
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
+SECTIONS = {"breadth": {"title": "Market breadth", "symbols": SYMBOLS}}
 COLORS = ("#55d6be", "#ffbf69")
 NY = ZoneInfo("America/New_York")
 MARKET_CLOSE = time(16, 0)
@@ -105,7 +108,7 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
             warnings.append(f"{symbol}: available history starts {visible[0]['date']}; lookback is incomplete.")
         intraday = date.fromisoformat(latest["date"]) == fetched_ny.date() and fetched_ny.time() < MARKET_CLOSE
         as_of = (f"intraday {latest['date']} {fetched_ny:%H:%M} ET" if intraday else f"close {latest['date']}")
-        series[symbol] = {"latest": latest, "latest_status": "intraday" if intraday else "close", "as_of": as_of,
+        series[symbol] = {"latest": latest, "previous": previous, "latest_status": "intraday" if intraday else "close", "as_of": as_of,
                           "daily_change": round(latest["close"] - previous["close"], 4) if previous else None,
                           "five_session_change": round(latest["close"] - fifth["close"], 4) if fifth else None,
                           "observations": visible}
@@ -160,6 +163,66 @@ def chart_svg(report: dict) -> str:
     return "".join(parts) + "</svg>"
 
 
+def attach_knowledge(report: dict, concepts: dict[str, dict]) -> dict:
+    """Add each section's retrieved knowledge and a direction-only fallback interpretation."""
+    report["sections"] = {}
+    for name, section in SECTIONS.items():
+        report["sections"][name] = {
+            "title": section["title"], "symbols": list(section["symbols"]),
+            "knowledge": knowledge.retrieve(concepts, name, section["symbols"]),
+            "interpretation": {"method": "direction-only", "text": breadth_interpretation(report), "sources": []},
+        }
+    return report
+
+
+def apply_interpretations(report: dict, supplied: dict, concepts: dict[str, dict]) -> dict:
+    """Replace fallback text with interpretations written from retrieved knowledge."""
+    if supplied.get("requested_date") != report["requested_date"]:
+        raise ValueError(f"Interpretations are for {supplied.get('requested_date')}, report is {report['requested_date']}")
+    for name, entry in (supplied.get("sections") or {}).items():
+        if name not in report["sections"]:
+            raise ValueError(f"Unknown report section in interpretations: {name}")
+        text = str(entry.get("text") or "").strip()
+        if not text:
+            raise ValueError(f"Interpretation for {name} is empty")
+        sources = list(entry.get("sources") or [])
+        unknown = [path for path in sources if path not in concepts]
+        if unknown:
+            raise ValueError(f"Interpretation for {name} cites unknown knowledge paths: {', '.join(unknown)}")
+        report["sections"][name]["interpretation"] = {"method": "knowledge-retrieval", "text": text, "sources": sources}
+    return report
+
+
+def context_markdown(report: dict, concepts: dict[str, dict], interpretations_path: Path) -> str:
+    """Facts plus full retrieved concepts, for an agent writing knowledge-based interpretations."""
+    lines = [f"# Market context {report['requested_date']}", "",
+             "Write interpretations following \"Interpreting readings with the knowledge bundle\" in AGENTS.md.",
+             f"Save them as JSON to `{interpretations_path}`:", "", "```json",
+             json.dumps({"requested_date": report["requested_date"],
+                         "sections": {name: {"text": "One or two sentences.", "sources": ["/bundle/path.md"]}
+                                      for name in report["sections"]}}, indent=2),
+             "```", "", "Then run `uv run market-report.py render --report "
+             f"{interpretations_path.parent / ('market-report-' + report['requested_date'] + '.json')} "
+             f"--interpretations {interpretations_path}`.", ""]
+    for name, section in report["sections"].items():
+        lines += [f"## Section: {name}", "", "### Readings", ""]
+        for symbol in section["symbols"]:
+            s = report["series"][symbol]
+            previous = f'{s["previous"]["close"]:.2f} on {s["previous"]["date"]}' if s["previous"] else "unavailable"
+            recent = ", ".join(f'{b["date"]} {b["close"]:.2f}' for b in s["observations"][-10:])
+            lines += [f'- {symbol}: {s["latest"]["close"]:.2f} ({s["as_of"]}); previous close {previous}; '
+                      f'daily {change_text(s["daily_change"])}; five-session {change_text(s["five_session_change"])}',
+                      f"  Recent closes: {recent}"]
+        lines += ["", "### Notes and warnings", ""]
+        lines += [f"- {n}" for n in report["notes"] + report["warnings"]] or ["- None"]
+        lines += ["", "### Retrieved knowledge", ""]
+        for item in section["knowledge"]:
+            lines += [f'#### {item["path"]} ({item["relation"]}; {item["type"]}; status {item["status"]}; '
+                      f'evidence {item["evidence_status"]}; enabled {item["enabled"]})', "",
+                      concepts[item["path"]]["text"].strip(), ""]
+    return "\n".join(lines)
+
+
 def breadth_interpretation(report: dict) -> str:
     series = [report["series"][symbol] for symbol in SYMBOLS]
     daily = [s["daily_change"] for s in series]
@@ -191,7 +254,8 @@ def render_html(report: dict) -> str:
         for symbol, color in zip(SYMBOLS, COLORS)
     )
     visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>TradingView · {report["lookback_months"]}-month view</small>'
-    section = render_section("Market breadth", visual, breadth_interpretation(report))
+    breadth = report["sections"]["breadth"]
+    section = render_section(breadth["title"], visual, breadth["interpretation"]["text"])
     warnings = "".join(f'<p class="warning">{escape(w)}</p>' for w in report["warnings"])
     warnings += "".join(f'<p class="note">{escape(n)}</p>' for n in report["notes"])
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -200,9 +264,19 @@ def render_html(report: dict) -> str:
 <main><h1>Daily situational awareness <small>{report['requested_date']}</small></h1>{warnings}{section}</main></html>'''
 
 
+def write_outputs(report: dict, folder: Path, formats: set[str]) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    for fmt in sorted(formats):
+        path = folder / f"market-report-{report['requested_date']}.{fmt}"
+        content = render_html(report) if fmt == "html" else json.dumps(report, indent=2, allow_nan=False)
+        path.write_text(content, encoding="utf-8")
+        print(f"Saved {path.resolve()}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["daily"], nargs="?", default="daily")
+    parser.add_argument("command", choices=["daily", "render"], nargs="?", default="daily",
+                        help="daily: fetch data and build the report; render: apply interpretations to a saved report")
     parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in New York")
     parser.add_argument("--provider", choices=["snapshot", "tradingview"], default="snapshot")
     parser.add_argument("--snapshot", type=Path, default=ROOT / "data/tradingview-breadth.json")
@@ -212,12 +286,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
     parser.add_argument("--refresh", action="store_true", help="Refresh live-provider cache")
     parser.add_argument("--close-only", action="store_true", help="Exclude today's bar; report previous closes only")
+    parser.add_argument("--context", action="store_true", help="daily: also write a context file for an interpreting agent")
+    parser.add_argument("--knowledge", type=Path, default=knowledge.ROOT, help="OKF knowledge bundle directory")
+    parser.add_argument("--report", type=Path, help="render: saved report JSON")
+    parser.add_argument("--interpretations", type=Path, help="render: interpretations JSON")
     args = parser.parse_args(argv)
     formats = set(args.format.split(","))
     if not formats or not formats <= {"html", "json"}:
         parser.error("--format must be html, json, or html,json")
     if not 1 <= args.lookback <= 120:
         parser.error("--lookback must be between 1 and 120 months")
+    if args.command == "render":
+        if not args.report or not args.interpretations:
+            parser.error("render requires --report and --interpretations")
+        try:
+            report = json.loads(args.report.read_text(encoding="utf-8"))
+            supplied = json.loads(args.interpretations.read_text(encoding="utf-8"))
+            apply_interpretations(report, supplied, knowledge.load_concepts(args.knowledge))
+            write_outputs(report, args.report.parent, formats)
+            return 0
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+    if args.report or args.interpretations:
+        parser.error("--report and --interpretations are only used with render")
     now = datetime.now(NY)
     today = now.date()
     requested = args.date or today
@@ -243,12 +335,14 @@ def main(argv: list[str] | None = None) -> int:
                 cache.write_text(json.dumps(payload, indent=2), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
-        args.output.mkdir(parents=True, exist_ok=True)
-        for fmt in sorted(formats):
-            path = args.output / f"market-report-{requested}.{fmt}"
-            content = render_html(report) if fmt == "html" else json.dumps(report, indent=2, allow_nan=False)
-            path.write_text(content, encoding="utf-8")
-            print(f"Saved {path.resolve()}")
+        concepts = knowledge.load_concepts(args.knowledge)
+        attach_knowledge(report, concepts)
+        write_outputs(report, args.output, formats)
+        if args.context:
+            context = args.output / f"market-context-{requested}.md"
+            interpretations = args.output / f"market-interpretations-{requested}.json"
+            context.write_text(context_markdown(report, concepts, interpretations), encoding="utf-8")
+            print(f"Saved {context.resolve()}")
         for symbol, s in report["series"].items():
             print(f'{symbol}: {s["latest"]["close"]:.2f} | daily {change_text(s["daily_change"])} | {s["as_of"]}')
         for note in report["notes"]:

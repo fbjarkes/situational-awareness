@@ -38,6 +38,22 @@ uv run market-report.py daily --lookback 3 --format html,json
 uv run market-report.py --help
 ```
 
+### Knowledge-based interpretations
+
+Interpretations are written by an agent from the `knowledge/` bundle at report
+time, not hard-coded. `--context` also writes `reports/market-context-DATE.md`
+with the readings and the retrieved knowledge. The agent writes
+`market-interpretations-DATE.json`, and `render` applies it to the saved report
+without fetching again:
+
+```powershell
+uv run market-report.py --context
+uv run market-report.py render --report reports/market-report-2026-10-23.json --interpretations reports/market-interpretations-2026-10-23.json
+```
+
+Without supplied interpretations, the report shows a direction-only summary.
+See AGENTS.md for the interpretation rules.
+
 uv creates and maintains `.venv` using `pyproject.toml` and `uv.lock`.
 Outputs go to `reports/market-report-YYYY-MM-DD.html` and `.json`.
 Use `--output PATH` to change the destination. Rerunning a date replaces that
