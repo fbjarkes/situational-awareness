@@ -17,22 +17,48 @@ class ReportTests(unittest.TestCase):
         return {"provider": "tradingview", "fetched_at": "2026-10-24T00:00:00Z",
                 "series": {symbol: bars for symbol in report.SYMBOLS}}
 
+    def ny(self, day, hour=10):
+        return datetime(2026, 10, day, hour, 0, tzinfo=report.NY)
+
     def test_historical_filter_and_changes(self):
-        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", date(2026, 10, 24))
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
         series = result["series"]["INDEX:MMOH"]
         self.assertEqual(series["latest"], {"date": "2026-10-23", "close": 23.0})
         self.assertEqual(series["daily_change"], 1)
         self.assertEqual(series["five_session_change"], 7)
         self.assertTrue(all(b["date"] <= "2026-10-23" for b in series["observations"]))
 
-    def test_current_day_is_excluded(self):
-        result = report.build_report(self.payload(), date(2026, 10, 24), 6, "test", date(2026, 10, 24))
+    def test_current_day_is_intraday(self):
+        payload = self.payload()
+        payload["fetched_at"] = "2026-10-24T19:00:00Z"  # 15:00 ET
+        result = report.build_report(payload, date(2026, 10, 24), 6, "test", self.ny(24, 15))
+        series = result["series"]["INDEX:MMOF"]
+        self.assertEqual(series["latest"]["date"], "2026-10-24")
+        self.assertEqual(series["latest_status"], "intraday")
+        self.assertEqual(series["as_of"], "intraday 2026-10-24 15:00 ET")
+        self.assertTrue(any("intraday" in n for n in result["notes"]))
+
+    def test_close_only_excludes_current_day(self):
+        result = report.build_report(self.payload(), date(2026, 10, 24), 6, "test", self.ny(24), close_only=True)
         self.assertEqual(result["series"]["INDEX:MMOF"]["latest"]["date"], "2026-10-23")
+
+    def test_mixed_dates_are_stated(self):
+        payload = self.payload()
+        payload["fetched_at"] = "2026-10-24T19:00:00Z"
+        payload["series"]["INDEX:MMOF"] = payload["series"]["INDEX:MMOF"][:-1]
+        result = report.build_report(payload, date(2026, 10, 24), 6, "test", self.ny(24, 15))
+        self.assertEqual(result["series"]["INDEX:MMOF"]["as_of"], "close 2026-10-23")
+        self.assertTrue(any("MMOF: using the 2026-10-23 close" in n for n in result["notes"]))
+        self.assertTrue(any("different dates" in n for n in result["notes"]))
+        html = report.render_html(result)
+        self.assertIn("(close 2026-10-23)", html)
+        self.assertIn("(intraday 2026-10-24 15:00 ET)", html)
 
     def test_missing_and_stale_observations(self):
         with self.assertRaisesRegex(ValueError, "No observations"):
-            report.build_report(self.payload(), date(2026, 1, 1), 1, "test", date(2026, 10, 24))
-        result = report.build_report(self.payload(), date(2026, 11, 1), 1, "test", date(2026, 11, 2))
+            report.build_report(self.payload(), date(2026, 1, 1), 1, "test", self.ny(24))
+        result = report.build_report(self.payload(), date(2026, 11, 1), 1, "test",
+                                     datetime(2026, 11, 2, 10, tzinfo=report.NY))
         self.assertTrue(any("8 calendar days" in w for w in result["warnings"]))
 
     def test_month_end(self):

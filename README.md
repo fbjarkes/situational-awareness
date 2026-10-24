@@ -81,11 +81,20 @@ It rejects truncated responses instead of silently reporting partial history.
 
 - `--date YYYY-MM-DD` means observations at or before that date. Default:
   today's date in New York; the latest available prior observation is shown.
-- The current New York calendar date is always excluded because a daily bar
-  may still be forming. Run on the following morning for the previous close.
-  This conservative PoC does not use an exchange holiday/session calendar.
-- Every card shows its actual observation date. Missing history, differing
-  latest dates, and observations more than three calendar days old are flagged.
+- Today's bar is included when the provider has one, so a run during the last
+  hour of trading reports current values. A bar dated on the fetch day and
+  fetched before 16:00 ET is labelled `intraday HH:MM ET`; changes then compare
+  it with the previous close. Use `--close-only` to report previous closes only.
+  No exchange holiday/session calendar is used.
+- Indicators may come from different dates, e.g. yesterday's MMOF close next to
+  today's intraday reading for another series. That is allowed: every value
+  shows its own `as of` label, and the report adds a note saying which reading
+  is from when. Missing history and observations more than three calendar days
+  old are flagged as warnings.
+- Live runs for today always fetch fresh data; the cache only serves past dates.
+  Whether TradingView updates a given breadth index during the session is not
+  yet verified. If it only updates after the close, today's run shows the
+  previous close and labels it as such.
 - Daily and five-session changes are absolute index-point differences from
   the preceding available observations, not percentage changes.
 - Historical reports filter today's available data by observation date;

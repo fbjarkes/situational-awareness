@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from calendar import monthrange
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from html import escape
 import json
 import os
@@ -16,6 +16,8 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
 COLORS = ("#55d6be", "#ffbf69")
+NY = ZoneInfo("America/New_York")
+MARKET_CLOSE = time(16, 0)
 
 
 def months_before(day: date, months: int) -> date:
@@ -68,11 +70,18 @@ async def fetch_tradingview(endpoint: str, as_of: date, start: date) -> dict:
             "fetched_at": datetime.now(timezone.utc).isoformat(), "series": series}
 
 
+def observation_cutoff(requested: date, today: date, close_only: bool) -> date:
+    return min(requested, today - timedelta(days=1)) if close_only else requested
+
+
 def build_report(payload: dict, requested: date, lookback: int, source: str,
-                 today: date | None = None) -> dict:
-    today = today or datetime.now(ZoneInfo("America/New_York")).date()
-    # Today's daily bar may still be forming. This PoC only uses previous dates.
-    cutoff = min(requested, today - timedelta(days=1))
+                 now: datetime | None = None, close_only: bool = False) -> dict:
+    now = (now or datetime.now(NY)).astimezone(NY)
+    today = now.date()
+    cutoff = observation_cutoff(requested, today, close_only)
+    # A bar dated on the fetch day, fetched before 16:00 ET, is still forming.
+    fetched = payload.get("fetched_at")
+    fetched_ny = datetime.fromisoformat(fetched.replace("Z", "+00:00")).astimezone(NY) if fetched else now
     start = months_before(requested, lookback)
     series = {}
     warnings = []
@@ -94,18 +103,28 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
             warnings.append(f"{symbol}: latest observation is {lag} calendar days before requested date.")
         if date.fromisoformat(visible[0]["date"]) > start + timedelta(days=7):
             warnings.append(f"{symbol}: available history starts {visible[0]['date']}; lookback is incomplete.")
-        series[symbol] = {"latest": latest, "daily_change": round(latest["close"] - previous["close"], 4) if previous else None,
+        intraday = date.fromisoformat(latest["date"]) == fetched_ny.date() and fetched_ny.time() < MARKET_CLOSE
+        as_of = (f"intraday {latest['date']} {fetched_ny:%H:%M} ET" if intraday else f"close {latest['date']}")
+        series[symbol] = {"latest": latest, "latest_status": "intraday" if intraday else "close", "as_of": as_of,
+                          "daily_change": round(latest["close"] - previous["close"], 4) if previous else None,
                           "five_session_change": round(latest["close"] - fifth["close"], 4) if fifth else None,
                           "observations": visible}
-    dates = {s["latest"]["date"] for s in series.values()}
-    if len(dates) > 1:
-        warnings.append("Indicators have different latest observation dates.")
+    mixed = len({s["as_of"] for s in series.values()}) > 1
+    notes = ["Readings come from different dates or times; each line below says which."] if mixed else []
+    for symbol, s in series.items():
+        name = symbol.split(":")[1]
+        if s["latest_status"] == "intraday":
+            notes.append(f"{name}: today's intraday reading as of {fetched_ny:%H:%M} ET; not a closing value. "
+                         "Changes compare it with the previous close.")
+        elif mixed or (requested == today and s["latest"]["date"] < requested.isoformat()):
+            notes.append(f"{name}: using the {s['latest']['date']} close; no newer reading was available.")
     return {"schema_version": 1, "title": "Daily situational awareness · Market breadth",
             "requested_date": requested.isoformat(), "observation_cutoff": cutoff.isoformat(),
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "provider": payload["provider"], "data_fetched_at": payload.get("fetched_at"),
-            "source": source, "lookback_months": lookback, "warnings": warnings,
-            "daily_bar_policy": "Exclude the current New York calendar date; no exchange-calendar inference.",
+            "source": source, "lookback_months": lookback, "warnings": warnings, "notes": notes,
+            "daily_bar_policy": ("Exclude the current New York calendar date." if close_only else
+                                 "Include today's bar when available; label it intraday if fetched before 16:00 ET."),
             "historical_note": "Historical mode filters observations by date; provider revisions are not reconstructed.",
             "series": series}
 
@@ -155,6 +174,8 @@ def breadth_interpretation(report: dict) -> str:
         recap += " Both remain above their levels five sessions earlier, indicating an improving short-term trend."
     elif all(v is not None and v < 0 for v in weekly):
         recap += " Both are below their levels five sessions earlier, indicating a weakening short-term trend."
+    if any(s["latest_status"] == "intraday" for s in series):
+        recap += " Today's values are intraday and can change before the close."
     return recap
 
 
@@ -165,16 +186,17 @@ def render_section(title: str, visual: str, interpretation: str) -> str:
 
 def render_html(report: dict) -> str:
     legend = "".join(
-        f'<span style="color:{color}">{symbol.split(":")[1]} {report["series"][symbol]["latest"]["close"]:.2f}</span>'
+        f'<span style="color:{color}">{symbol.split(":")[1]} {report["series"][symbol]["latest"]["close"]:.2f} '
+        f'<small>({escape(report["series"][symbol]["as_of"])})</small></span>'
         for symbol, color in zip(SYMBOLS, COLORS)
     )
-    dates = sorted({s["latest"]["date"] for s in report["series"].values()})
-    visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>Observed {escape(" / ".join(dates))} · TradingView · {report["lookback_months"]}-month view</small>'
+    visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>TradingView · {report["lookback_months"]}-month view</small>'
     section = render_section("Market breadth", visual, breadth_interpretation(report))
     warnings = "".join(f'<p class="warning">{escape(w)}</p>' for w in report["warnings"])
+    warnings += "".join(f'<p class="note">{escape(n)}</p>' for n in report["notes"])
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Market report · {report['requested_date']}</title>
-<style>body{{background:#0b1220;color:#e4edf8;font:16px system-ui;margin:0}}main{{max-width:1000px;margin:auto;padding:32px 24px}}h1{{font-size:24px;font-weight:500;margin-bottom:32px}}h1 small{{font-size:14px;color:#aebed1}}h2{{font-size:20px;margin:0 0 20px}}.section{{margin-bottom:40px}}svg{{width:100%;height:auto}}svg text{{fill:#aebed1;font-size:12px}}.legend{{display:flex;gap:24px;font-size:14px}}small{{color:#aebed1;font-size:12px}}.interpretation{{line-height:1.65;max-width:85ch}}.warning{{background:#4c3617;padding:12px;border-radius:8px}}</style>
+<style>body{{background:#0b1220;color:#e4edf8;font:16px system-ui;margin:0}}main{{max-width:1000px;margin:auto;padding:32px 24px}}h1{{font-size:24px;font-weight:500;margin-bottom:32px}}h1 small{{font-size:14px;color:#aebed1}}h2{{font-size:20px;margin:0 0 20px}}.section{{margin-bottom:40px}}svg{{width:100%;height:auto}}svg text{{fill:#aebed1;font-size:12px}}.legend{{display:flex;gap:24px;font-size:14px}}small{{color:#aebed1;font-size:12px}}.interpretation{{line-height:1.65;max-width:85ch}}.warning{{background:#4c3617;padding:12px;border-radius:8px}}.note{{background:#17324c;padding:12px;border-radius:8px}}</style>
 <main><h1>Daily situational awareness <small>{report['requested_date']}</small></h1>{warnings}{section}</main></html>'''
 
 
@@ -189,13 +211,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--format", default="html,json", help="html, json, or html,json")
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
     parser.add_argument("--refresh", action="store_true", help="Refresh live-provider cache")
+    parser.add_argument("--close-only", action="store_true", help="Exclude today's bar; report previous closes only")
     args = parser.parse_args(argv)
     formats = set(args.format.split(","))
     if not formats or not formats <= {"html", "json"}:
         parser.error("--format must be html, json, or html,json")
     if not 1 <= args.lookback <= 120:
         parser.error("--lookback must be between 1 and 120 months")
-    today = datetime.now(ZoneInfo("America/New_York")).date()
+    now = datetime.now(NY)
+    today = now.date()
     requested = args.date or today
     if requested > today:
         parser.error("--date cannot be in the future")
@@ -209,15 +233,16 @@ def main(argv: list[str] | None = None) -> int:
             if not args.mcp_url:
                 parser.error("--provider tradingview requires --mcp-url or TRADINGVIEW_MCP_URL")
             cache = ROOT / ".cache" / f"tradingview-{requested}-{args.lookback}m.json"
-            if cache.exists() and not args.refresh:
+            # Today's data keeps changing, so only completed days are served from cache.
+            if cache.exists() and not args.refresh and requested < today:
                 payload = read_snapshot(cache)
                 source = "TradingView MCP (cached)"
             else:
-                payload = asyncio.run(fetch_tradingview(args.mcp_url, min(requested, today - timedelta(days=1)), months_before(requested, args.lookback) - timedelta(days=20)))
+                payload = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only), months_before(requested, args.lookback) - timedelta(days=20)))
                 cache.parent.mkdir(parents=True, exist_ok=True)
                 cache.write_text(json.dumps(payload, indent=2), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
-        report = build_report(payload, requested, args.lookback, source, today)
+        report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
             path = args.output / f"market-report-{requested}.{fmt}"
@@ -225,7 +250,9 @@ def main(argv: list[str] | None = None) -> int:
             path.write_text(content, encoding="utf-8")
             print(f"Saved {path.resolve()}")
         for symbol, s in report["series"].items():
-            print(f'{symbol}: {s["latest"]["close"]:.2f} | daily {change_text(s["daily_change"])} | observed {s["latest"]["date"]}')
+            print(f'{symbol}: {s["latest"]["close"]:.2f} | daily {change_text(s["daily_change"])} | {s["as_of"]}')
+        for note in report["notes"]:
+            print(f"NOTE: {note}")
         for warning in report["warnings"]:
             print(f"WARNING: {warning}", file=sys.stderr)
         return 0
