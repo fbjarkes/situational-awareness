@@ -64,6 +64,37 @@ class ReportTests(unittest.TestCase):
     def test_month_end(self):
         self.assertEqual(report.months_before(date(2024, 3, 31), 1), date(2024, 2, 29))
 
+    def test_design_navigation_and_percentage_axes(self):
+        from html.parser import HTMLParser
+
+        class Anchors(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.ids = []
+                self.targets = []
+
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if "id" in attrs:
+                    self.ids.append(attrs["id"])
+                if tag == "a" and attrs.get("href", "").startswith("#"):
+                    self.targets.append(attrs["href"][1:])
+
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
+        result["notes"].append("Using the latest available closing observations.")
+        html = report.render_html(result)
+        anchors = Anchors()
+        anchors.feed(html)
+        self.assertEqual(len(anchors.ids), len(set(anchors.ids)))
+        self.assertTrue(set(anchors.targets) <= set(anchors.ids))
+        self.assertIn('aria-label="Report sections"', html)
+        self.assertIn('<details class="data-status">', html)
+        svg = report.chart_svg(result)
+        self.assertIn('>100%</text>', svg)
+        self.assertIn('>0%</text>', svg)
+        self.assertIn('stroke-dasharray', svg)
+        self.assertIn('viewBox="0 0 520 350"', report.chart_svg(result, compact=True))
+
     def test_gdx_section_respects_date_and_retains_coverage(self):
         from breadth import calculate_breadth
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))

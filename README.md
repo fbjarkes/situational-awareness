@@ -7,6 +7,16 @@ summary. No browser assets or external chart service are required.
 
 ## Report section template
 
+The HTML briefing has a sticky section navigator, grouped Market Breadth,
+S&P 500, and Themes areas, and GDX under Gold miners. Unimplemented coverage
+is labeled Planned. On mobile the navigator becomes a compact top menu and
+charts use a narrower layout with readable axis labels.
+
+Each breadth chart uses a fixed 0–100% scale. Observation dates and changes
+sit beside the readings; routine availability notes and methodology are
+expandable, while data-quality warnings remain visible. The report is a
+self-contained HTML file and includes print and reduced-motion styles.
+
 Each datapoint has a heading, one simple chart or table, and a one- or
 two-sentence interpretation. Breadth uses one shared MMOH/MMOF line chart;
 latest values appear in its legend. Technical provenance stays in JSON.

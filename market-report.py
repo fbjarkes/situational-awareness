@@ -18,7 +18,7 @@ from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
-COLORS = ("#55d6be", "#ffbf69")
+COLORS = ("#67ddc4", "#ffc078")
 NY = ZoneInfo("America/New_York")
 MARKET_CLOSE = time(16, 0)
 
@@ -139,30 +139,39 @@ def change_text(value: float | None) -> str:
     return "unavailable" if value is None else f"{value:+.2f} points"
 
 
-def chart_svg(report: dict) -> str:
+def chart_svg(report: dict, compact: bool = False) -> str:
     observations = [b for s in report["series"].values() for b in s["observations"]]
     first = min(date.fromisoformat(b["date"]).toordinal() for b in observations)
     last = max(date.fromisoformat(b["date"]).toordinal() for b in observations)
-    low = min(b["close"] for b in observations)
-    high = max(b["close"] for b in observations)
-    padding = max((high - low) * .1, 1)
-    low, high = low - padding, high + padding
-    x = lambda day: 65 + (date.fromisoformat(day).toordinal() - first) / max(last - first, 1) * 890
+    low, high = 0, 100
+    left, right = (60, 500) if compact else (65, 955)
+    width = 520 if compact else 1000
+    x = lambda day: left + (date.fromisoformat(day).toordinal() - first) / max(last - first, 1) * (right - left)
     y = lambda val: 300 - (val - low) / (high - low) * 265
-    parts = ['<svg viewBox="0 0 1000 350" role="img" aria-label="Daily breadth percentages over time">']
+    parts = [f'<svg viewBox="0 0 {width} 350" role="img" aria-label="Daily breadth percentages over time">']
     for i in range(5):
         value = low + (high - low) * i / 4
         position = y(value)
-        parts.append(f'<line x1="65" x2="955" y1="{position}" y2="{position}" stroke="#2d3c50"/><text x="52" y="{position+4}" text-anchor="end">{value:.1f}</text>')
-    for symbol, color in zip(report["series"], COLORS):
+        parts.append(f'<line x1="{left}" x2="{right}" y1="{position}" y2="{position}" stroke="#2d3c50"/><text x="{left-12}" y="{position+4}" text-anchor="end">{value:.0f}%</text>')
+    for index, (symbol, color) in enumerate(zip(report["series"], COLORS)):
         bars = report["series"][symbol]["observations"]
         points = " ".join(f'{x(b["date"]):.2f},{y(b["close"]):.2f}' for b in bars)
-        parts.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2.5"/>')
+        dash = ' stroke-dasharray="7 4"' if index else ''
+        parts.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2.5"{dash}/>')
         b = bars[-1]
         parts.append(f'<circle cx="{x(b["date"])}" cy="{y(b["close"])}" r="4" fill="{color}"><title>{symbol}: {b["close"]:.2f} on {b["date"]}</title></circle>')
-    for ordinal, anchor in ((first, "start"), (last, "end")):
-        pos = 65 if anchor == "start" else 955
-        parts.append(f'<text x="{pos}" y="330" text-anchor="{anchor}">{date.fromordinal(ordinal).isoformat()}</text>')
+    ticks = [(first, "start"), (last, "end")]
+    month = date.fromordinal(first).replace(day=1)
+    while month.toordinal() <= last:
+        if ((not compact and first + 14 < month.toordinal() < last - 14) or
+                (compact and month.month % 2 == 0 and first + 35 < month.toordinal() < last - 35)):
+            ticks.append((month.toordinal(), "middle"))
+        month = date(month.year + (month.month == 12), month.month % 12 + 1, 1)
+    for ordinal, anchor in sorted(ticks):
+        day = date.fromordinal(ordinal)
+        pos = x(day.isoformat())
+        label = day.strftime("%d %b") if ordinal in (first, last) else day.strftime("%b '%y") if day.month == 1 else day.strftime("%b")
+        parts.append(f'<text x="{pos}" y="330" text-anchor="{anchor}">{label}</text>')
     return "".join(parts) + "</svg>"
 
 
@@ -253,26 +262,8 @@ def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool
 
 
 def render_html(report: dict) -> str:
-    legend = "".join(
-        f'<span style="color:{color}">{symbol.split(":")[1]} {report["series"][symbol]["latest"]["close"]:.2f} '
-        f'<small>({escape(report["series"][symbol]["as_of"])})</small></span>'
-        for symbol, color in zip(SYMBOLS, COLORS)
-    )
-    visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>TradingView · {report["lookback_months"]}-month view</small>'
-    section = render_section("Market breadth", visual, breadth_interpretation(report))
-    gdx = report.get("gdx_breadth")
-    if gdx:
-        series = next(iter(gdx["series"].values()))
-        coverage = gdx["coverage"]
-        visual = (f'<div class="legend"><span style="color:{COLORS[0]}">Above {gdx["definition"]["window"]}-day SMA: {series["latest"]["close"]:.2f}%</span></div>'
-                  f'{chart_svg(gdx)}<small>{escape(series["as_of"])} · Coverage {coverage["eligible"]}/{coverage["universe_size"]} · Equal-weight current constituents</small>')
-        section += render_section("GDX breadth", visual, gdx["interpretation"])
-    warnings = "".join(f'<p class="warning">{escape(w)}</p>' for w in report["warnings"])
-    warnings += "".join(f'<p class="note">{escape(n)}</p>' for n in report["notes"])
-    return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Market report · {report['requested_date']}</title>
-<style>body{{background:#0b1220;color:#e4edf8;font:16px system-ui;margin:0}}main{{max-width:1000px;margin:auto;padding:32px 24px}}h1{{font-size:24px;font-weight:500;margin-bottom:32px}}h1 small{{font-size:14px;color:#aebed1}}h2{{font-size:20px;margin:0 0 20px}}.section{{margin-bottom:40px}}svg{{width:100%;height:auto}}svg text{{fill:#aebed1;font-size:12px}}.legend{{display:flex;gap:24px;font-size:14px}}small{{color:#aebed1;font-size:12px}}.interpretation{{line-height:1.65;max-width:85ch}}.warning{{background:#4c3617;padding:12px;border-radius:8px}}.note{{background:#17324c;padding:12px;border-radius:8px}}</style>
-<main><h1>Daily situational awareness <small>{report['requested_date']}</small></h1>{warnings}{section}</main></html>'''
+    from report_design import render_report
+    return render_report(report, chart_svg, breadth_interpretation)
 
 
 def main(argv: list[str] | None = None) -> int:
