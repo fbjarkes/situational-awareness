@@ -28,13 +28,13 @@ def months_before(day: date, months: int) -> date:
 
 
 def bar_date(bar: dict) -> date:
-    return datetime.fromtimestamp(bar["t"], timezone.utc).date()
+    return (datetime(1970, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=bar["t"])).date()
 
 
 def read_snapshot(path: Path) -> dict:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if payload.get("provider") != "tradingview" or "series" not in payload:
-        raise ValueError("Expected a TradingView snapshot containing provider and series")
+    if not payload.get("provider") or "series" not in payload:
+        raise ValueError("Expected a snapshot containing provider and series")
     return payload
 
 
@@ -77,7 +77,8 @@ def observation_cutoff(requested: date, today: date, close_only: bool) -> date:
 
 
 def build_report(payload: dict, requested: date, lookback: int, source: str,
-                 now: datetime | None = None, close_only: bool = False) -> dict:
+                 now: datetime | None = None, close_only: bool = False,
+                 symbols: tuple[str, ...] = SYMBOLS) -> dict:
     now = (now or datetime.now(NY)).astimezone(NY)
     today = now.date()
     cutoff = observation_cutoff(requested, today, close_only)
@@ -87,7 +88,7 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
     start = months_before(requested, lookback)
     series = {}
     warnings = []
-    for symbol in SYMBOLS:
+    for symbol in symbols:
         unique = {}
         for bar in payload["series"].get(symbol, []):
             observed = bar_date(bar)
@@ -145,12 +146,12 @@ def chart_svg(report: dict) -> str:
     low, high = low - padding, high + padding
     x = lambda day: 65 + (date.fromisoformat(day).toordinal() - first) / max(last - first, 1) * 890
     y = lambda val: 300 - (val - low) / (high - low) * 265
-    parts = ['<svg viewBox="0 0 1000 350" role="img" aria-label="MMOH and MMOF daily closing values over time">']
+    parts = ['<svg viewBox="0 0 1000 350" role="img" aria-label="Daily breadth percentages over time">']
     for i in range(5):
         value = low + (high - low) * i / 4
         position = y(value)
         parts.append(f'<line x1="65" x2="955" y1="{position}" y2="{position}" stroke="#2d3c50"/><text x="52" y="{position+4}" text-anchor="end">{value:.1f}</text>')
-    for symbol, color in zip(SYMBOLS, COLORS):
+    for symbol, color in zip(report["series"], COLORS):
         bars = report["series"][symbol]["observations"]
         points = " ".join(f'{x(b["date"]):.2f},{y(b["close"]):.2f}' for b in bars)
         parts.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2.5"/>')
@@ -219,6 +220,35 @@ def render_section(title: str, visual: str, interpretation: str) -> str:
     return f'<section class="section"><h2>{escape(title)}</h2>{visual}<p class="interpretation">{escape(interpretation)}</p></section>'
 
 
+def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool) -> None:
+    if not path.exists():
+        report["notes"].append("GDX breadth snapshot is unavailable; generate data/gdx-breadth-sma50.json first.")
+        return
+    payload = read_snapshot(path)
+    symbols = tuple(payload["series"])
+    if len(symbols) != 1 or payload.get("definition", {}).get("average") != "SMA":
+        raise ValueError("GDX breadth snapshot must contain one custom SMA series")
+    section = build_report(payload, date.fromisoformat(report["requested_date"]),
+                           report["lookback_months"], path.name, now, close_only, symbols)
+    series = section["series"][symbols[0]]
+    latest = next(b for b in payload["series"][symbols[0]] if bar_date(b).isoformat() == series["latest"]["date"])
+    section["coverage"] = {k: latest[k] for k in ("above", "below", "equal", "eligible", "universe_size", "coverage")}
+    section["definition"] = payload["definition"]
+    section["universe"] = payload["universe"]
+    delta = series["five_session_change"]
+    direction = (f"up {delta:.2f} percentage points over five observations" if delta > 0 else f"down {abs(delta):.2f} percentage points over five observations") if delta is not None else "with insufficient history for a five-observation comparison"
+    section["interpretation"] = (f'{latest["above"]} of {latest["eligible"]} eligible GDX constituents ({series["latest"]["close"]:.2f}%) are above their {payload["definition"]["window"]}-day SMA, {direction}. '
+                                  f'This describes participation within the fixed {payload["universe"].get("as_of") or "supplied"} holdings universe; it is not historical fund membership or a validated trading signal.')
+    section["knowledge_sources"] = ["/sectors/gdx.md", "/references/gdx-breadth.md"]
+    section["knowledge_context"] = []
+    for relative in section["knowledge_sources"]:
+        content = (ROOT / "knowledge" / relative.lstrip("/")).read_text(encoding="utf-8")
+        section["knowledge_context"].append({"path": relative, "content": content,
+                                              "sha256": hashlib.sha256(content.encode()).hexdigest()})
+    report["gdx_breadth"] = section
+    report["warnings"].extend(section["warnings"])
+
+
 def render_html(report: dict) -> str:
     legend = "".join(
         f'<span style="color:{color}">{symbol.split(":")[1]} {report["series"][symbol]["latest"]["close"]:.2f} '
@@ -227,6 +257,13 @@ def render_html(report: dict) -> str:
     )
     visual = f'<div class="legend">{legend}</div>{chart_svg(report)}<small>TradingView · {report["lookback_months"]}-month view</small>'
     section = render_section("Market breadth", visual, breadth_interpretation(report))
+    gdx = report.get("gdx_breadth")
+    if gdx:
+        series = next(iter(gdx["series"].values()))
+        coverage = gdx["coverage"]
+        visual = (f'<div class="legend"><span style="color:{COLORS[0]}">Above {gdx["definition"]["window"]}-day SMA: {series["latest"]["close"]:.2f}%</span></div>'
+                  f'{chart_svg(gdx)}<small>{escape(series["as_of"])} · Coverage {coverage["eligible"]}/{coverage["universe_size"]} · Equal-weight current constituents</small>')
+        section += render_section("GDX breadth", visual, gdx["interpretation"])
     warnings = "".join(f'<p class="warning">{escape(w)}</p>' for w in report["warnings"])
     warnings += "".join(f'<p class="note">{escape(n)}</p>' for n in report["notes"])
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -241,6 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in Stockholm")
     parser.add_argument("--provider", choices=["snapshot", "tradingview"], default="snapshot")
     parser.add_argument("--snapshot", type=Path, default=ROOT / "data/tradingview-breadth.json")
+    parser.add_argument("--gdx-breadth", type=Path, default=ROOT / "data/gdx-breadth-sma50.json", help="GDX custom breadth snapshot")
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
     parser.add_argument("--lookback", type=int, default=6, metavar="MONTHS")
     parser.add_argument("--format", default="html,json", help="html, json, or html,json")
@@ -280,6 +318,7 @@ def main(argv: list[str] | None = None) -> int:
                 source = "TradingView MCP (fresh)"
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         attach_breadth_knowledge(report)
+        attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
             path = args.output / f"market-report-{requested}.{fmt}"

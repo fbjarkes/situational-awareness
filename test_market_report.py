@@ -64,6 +64,25 @@ class ReportTests(unittest.TestCase):
     def test_month_end(self):
         self.assertEqual(report.months_before(date(2024, 3, 31), 1), date(2024, 2, 29))
 
+    def test_gdx_section_respects_date_and_retains_coverage(self):
+        from breadth import calculate_breadth
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
+        prices = {"a": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23, 24)},
+                  "b": {f"2026-10-{d:02}": 50.0 - d for d in (19, 20, 21, 22, 23, 24)}}
+        payload = calculate_breadth(["a", "b"], prices, 2, name="CUSTOM:GDX-SMA2", universe_as_of="2026-10-22")
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            path = Path(folder) / "gdx.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            report.attach_gdx_breadth(result, path, self.ny(24), False)
+        section = result["gdx_breadth"]
+        latest = next(iter(section["series"].values()))["latest"]
+        self.assertEqual(latest["date"], "2026-10-23")
+        self.assertEqual(latest["close"], 50)
+        self.assertEqual(section["coverage"]["eligible"], 2)
+        html = report.render_html(result)
+        self.assertIn("GDX breadth", html)
+        self.assertIn("Coverage 2/2", html)
+
     def test_knowledge_distinguishes_level_from_crossing(self):
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
         report.attach_breadth_knowledge(result)

@@ -2,6 +2,11 @@
 
 ## 2026-10-25
 
+- Added the GDX 50-day breadth report section and downloaded all 59 constituent histories; normalized exchange session dates and retained coverage and fixed-universe labels.
+- Renamed the custom breadth methodology reference to gdx-breadth.md and updated its links.
+- Added the reusable custom SMA breadth helper, snapshot contract, availability policy, and fixed-current-GDX-universe limitations.
+- Added the complete displayed GDX holdings table, dated 2026-10-22, with list update date 2026-10-25, weights, cash rows, and issuer provenance.
+- Added a US GDX concept under sectors with issuer-sourced definition, dated exposure context, proposed comparison questions, and explicit evidence gaps.
 - Added index-specific crossing-study findings to MMOH and MMOF, with sample sizes, below-20 outcomes, threshold comparisons, and evidence limitations.
 - Added a reproducible individual-index breadth crossing study at 30/25/20, with SPY forward returns over 10/20/30/50/100/200 sessions; retained the combined rule as disabled.
 - Updated MMOH/MMOF from TradingView symbol labels: 100-day and 150-day averages respectively; added sources, percentage units, interpretation, and unresolved methodology details.

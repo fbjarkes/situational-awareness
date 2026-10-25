@@ -19,6 +19,13 @@ points, with matched observation dates and a consistent adjustment policy.
 Positive values indicate outperformance. The sector section is not yet
 implemented.
 
+GDX breadth is included when `data/gdx-breadth-sma50.json` exists. It uses
+the current holdings snapshot, with a six-month chart of the percentage above
+the 50-day SMA, latest coverage, and a two-sentence participation summary.
+Override its snapshot with `--gdx-breadth PATH`. Both sections use the report's
+date cutoff and lookback. Constituent prices are not refreshed by the daily
+report; regenerate the custom snapshot when refreshing.
+
 ## Knowledge library
 
 The version-controlled [knowledge bundle](knowledge/index.md) follows the
@@ -123,6 +130,60 @@ Equivalent cron example on a machine whose scheduler timezone is Stockholm
 ```cron
 0 7 * * * cd /path/to/situational-awareness && /path/to/uv run market-report.py --provider tradingview --refresh >> market-report.log 2>&1
 ```
+
+## Custom constituent breadth
+
+The reusable `calculate_breadth` function in `breadth.py` accepts a list of
+symbols and `{symbol: {"YYYY-MM-DD": close}}` histories. It calculates daily
+equal-weight participation above/below/equal to an N-observation simple moving
+average (including the current close). Date filters preserve prior warmup data.
+
+```python
+from breadth import calculate_breadth
+
+snapshot = calculate_breadth(
+    symbols, prices, window=50,
+    start="2020-01-01", end="2026-10-23",
+    name="CUSTOM:GDX-SMA50", universe_as_of="2026-10-22",
+)
+```
+
+CLI using existing daily snapshot data:
+
+```powershell
+uv run custom-breadth.py --symbols AMEX:GDX AMEX:SPY --ma 50 --input data/prices.json --output data/custom-breadth.json
+```
+
+The two-ETF example only demonstrates syntax; a GDX constituent index should
+instead select the full holdings list and supply its exchange-qualified map:
+
+```powershell
+uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --input data/gdx-prices.json --output data/gdx-breadth-sma50.json
+```
+
+The symbol map is a JSON object mapping every issuer ticker label to exactly
+one provider symbol, e.g. `{"NEM": "NYSE:NEM", ...}`. All 59 security rows are
+selected; cash is excluded. Missing mappings fail. GDX symbol mappings,
+downloaded histories, and calculated snapshots stay local under ignored `data/`.
+
+To fetch all available history, replace `--input` with
+`--mcp-url https://mcp.tradingview.com/mcp`, optionally adding
+`--save-prices data/gdx-prices.json`. It uses `TRADINGVIEW_MCP_TOKEN` and pages
+history backwards. `--end` limits the last included date; use the latest
+completed session to avoid forming bars. `--start` limits output dates, not
+downloaded warmup. Without dates, all available supplied/downloaded history is used.
+
+The output has the existing snapshot shape (`provider`, `series`, and bars
+with `t`/`c`), with `c` equal to percentage above the SMA. Extra per-day fields
+give above/below/equal counts, unavailable count, and coverage. Other OHLCV
+fields are null. Missing prices are not forward-filled; the denominator is
+eligible securities on each date. `--min-coverage 1` requires full-universe
+coverage; the default allows any nonzero coverage. Before enough history
+exists, percentages are null. Coverage is important for comparisons across time.
+
+This is a fixed-current-universe history, not historical GDX membership.
+The report still selects MMOH/MMOF; custom series selection is a separate step.
+See the [methodology](knowledge/references/gdx-breadth.md).
 
 ## Breadth event study
 
