@@ -7,10 +7,16 @@ summary. No browser assets or external chart service are required.
 
 ## Report section template
 
-The HTML briefing has a sticky section navigator, grouped Market Breadth,
-S&P 500, and Themes areas, and GDX under Gold miners. Unimplemented coverage
-is labeled Planned. On mobile the navigator becomes a compact top menu and
-charts use a narrower layout with readable axis labels.
+The HTML briefing opens on an overview with cards for Market Breadth,
+S&P 500, and Themes. Select a card or menu item to open just that section;
+All sections returns to the overview. URLs support direct section links,
+and browser Back/Forward preserves navigation. GDX lives under Gold miners.
+Unimplemented coverage is labeled Planned. On mobile the navigator becomes
+a compact top menu and charts use a narrower layout with readable axis labels.
+
+The header shows source-symbol counts, symbols downloaded during this run,
+GDX coverage, data-warning counts, and the selected download batch. Stored-data
+runs show zero downloads; historical symbol coverage is not counted as a new download.
 
 Each breadth chart uses a fixed 0–100% scale. Observation dates and changes
 sit beside the readings; routine availability notes and methodology are

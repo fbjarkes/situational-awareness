@@ -317,6 +317,10 @@ def main(argv: list[str] | None = None) -> int:
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         attach_breadth_knowledge(report)
         attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
+        fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
+        report["run_status"] = {"downloaded_symbols": len(payload["series"]) if fresh_download else 0,
+                                "data_mode": "Fresh download" if fresh_download else "Stored data",
+                                "download_batch": payload.get("download_date")}
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
             path = args.output / f"market-report-{requested}.{fmt}"

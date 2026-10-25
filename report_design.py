@@ -9,12 +9,12 @@ CSS = """
 a{color:inherit}a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:5px}a.skip{position:fixed;left:16px;top:-100px;background:var(--panel);padding:12px;z-index:9}a.skip:focus{top:12px}
 .shell{max-width:1460px;margin:auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:52px;padding:0 40px}.sidebar{position:sticky;top:0;height:100vh;padding:38px 0;border-right:1px solid var(--line)}
 .brand{font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:700}.edition{font-size:12px;color:var(--muted);margin:6px 0 40px}.nav-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-nav a{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-right:22px;padding:10px 12px;text-decoration:none;color:var(--muted);border-left:2px solid transparent;border-radius:0 5px 5px 0}nav a:hover{background:#162334;color:var(--ink)}nav a[aria-current=true]{color:var(--accent);background:#132a2c;border-left-color:var(--accent)}.nav-sub{font-size:12px;margin:2px 0 22px 26px;color:var(--muted)}.nav-tag{font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+nav a{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-right:22px;padding:10px 12px;text-decoration:none;color:var(--muted);border-left:2px solid transparent;border-radius:0 5px 5px 0}nav a:hover{background:#162334;color:var(--ink)}nav a[aria-current]{color:var(--accent);background:#132a2c;border-left-color:var(--accent)}.nav-sub{font-size:12px;margin:2px 0 22px 26px;color:var(--muted)}.nav-tag{font-size:9px;text-transform:uppercase;letter-spacing:.08em}
 main{min-width:0;padding:44px 0 30px}.eyebrow{font-size:10px;letter-spacing:.2em;font-weight:650;text-transform:uppercase;color:var(--accent);margin:0 0 10px}h1{font-size:clamp(25px,3vw,35px);line-height:1.2;font-weight:600;letter-spacing:-.035em;margin:0 0 16px}.report-header{padding-bottom:27px;border-bottom:1px solid var(--line)}.metadata{display:flex;gap:8px 22px;flex-wrap:wrap;color:var(--muted);font-size:12px}.metadata strong{color:var(--ink);font-weight:500}
 .group{padding-top:34px;scroll-margin-top:24px}.group-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}.group-heading h2{margin:0;font-size:21px;font-weight:550;letter-spacing:-.02em}.group-number{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.group-description{font-size:12px;color:var(--muted);margin:0 0 16px}.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px 26px}.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}.card h3{font-size:16px;font-weight:550;line-height:1.35;margin:0 0 5px}.subheading{font-size:12px;color:var(--muted);margin:0}.period{font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:5px;color:var(--muted);white-space:nowrap}.readings{display:flex;gap:16px 36px;flex-wrap:wrap;margin:20px 0 8px}.reading{min-width:145px}.reading-label{font-size:11px;font-weight:600;letter-spacing:.035em;display:flex;gap:8px;align-items:center}.swatch{display:inline-block;width:18px;border-top:2px solid currentColor}.reading-value{font-size:23px;letter-spacing:-.03em;line-height:1.5;font-variant-numeric:tabular-nums}.change{font-size:11px;color:var(--muted);margin-left:10px;letter-spacing:0}.asof{font-size:10px;color:var(--muted)}
 .chart{width:100%;margin:8px 0 4px}.chart svg{display:block;width:100%;height:auto;overflow:visible}.chart svg text{fill:var(--muted);font-size:12px;font-family:inherit}.chart-caption{font-size:10px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}.interpretation{margin:18px 0 0;line-height:1.75;font-size:14px;max-width:90ch}.details{border-top:1px solid var(--line);margin-top:22px;padding-top:12px;font-size:12px;color:var(--muted)}summary{cursor:pointer;width:fit-content;font-size:11px;letter-spacing:.025em}details[open] summary{margin-bottom:12px}.details p{margin:8px 0}.details ul{padding-left:18px}.details a{color:var(--accent)}.data-status{margin:14px 0 0;font-size:11px;color:var(--muted)}.data-status ul{margin:8px 0;padding-left:18px}.warning{border-left:3px solid #eabd70;background:#302719;padding:10px 14px;font-size:12px;border-radius:4px;margin:16px 0}.planned{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:15px 0;color:var(--muted);font-size:12px}.planned span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:3px 7px;margin-right:10px;border-radius:4px}.theme-name{font-size:12px;color:var(--muted);font-weight:500;margin:0 0 14px}footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
 @media(min-width:1300px){.shell{gap:64px}main{max-width:1050px}}
-@media(max-width:850px){html{scroll-padding-top:100px}.shell{display:block;padding:0 20px}.sidebar{height:auto;position:sticky;top:0;padding:12px 0;background:var(--bg);border-right:0;border-bottom:1px solid var(--line);z-index:3}.brand{font-size:10px}.edition,.nav-label,.nav-sub{display:none}nav{display:flex;overflow-x:auto;gap:8px;margin-top:6px}nav a{flex-shrink:0;padding:6px 10px;margin:0;font-size:12px;border-left:0;border-bottom:2px solid transparent}nav a[aria-current=true]{border-bottom-color:var(--accent)}.nav-tag{display:none}main{padding:26px 0}.group{scroll-margin-top:100px}.card{padding:20px 16px}.interpretation{font-size:13px}.readings{gap:16px 24px}.reading-value{font-size:21px}.chart svg text{font-size:13px}.chart{margin-top:12px}.group-heading h2{font-size:20px}}
+@media(max-width:850px){html{scroll-padding-top:100px}.shell{display:block;padding:0 20px}.sidebar{height:auto;position:sticky;top:0;padding:12px 0;background:var(--bg);border-right:0;border-bottom:1px solid var(--line);z-index:3}.brand{font-size:10px}.edition,.nav-label,.nav-sub{display:none}nav{display:flex;overflow-x:auto;gap:8px;margin-top:6px}nav a{flex-shrink:0;padding:6px 10px;margin:0;font-size:12px;border-left:0;border-bottom:2px solid transparent}nav a[aria-current]{border-bottom-color:var(--accent)}.nav-tag{display:none}main{padding:26px 0}.group{scroll-margin-top:100px}.card{padding:20px 16px}.interpretation{font-size:13px}.readings{gap:16px 24px}.reading-value{font-size:21px}.chart svg text{font-size:13px}.chart{margin-top:12px}.group-heading h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media print{:root{color-scheme:light;--bg:white;--panel:white;--line:#bbb;--ink:#111;--muted:#444;--accent:#135a4c}.sidebar,.skip,.data-status{display:none}.shell{display:block;padding:0}main{padding:0;max-width:none}.card{break-inside:avoid;border-color:#bbb}.chart svg text{fill:#444}h1{font-size:25px}.group{padding-top:24px}.interpretation{font-size:11px}}
 """
@@ -25,14 +25,26 @@ CSS += """
 @media(max-width:600px){.chart-wide{display:none}.chart-narrow{display:block}.chart .chart-narrow svg text{font-size:18px}}
 """
 
+CSS += """
+.status-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin:24px 0 0}.status-item{border-left:1px solid var(--line);padding-left:16px}.status-item:first-child{border:0;padding-left:0}.status-item dt{font-size:10px;letter-spacing:.04em;color:var(--muted)}.status-item dd{font-size:22px;font-variant-numeric:tabular-nums;margin:3px 0 0;line-height:1.4}.status-item small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.overview-label{margin-top:30px!important;font-size:15px!important;color:var(--ink)!important}.data-mode{padding:1px 8px;border:1px solid var(--line);border-radius:4px;font-size:10px}
+@media(max-width:600px){.status-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.status-item:nth-child(3){border:0;padding-left:0}}
+.report-page{display:none}.report-page.overview{display:block}
+main:has(>.report-page:target)>.report-page{display:none}
+main:has(>.report-page:target)>.report-page:target{display:block}
+.welcome{padding:40px 0 30px;max-width:680px}.welcome h2{font-size:clamp(24px,3vw,34px);line-height:1.25;font-weight:500;letter-spacing:-.03em;margin:0 0 16px}.welcome p:last-child{color:var(--muted);font-size:15px;line-height:1.8;margin:0}.overview-label{font-size:12px;font-weight:500;color:var(--muted);margin:0 0 16px}.overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.overview-card{display:flex;flex-direction:column;padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:10px;text-decoration:none;min-height:245px;transition:border-color .15s}.overview-card:hover{border-color:var(--accent)}.overview-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.overview-card h3{font-size:18px;letter-spacing:-.02em;margin:0;font-weight:550}.overview-card p{font-size:13px;color:var(--muted);margin:16px 0}.overview-preview{font-size:12px;font-variant-numeric:tabular-nums}.open-section{font-size:12px;color:var(--accent);padding-top:24px;margin-top:auto;display:flex;justify-content:space-between}.back-overview{display:inline-block;color:var(--muted);font-size:12px;text-decoration:none;margin-bottom:20px}.back-overview:hover{color:var(--accent)}
+@media(max-width:850px){.overview-grid{grid-template-columns:1fr}.overview-card{min-height:210px}.welcome{padding-top:28px}.welcome p:last-child{font-size:14px}}
+@media print{main>.report-page{display:block!important}.back-overview,.overview-grid{display:none}.welcome{padding:16px 0}.overview-label{display:none}}
+"""
+
 NAV_SCRIPT = """
 const links = [...document.querySelectorAll('nav a')];
-const groups = [...document.querySelectorAll('main > section.group')];
-function mark(id) { for (const link of links) { if (link.hash === '#' + id) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current'); } }
-let queued = false;
-function update() { const cutoff = innerWidth <= 850 ? 140 : 100; let current = groups[0]; for (const group of groups) { if (group.getBoundingClientRect().top <= cutoff) current = group; } if (current) mark(current.id); queued = false; }
-addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, {passive:true});
-addEventListener('resize', update); update();
+const pages = [...document.querySelectorAll('.report-page')];
+function navigate(focus = false) {
+  const id = pages.some(page => '#' + page.id === location.hash) ? location.hash.slice(1) : 'overview';
+  for (const link of links) { if (link.hash === '#' + id) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); }
+  if (focus) { window.scrollTo(0, 0); document.querySelector('#' + id + ' h2')?.focus({preventScroll:true}); }
+}
+addEventListener('hashchange', () => navigate(true)); navigate();
 """
 
 
@@ -86,6 +98,21 @@ def render_report(report, chart, interpretation):
     notes = list(report.get("notes", [])) + (list(gdx.get("notes", [])) if gdx else [])
     status = ('<details class="data-status"><summary>Data availability</summary><ul>' +
               "".join(f'<li>{escape(note)}</li>' for note in dict.fromkeys(notes)) + '</ul></details>') if notes else ""
+    source_symbols = set(report["series"])
+    if gdx:
+        source_symbols.update(set(gdx["universe"]["symbols"]) - set(gdx["universe"].get("missing_symbols", [])))
+    run = report.get("run_status", {})
+    downloads = str(run["downloaded_symbols"]) if "downloaded_symbols" in run else "—"
+    coverage_text = f'{gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]}' if gdx else "—"
+    source_detail = f'{len(report["series"])} indices' + (f' · {len(source_symbols) - len(report["series"])} GDX constituents' if gdx else '')
+    stats = [("Source symbols", str(len(source_symbols)), source_detail),
+             ("Downloaded this run", downloads, ""),
+             ("GDX coverage", coverage_text, "Eligible / constituent universe" if gdx else "Not included"),
+             ("Data warnings", str(len(set(report["warnings"]))), "")]
+    status_strip = '<dl class="status-strip" aria-label="Report data status">' + ''.join(f'<div class="status-item"><dt>{label}</dt><dd>{escape(value)}</dd>' + (f'<small>{escape(note)}</small>' if note else '') + '</div>' for label, value, note in stats) + '</dl>'
+    data_mode = f'<span class="data-mode">{escape(run["data_mode"])}</span>' if run.get("data_mode") else ""
+    if run.get("download_batch"):
+        data_mode += f'<span>Download batch {date.fromisoformat(run["download_batch"]).strftime("%d %b %Y")}</span>'
     readings = "".join(reading(s.split(":")[-1], value, color, dashed=i == 1)
                        for i, ((s, value), color) in enumerate(zip(report["series"].items(), ("#67ddc4", "#ffc078"))))
     breadth = (f'<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
@@ -105,8 +132,26 @@ def render_report(report, chart, interpretation):
     groups = [("market-breadth", "Market Breadth", breadth),
               ("sp500", "S&P 500", '<div class="planned"><span>Planned</span>Price and trend · Sector relative strength</div>'),
               ("themes", "Themes", themes)]
-    navigation = "".join(f'<a href="#{key}"' + (' aria-current="true"' if i == 0 else '') + f'><span>{escape(title)}</span>' + ('<span class="nav-tag">Planned</span>' if key == 'sp500' else '') + '</a>' + ('<div class="nav-sub">Gold miners</div>' if key == 'themes' and gdx else '') for i, (key, title, _) in enumerate(groups))
-    body = "".join(f'<section class="group" id="{key}" aria-labelledby="{key}-heading"><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
+    cards = []
+    for key, title, _ in groups:
+        if key == "market-breadth":
+            description = "Participation across the market, using MMOH and MMOF."
+            preview = " · ".join(f'{symbol.split(":")[-1]} {value["latest"]["close"]:.2f}%' for symbol, value in report["series"].items())
+            badge = "Available"
+        elif key == "themes":
+            description = "Explore focused market themes, starting with gold miners."
+            preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"
+            badge = "Available" if gdx else "Planned"
+        else:
+            description = "Price, trend and relative strength across S&P 500 sectors."
+            preview = "Price and trend · Sector relative strength"
+            badge = "Planned"
+        cards.append(f'<a class="overview-card" href="#{key}"><div class="overview-card-top"><h3>{escape(title)}</h3><span class="period">{badge}</span></div><p>{escape(description)}</p><div class="overview-preview">{escape(preview)}</div><span class="open-section">Explore section <span aria-hidden="true">→</span></span></a>')
+    overview = ('<section class="report-page overview" id="overview" aria-labelledby="overview-heading">'
+                '<h2 class="overview-label" id="overview-heading" tabindex="-1">Sections</h2><div class="overview-grid">' + ''.join(cards) + '</div></section>')
+    navigation = '<a href="#overview" aria-current="page"><span>Overview</span></a>'
+    navigation += "".join(f'<a href="#{key}"><span>{escape(title)}</span>' + ('<span class="nav-tag">Planned</span>' if key == 'sp500' else '') + '</a>' for key, title, _ in groups)
+    body = overview + "".join(f'<section class="group report-page" id="{key}" aria-labelledby="{key}-heading"><a class="back-overview" href="#overview">← All sections</a><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading" tabindex="-1">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Market report · {report['requested_date']}</title><style>{CSS}</style></head>
 <body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">Daily market briefing</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>
-<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span></div>{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''
+<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{status_strip}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''
