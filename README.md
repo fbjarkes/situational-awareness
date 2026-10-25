@@ -17,6 +17,9 @@ a compact top menu and charts use a narrower layout with readable axis labels.
 The header shows source-symbol counts, symbols downloaded during this run,
 GDX coverage, data-warning counts, and the selected download batch. Stored-data
 runs show zero downloads; historical symbol coverage is not counted as a new download.
+It also lists open research TODOs from the knowledge bundle as one-sentence
+bullets. Completed checkboxes, ordinary TODO sections, and code examples are
+excluded; source paths and line numbers are archived in the report JSON.
 
 Each breadth chart uses a fixed 0–100% scale. Observation dates and changes
 sit beside the readings; routine availability notes and methodology are

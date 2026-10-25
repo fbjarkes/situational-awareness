@@ -15,6 +15,7 @@ import hashlib
 import yaml
 from zoneinfo import ZoneInfo
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
+from research_todos import collect_research_todos
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
@@ -317,6 +318,7 @@ def main(argv: list[str] | None = None) -> int:
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         attach_breadth_knowledge(report)
         attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
+        report["research_todos"] = collect_research_todos(ROOT / "knowledge")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         report["run_status"] = {"downloaded_symbols": len(payload["series"]) if fresh_download else 0,
                                 "data_mode": "Fresh download" if fresh_download else "Stored data",

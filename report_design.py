@@ -26,6 +26,7 @@ CSS += """
 """
 
 CSS += """
+.research-todos{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:12px}.research-todos h2{font-size:11px;color:var(--muted);font-weight:500;margin:0 0 8px}.research-todos ul{padding-left:18px;margin:0}.research-todos li{padding:3px 0}.research-todos strong{font-weight:550}.research-todos p{color:var(--muted);margin:0}
 .status-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin:24px 0 0}.status-item{border-left:1px solid var(--line);padding-left:16px}.status-item:first-child{border:0;padding-left:0}.status-item dt{font-size:10px;letter-spacing:.04em;color:var(--muted)}.status-item dd{font-size:22px;font-variant-numeric:tabular-nums;margin:3px 0 0;line-height:1.4}.status-item small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.overview-label{margin-top:30px!important;font-size:15px!important;color:var(--ink)!important}.data-mode{padding:1px 8px;border:1px solid var(--line);border-radius:4px;font-size:10px}
 @media(max-width:600px){.status-strip{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.status-item:nth-child(3){border:0;padding-left:0}}
 .report-page{display:none}.report-page.overview{display:block}
@@ -113,6 +114,9 @@ def render_report(report, chart, interpretation):
     data_mode = f'<span class="data-mode">{escape(run["data_mode"])}</span>' if run.get("data_mode") else ""
     if run.get("download_batch"):
         data_mode += f'<span>Download batch {date.fromisoformat(run["download_batch"]).strftime("%d %b %Y")}</span>'
+    todos = report.get("research_todos", [])
+    todo_list = '<ul>' + ''.join(f'<li><strong>{escape(task["title"])}:</strong> {escape(task["description"])}</li>' for task in todos) + '</ul>' if todos else '<p>No open research TODOs.</p>'
+    research_status = f'<section class="research-todos" aria-labelledby="research-todos-heading"><h2 id="research-todos-heading">Open research TODOs · {len(todos)}</h2>{todo_list}</section>'
     readings = "".join(reading(s.split(":")[-1], value, color, dashed=i == 1)
                        for i, ((s, value), color) in enumerate(zip(report["series"].items(), ("#67ddc4", "#ffc078"))))
     breadth = (f'<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
@@ -154,4 +158,4 @@ def render_report(report, chart, interpretation):
     body = overview + "".join(f'<section class="group report-page" id="{key}" aria-labelledby="{key}-heading"><a class="back-overview" href="#overview">← All sections</a><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading" tabindex="-1">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Market report · {report['requested_date']}</title><style>{CSS}</style></head>
 <body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">Daily market briefing</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>
-<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{status_strip}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''
+<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{status_strip}{research_status}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''

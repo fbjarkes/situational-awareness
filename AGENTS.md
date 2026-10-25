@@ -34,6 +34,9 @@
   explicitly so its completion can be assessed.
 - Keep one authoritative checklist per task; link to it from related concepts
   rather than duplicating it. Research plans are not findings or enabled rules.
+- The report header lists unchecked tasks from `Research TODOs` sections as
+  one-sentence bullets. Keep each checkbox's description concise; put study
+  parameters in supporting bullets. Checked tasks disappear on the next run.
 - Only mark a task complete after the work and its evidence are recorded. Link
   the resulting study or artifact and update the knowledge log.
 - Adding or reading a TODO does not by itself authorize starting the work;
