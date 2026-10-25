@@ -1,4 +1,4 @@
-"""Calculate custom breadth from a daily snapshot; all downloads stay in data/."""
+"""Calculate custom breadth from archived per-symbol daily bars."""
 import argparse
 import asyncio
 from datetime import date, datetime, timedelta, timezone
@@ -9,9 +9,10 @@ import os
 from zoneinfo import ZoneInfo
 
 from breadth import calculate_breadth
+from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 
 
-async def download_history(symbols, endpoint, end=None):
+async def download_history(symbols, endpoint, end=None, data_root=DATA_ROOT):
     """Fetch all available daily history, paging backwards without a start cutoff."""
     from mcp import ClientSession
     from mcp.client.streamable_http import streamablehttp_client
@@ -52,6 +53,9 @@ async def download_history(symbols, endpoint, end=None):
                         raise ValueError(f"Invalid pagination for {symbol}")
                     seen_cursors.add(cursor)
                 series[symbol] = [bars[t] for t in sorted(bars)]
+                save_bars({"schema_version": 1, "provider": "tradingview",
+                           "fetched_at": datetime.now(timezone.utc).isoformat(),
+                           "series": {symbol: series[symbol]}, "notices": sorted(notices)}, data_root)
     return {"schema_version": 1, "provider": "tradingview", "series": series, "notices": sorted(notices),
             "fetched_at": datetime.now(timezone.utc).isoformat()}
 
@@ -99,10 +103,11 @@ def main():
     universe.add_argument("--symbols", nargs="+", help="Symbols matching keys in the input snapshot")
     universe.add_argument("--holdings-md", type=Path, help="Use all security ticker labels from a knowledge holdings table")
     parser.add_argument("--symbol-map", type=Path, help="JSON map from issuer ticker labels to provider symbols; requires every holding")
-    data = parser.add_mutually_exclusive_group(required=True)
+    data = parser.add_mutually_exclusive_group()
     data.add_argument("--input", type=Path, help="Daily snapshot with series: {symbol: [{t, c}, ...]}")
     data.add_argument("--mcp-url", help="Fetch full daily history from a TradingView MCP endpoint")
-    parser.add_argument("--save-prices", type=Path, help="Save downloaded raw snapshot, normally under data/")
+    parser.add_argument("--data-root", type=Path, default=DATA_ROOT, help="Raw bar root (default data/research)")
+    parser.add_argument("--download-date", type=date.fromisoformat, help="Read a specific dated batch; default latest complete batch")
     parser.add_argument("--ma", type=int, default=50)
     parser.add_argument("--start", type=date.fromisoformat)
     parser.add_argument("--end", type=date.fromisoformat)
@@ -119,16 +124,22 @@ def main():
             symbols = [mapping[s] for s in symbols]
             if len(set(symbols)) != len(symbols):
                 raise ValueError("Symbol map must not map different constituents to the same provider symbol")
-        source = json.loads(args.input.read_text(encoding="utf-8")) if args.input else asyncio.run(download_history(symbols, args.mcp_url, args.end))
-        if args.save_prices:
-            args.save_prices.parent.mkdir(parents=True, exist_ok=True)
-            args.save_prices.write_text(json.dumps(source, allow_nan=False), encoding="utf-8")
+        if args.input:
+            source = json.loads(args.input.read_text(encoding="utf-8"))
+        elif args.mcp_url:
+            if args.download_date:
+                raise ValueError("--download-date selects stored bars; do not combine with --mcp-url")
+            asyncio.run(download_history(symbols, args.mcp_url, args.end, args.data_root))
+            source = load_bars(symbols, args.data_root)
+        else:
+            source = load_bars(symbols, args.data_root, download_date=args.download_date.isoformat() if args.download_date else None)
         snapshot = calculate_breadth(symbols, prices_from_snapshot(source), args.ma,
                                      start=args.start, end=args.end, min_coverage=args.min_coverage,
                                      name=args.name, universe_as_of=args.universe_as_of.isoformat() if args.universe_as_of else None)
         snapshot["input_provider"] = source.get("provider")
         snapshot["input_fetched_at"] = source.get("fetched_at")
         snapshot["input_notices"] = source.get("notices", [])
+        snapshot["input_bar_files"] = source.get("bar_files", [])
         snapshot["input_sha256"] = hashlib.sha256(json.dumps(source, sort_keys=True).encode()).hexdigest()
         snapshot["universe"]["issuer_symbols"] = issuer_symbols
         args.output.parent.mkdir(parents=True, exist_ok=True)

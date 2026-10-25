@@ -14,6 +14,7 @@ import sys
 import hashlib
 import yaml
 from zoneinfo import ZoneInfo
+from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
@@ -84,11 +85,12 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
     cutoff = observation_cutoff(requested, today, close_only)
     # A bar dated on the fetch day, fetched before 16:00 ET, is still forming.
     fetched = payload.get("fetched_at")
-    fetched_ny = datetime.fromisoformat(fetched.replace("Z", "+00:00")).astimezone(NY) if fetched else now
     start = months_before(requested, lookback)
     series = {}
     warnings = []
     for symbol in symbols:
+        symbol_fetched = payload.get("symbol_fetched_at", {}).get(symbol, fetched)
+        symbol_fetched_ny = datetime.fromisoformat(symbol_fetched.replace("Z", "+00:00")).astimezone(NY) if symbol_fetched else now
         unique = {}
         for bar in payload["series"].get(symbol, []):
             observed = bar_date(bar)
@@ -106,9 +108,9 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
             warnings.append(f"{symbol}: latest observation is {lag} calendar days before requested date.")
         if date.fromisoformat(visible[0]["date"]) > start + timedelta(days=7):
             warnings.append(f"{symbol}: available history starts {visible[0]['date']}; lookback is incomplete.")
-        intraday = date.fromisoformat(latest["date"]) == fetched_ny.date() and fetched_ny.time() < MARKET_CLOSE
-        as_of = (f"intraday {latest['date']} {fetched_ny:%H:%M} ET" if intraday else f"close {latest['date']}")
-        series[symbol] = {"latest": latest, "latest_status": "intraday" if intraday else "close", "as_of": as_of,
+        intraday = date.fromisoformat(latest["date"]) == symbol_fetched_ny.date() and symbol_fetched_ny.time() < MARKET_CLOSE
+        as_of = (f"intraday {latest['date']} {symbol_fetched_ny:%H:%M} ET" if intraday else f"close {latest['date']}")
+        series[symbol] = {"latest": latest, "latest_status": "intraday" if intraday else "close", "as_of": as_of, "fetched_at": symbol_fetched,
                           "daily_change": round(latest["close"] - previous["close"], 4) if previous else None,
                           "five_session_change": round(latest["close"] - fifth["close"], 4) if fifth else None,
                           "observations": visible}
@@ -117,7 +119,7 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
     for symbol, s in series.items():
         name = symbol.split(":")[1]
         if s["latest_status"] == "intraday":
-            notes.append(f"{name}: today's intraday reading as of {fetched_ny:%H:%M} ET; not a closing value. "
+            notes.append(f"{name}: {s['as_of']}; not a closing value. "
                          "Changes compare it with the previous close.")
         elif mixed or (requested == today and s["latest"]["date"] < requested.isoformat()):
             notes.append(f"{name}: using the {s['latest']['date']} close; no newer reading was available.")
@@ -125,6 +127,7 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
             "requested_date": requested.isoformat(), "observation_cutoff": cutoff.isoformat(),
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "provider": payload["provider"], "data_fetched_at": payload.get("fetched_at"),
+            "input_bar_files": payload.get("bar_files", []),
             "source": source, "lookback_months": lookback, "warnings": warnings, "notes": notes,
             "daily_bar_policy": ("Exclude the current New York calendar date." if close_only else
                                  "Include today's bar when available; label it intraday if fetched before 16:00 ET."),
@@ -277,7 +280,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("command", choices=["daily"], nargs="?", default="daily")
     parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in Stockholm")
     parser.add_argument("--provider", choices=["snapshot", "tradingview"], default="snapshot")
-    parser.add_argument("--snapshot", type=Path, default=ROOT / "data/tradingview-breadth.json")
+    parser.add_argument("--snapshot", type=Path, help="Optional legacy combined snapshot; default reads the per-symbol bar store")
+    parser.add_argument("--data-root", type=Path, default=DATA_ROOT)
+    parser.add_argument("--download-date", type=date.fromisoformat, help="Select a stored download batch")
     parser.add_argument("--gdx-breadth", type=Path, default=ROOT / "data/gdx-breadth-sma50.json", help="GDX custom breadth snapshot")
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
     parser.add_argument("--lookback", type=int, default=6, metavar="MONTHS")
@@ -301,20 +306,22 @@ def main(argv: list[str] | None = None) -> int:
         if args.provider == "snapshot":
             if args.refresh:
                 parser.error("--refresh requires --provider tradingview")
-            payload = read_snapshot(args.snapshot)
-            source = f"snapshot: {args.snapshot.name}"
+            payload = read_snapshot(args.snapshot) if args.snapshot else load_bars(SYMBOLS, args.data_root, download_date=args.download_date.isoformat() if args.download_date else None)
+            source = f"snapshot: {args.snapshot.name}" if args.snapshot else f"bar store: day/{payload['download_date']}"
         else:
             if not args.mcp_url:
                 parser.error("--provider tradingview requires --mcp-url or TRADINGVIEW_MCP_URL")
             cache = ROOT / ".cache" / f"tradingview-{requested}-{args.lookback}m.json"
+            cached = json.loads(cache.read_text(encoding="utf-8")) if cache.exists() else {}
             # Today's data keeps changing, so only completed days are served from cache.
-            if cache.exists() and not args.refresh and requested < today:
-                payload = read_snapshot(cache)
+            if cached.get("bar_store_batch") and not args.refresh and requested < today:
+                payload = load_bars(SYMBOLS, args.data_root, download_date=cached["bar_store_batch"])
                 source = "TradingView MCP (cached)"
             else:
                 payload = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only), months_before(requested, args.lookback) - timedelta(days=20)))
+                saved = save_bars(payload, args.data_root)
                 cache.parent.mkdir(parents=True, exist_ok=True)
-                cache.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+                cache.write_text(json.dumps({"bar_store_batch": saved[0].parent.name}), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         attach_breadth_knowledge(report)

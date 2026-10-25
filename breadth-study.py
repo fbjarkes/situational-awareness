@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 from statistics import mean, median
+from bar_store import ROOT as DATA_ROOT, load_bars
 
 ROOT = Path(__file__).resolve().parent
 HORIZONS = (10, 20, 30, 50, 100, 200)
@@ -15,6 +16,13 @@ THRESHOLDS = (30, 25, 20)
 def load_prices(path):
     payload = json.loads(path.read_text(encoding="utf-8"))
     prices = {}
+    if "series" in payload:
+        bars = next(iter(payload["series"].values()))
+        for bar in bars:
+            day = datetime.fromtimestamp(bar["t"], timezone.utc).date().isoformat()
+            if bar["c"] is not None:
+                prices[day] = float(bar["c"])
+        return prices
     for page in payload["pages"]:
         if not page.get("success"):
             raise ValueError(f"Unsuccessful data page in {path}")
@@ -118,12 +126,14 @@ def render_markdown(summary):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, default=ROOT / "data/research")
+    parser.add_argument("--data", type=Path, default=DATA_ROOT, help="Raw bar store root")
+    parser.add_argument("--download-date", help="Select a dated batch; default latest containing all study symbols")
     parser.add_argument("--output", type=Path, default=ROOT / "reports/breadth-study")
     args = parser.parse_args()
-    paths = {s: args.data / f"{s}.json" for s in ("AMEX-SPY", "INDEX-MMOH", "INDEX-MMOF")}
-    spy = load_prices(paths["AMEX-SPY"])
-    indicators = {s: load_prices(paths[f"INDEX-{s}"]) for s in ("MMOH", "MMOF")}
+    payload = load_bars(["AMEX:SPY", "INDEX:MMOH", "INDEX:MMOF"], args.data, download_date=args.download_date)
+    paths = {item["symbol"]: args.data / item["file"] for item in payload["bar_files"]}
+    spy = load_prices(paths["AMEX:SPY"])
+    indicators = {s: load_prices(paths[f"INDEX:{s}"]) for s in ("MMOH", "MMOF")}
     events, summary = study(spy, indicators)
     args.output.mkdir(parents=True, exist_ok=True)
     write_csv(args.output / "events.csv", events)

@@ -6,7 +6,7 @@ status: draft
 tags: [breadth, methodology, custom, GDX]
 generated:
   by: codex/market-report-poc
-  at: 2026-10-25T19:12:45Z
+  at: 2026-10-25T19:25:19Z
 market_report:
   symbol: CUSTOM:GDX-SMA50
   section: gdx_breadth
@@ -76,11 +76,17 @@ minimum coverage 0.8. It shows daily coverage and suppresses percentages below
 that cutoff. Generate the local snapshot with:
 
 ```powershell
-uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --input data/gdx-prices.json --output data/gdx-breadth-sma50.json
+uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
 ```
 
 The daily report includes this snapshot automatically when present; use
 `--gdx-breadth PATH` to select another. It does not refresh constituent data.
+
+Raw histories are stored per symbol under `data/research/day/<download-date>/`,
+using Stockholm download dates and Windows-safe percent-encoded filenames.
+The helper defaults to the latest complete batch; `--download-date` pins it.
+Live downloads save each symbol automatically to the same store. Derived
+breadth JSON retains input file paths and hashes for reproducibility.
 
 The live downloader pages all available daily history from the configured
 TradingView MCP endpoint; standalone authentication is still required.

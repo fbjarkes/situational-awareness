@@ -51,12 +51,32 @@ Outputs go to `reports/market-report-YYYY-MM-DD.html` and `.json`.
 Use `--output PATH` to change the destination. Rerunning a date replaces that
 date's outputs. `--lookback` is an integer number of calendar months (default 6).
 
-The default `--provider snapshot` uses the local real TradingView data:
-180 daily observations per index, fetched through the chat's TradingView
-connector on 24 October 2026, ending on 23 October. It is a fixed snapshot;
-running the default command on subsequent days does not fetch new readings.
-`--snapshot PATH` accepts another snapshot with the same schema. Fetched data
-in `data/` is ignored by Git and must be fetched or supplied on a new checkout.
+The default `--provider snapshot` reads MMOH/MMOF from the latest complete
+batch in the per-symbol bar store. It does not fetch new readings.
+Use `--download-date 2026-10-25` to pin the batch, or `--snapshot PATH` for a
+legacy combined snapshot. Raw data is ignored by Git and must be fetched or
+supplied on a new checkout.
+
+## Downloaded bar storage
+
+All new raw downloads use `data/research/day/<download-date>/<symbol>.json`.
+Download dates use Stockholm time, independently of the sessions covered.
+For example: `data/research/day/2026-10-25/NYSE%3ANEM.json`. The symbol is
+percent-encoded so exchange qualifiers and special characters remain safe
+on Windows without filename collisions.
+
+Each file contains one symbol's daily history with provider, fetch timestamp,
+timeframe, and retrieval ranges. Same-day downloads merge by timestamp,
+retaining longer history and the newer retrieved values. `bar_store.py`
+provides `save_bars` and `load_bars` for every utility to reuse.
+Default reads select the latest batch containing every requested symbol;
+they never silently combine different download dates. An explicit incomplete
+`--download-date` fails. `--data-root PATH` selects another store root.
+The current implementation supports the `day` timeframe.
+
+Existing combined downloads were copied into the dated store while retaining
+their original fetch timestamps. Legacy originals are kept locally for recovery.
+Derived breadth snapshots and symbol maps remain outside the raw bar store.
 
 ## Live TradingView provider
 
@@ -78,7 +98,8 @@ token or implementing an OAuth flow remains an integration step. Consequently,
 the live provider has not been verified end to end against authenticated
 TradingView. Snapshot generation is fully runnable and tested.
 
-Live responses are cached by requested date and lookback in `.cache/`.
+Live responses are archived in the bar store; `.cache/` holds only batch
+pointers keyed by requested date and lookback, not another copy of bar data.
 Use `--refresh` in scheduled jobs to ensure a fresh request each run. Failed
 requests return a nonzero exit status; they never silently fall back to the
 local snapshot. Tokens and endpoint URLs are excluded from report metadata.
@@ -148,17 +169,17 @@ snapshot = calculate_breadth(
 )
 ```
 
-CLI using existing daily snapshot data:
+CLI using archived daily bar files:
 
 ```powershell
-uv run custom-breadth.py --symbols AMEX:GDX AMEX:SPY --ma 50 --input data/prices.json --output data/custom-breadth.json
+uv run custom-breadth.py --symbols NYSE:NEM NYSE:AEM --ma 50 --download-date 2026-10-25 --output data/custom-breadth.json
 ```
 
-The two-ETF example only demonstrates syntax; a GDX constituent index should
+The two-stock example only demonstrates syntax; a GDX constituent index should
 instead select the full holdings list and supply its exchange-qualified map:
 
 ```powershell
-uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --input data/gdx-prices.json --output data/gdx-breadth-sma50.json
+uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
 ```
 
 The symbol map is a JSON object mapping every issuer ticker label to exactly
@@ -166,10 +187,10 @@ one provider symbol, e.g. `{"NEM": "NYSE:NEM", ...}`. All 59 security rows are
 selected; cash is excluded. Missing mappings fail. GDX symbol mappings,
 downloaded histories, and calculated snapshots stay local under ignored `data/`.
 
-To fetch all available history, replace `--input` with
-`--mcp-url https://mcp.tradingview.com/mcp`, optionally adding
-`--save-prices data/gdx-prices.json`. It uses `TRADINGVIEW_MCP_TOKEN` and pages
-history backwards. `--end` limits the last included date; use the latest
+To fetch all available history, replace `--download-date` and its value with
+`--mcp-url https://mcp.tradingview.com/mcp`. Every completed symbol is archived
+automatically; no separate save option is needed. It uses
+`TRADINGVIEW_MCP_TOKEN` and pages history backwards. `--end` limits the last included date; use the latest
 completed session to avoid forming bars. `--start` limits output dates, not
 downloaded warmup. Without dates, all available supplied/downloaded history is used.
 
@@ -181,14 +202,17 @@ eligible securities on each date. `--min-coverage 1` requires full-universe
 coverage; the default allows any nonzero coverage. Before enough history
 exists, percentages are null. Coverage is important for comparisons across time.
 
+`--input PATH` remains available for a legacy combined snapshot.
 This is a fixed-current-universe history, not historical GDX membership.
-The report still selects MMOH/MMOF; custom series selection is a separate step.
+The report includes the GDX custom snapshot alongside MMOH/MMOF.
 See the [methodology](knowledge/references/gdx-breadth.md).
 
 ## Breadth event study
 
 `uv run breadth-study.py` reproduces the threshold study using local TradingView
-downloads in `data/research/`. It writes event-level CSV, summary CSV, methodology,
+downloads from the latest complete `data/research/day/<date>/` batch.
+Use `--download-date` to pin a batch and `--data PATH` to change the store root.
+It writes event-level CSV, summary CSV, methodology,
 and snapshot hashes to `reports/breadth-study/`. Inputs and generated outputs are
 ignored by Git; a research summary is preserved in the
 [knowledge library](knowledge/references/breadth-crossing-study.md).

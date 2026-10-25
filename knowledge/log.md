@@ -2,6 +2,7 @@
 
 ## 2026-10-25
 
+- Standardized raw bar storage under data/research/day/<download-date>/<symbol>.json and updated breadth/report utilities to read dated per-symbol files.
 - Added the GDX 50-day breadth report section and downloaded all 59 constituent histories; normalized exchange session dates and retained coverage and fixed-universe labels.
 - Renamed the custom breadth methodology reference to gdx-breadth.md and updated its links.
 - Added the reusable custom SMA breadth helper, snapshot contract, availability policy, and fixed-current-GDX-universe limitations.
