@@ -71,6 +71,8 @@ The 59 securities should not be conflated with the issuer's reported 65 holdings
 
 # Limits
 
+The planned event study is tracked in [GDX research TODOs](/sectors/gdx.md#research-todos).
+
 The GDX report defaults to a 50-day SMA, the 2026-10-22 fixed universe, and
 minimum coverage 0.8. It shows daily coverage and suppresses percentages below
 that cutoff. Generate the local snapshot with:

@@ -7,7 +7,7 @@ tags: [gold, miners, GDX, equities]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: 2026-10-25T19:12:45Z
+  at: 2026-10-25T19:58:43Z
 sources:
   - id: vaneck-overview
     resource: https://www.vaneck.com/us/en/investments/gold-miners-etf-gdx/overview
@@ -156,6 +156,16 @@ A GDX-to-gold comparison would describe relative performance, not identify
 the cause. Choose and document the gold proxy, broad-equity benchmark,
 return-adjustment policy, and horizons before calculating it. Do not assume
 a ratio level or moving-average crossover predicts future returns.
+
+# Research TODOs
+
+- [ ] Conduct a GDX constituent breadth study using the [50-day SMA methodology](/references/gdx-breadth.md).
+  - Test downward crossings of 30%, 25%, and 20% of constituents above the 50-day SMA.
+  - Measure forward GDX returns over 10, 20, 30, 50, 100, and 200 trading sessions.
+  - Compare with unconditional GDX returns over the same sample and horizons.
+  - Report sample sizes, overlapping events, and interim drawdowns.
+  - Document the bias from using current constituents historically.
+  - Specify signal timing, execution assumptions, and price/dividend adjustment treatment.
 
 # Evidence limitations
 
