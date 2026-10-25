@@ -64,6 +64,18 @@ class ReportTests(unittest.TestCase):
     def test_month_end(self):
         self.assertEqual(report.months_before(date(2024, 3, 31), 1), date(2024, 2, 29))
 
+    def test_knowledge_distinguishes_level_from_crossing(self):
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
+        report.attach_breadth_knowledge(result)
+        self.assertIn("Neither index made a new downward crossing", result["interpretation"])
+        self.assertIn("100-day average", result["interpretation"])
+        for series in result["series"].values():
+            series["latest"]["close"] = 19
+            series["daily_change"] = -2
+        text = report.breadth_interpretation(result)
+        self.assertIn("New downward crossings: MMOH below 20, MMOF below 20", text)
+        self.assertIn("does not establish a buying signal", text)
+
     def test_cli_generates_both_artifacts(self):
         (report.ROOT / "reports").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:

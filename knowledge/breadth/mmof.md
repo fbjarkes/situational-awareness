@@ -16,6 +16,7 @@ market_report:
   expected_range: [0, 100]
   universe_status: undocumented_in_consulted_source
   evidence_status: exploratory
+  studied_crossing_thresholds: [30, 25, 20]
   insight_source: /references/breadth-crossing-study.md
 sources:
   - id: crossing-study

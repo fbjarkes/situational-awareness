@@ -26,7 +26,8 @@ The version-controlled [knowledge bundle](knowledge/index.md) follows the
 It contains indicator references, an explicitly unvalidated breadth hypothesis,
 and the proposed sector RS methodology. Concept metadata uses YAML frontmatter;
 explanations and evidence live in Markdown. The `market_report` extension is
-project-specific and is not yet consumed by the report generator.
+project-specific. The report reads breadth definitions and crossing thresholds
+for interpretation and records the knowledge content and hashes in JSON.
 
 ## Run
 
@@ -80,7 +81,7 @@ It rejects truncated responses instead of silently reporting partial history.
 ## Dates and interpretation
 
 - `--date YYYY-MM-DD` means observations at or before that date. Default:
-  today's date in New York; the latest available prior observation is shown.
+  today's date in Stockholm; the latest available prior observation is shown.
 - Today's bar is included when the provider has one, so a run during the last
   hour of trading reports current values. A bar dated on the fetch day and
   fetched before 16:00 ET is labelled `intraday HH:MM ET`; changes then compare

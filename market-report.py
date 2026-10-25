@@ -11,6 +11,8 @@ import json
 import os
 from pathlib import Path
 import sys
+import hashlib
+import yaml
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
@@ -161,6 +163,26 @@ def chart_svg(report: dict) -> str:
 
 
 def breadth_interpretation(report: dict) -> str:
+    knowledge = report.get("breadth_knowledge")
+    if knowledge:
+        readings = []
+        crossings = []
+        for symbol in SYMBOLS:
+            s = report["series"][symbol]
+            config = knowledge[symbol]["metadata"]["market_report"]
+            readings.append(f'{symbol.split(":")[1]} at {s["latest"]["close"]:.2f}% shows the share of stocks above their {config["average_horizon_days"]}-day average')
+            if s["daily_change"] is not None:
+                previous = s["latest"]["close"] - s["daily_change"]
+                for threshold in config["studied_crossing_thresholds"]:
+                    if previous >= threshold > s["latest"]["close"]:
+                        crossings.append(f'{symbol.split(":")[1]} below {threshold}')
+        level = "both below half, indicating limited participation" if all(report["series"][s]["latest"]["close"] < 50 for s in SYMBOLS) else "participation differs across the two horizons"
+        first = "; ".join(readings) + f" — {level}."
+        if crossings:
+            second = " New downward crossings: " + ", ".join(crossings) + "; the linked historical study is exploratory and does not establish a buying signal."
+        else:
+            second = " Neither index made a new downward crossing of 30, 25, or 20, so the study's crossing-conditioned SPY returns do not describe a fresh signal today."
+        return first + second
     series = [report["series"][symbol] for symbol in SYMBOLS]
     daily = [s["daily_change"] for s in series]
     weekly = [s["five_session_change"] for s in series]
@@ -177,6 +199,19 @@ def breadth_interpretation(report: dict) -> str:
     if any(s["latest_status"] == "intraday" for s in series):
         recap += " Today's values are intraday and can change before the close."
     return recap
+
+
+def attach_breadth_knowledge(report: dict) -> None:
+    knowledge = {}
+    for symbol in SYMBOLS:
+        path = ROOT / "knowledge" / "breadth" / (symbol.split(":")[1].lower() + ".md")
+        content = path.read_text(encoding="utf-8")
+        metadata = yaml.safe_load(content.split("---", 2)[1])
+        knowledge[symbol] = {"path": path.relative_to(ROOT).as_posix(),
+                             "sha256": hashlib.sha256(content.encode()).hexdigest(),
+                             "metadata": metadata, "content": content}
+    report["breadth_knowledge"] = knowledge
+    report["interpretation"] = breadth_interpretation(report)
 
 
 def render_section(title: str, visual: str, interpretation: str) -> str:
@@ -203,7 +238,7 @@ def render_html(report: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["daily"], nargs="?", default="daily")
-    parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in New York")
+    parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in Stockholm")
     parser.add_argument("--provider", choices=["snapshot", "tradingview"], default="snapshot")
     parser.add_argument("--snapshot", type=Path, default=ROOT / "data/tradingview-breadth.json")
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
@@ -220,8 +255,9 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--lookback must be between 1 and 120 months")
     now = datetime.now(NY)
     today = now.date()
-    requested = args.date or today
-    if requested > today:
+    report_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
+    requested = args.date or report_today
+    if requested > report_today:
         parser.error("--date cannot be in the future")
     try:
         if args.provider == "snapshot":
@@ -243,6 +279,7 @@ def main(argv: list[str] | None = None) -> int:
                 cache.write_text(json.dumps(payload, indent=2), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
         report = build_report(payload, requested, args.lookback, source, now, args.close_only)
+        attach_breadth_knowledge(report)
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
             path = args.output / f"market-report-{requested}.{fmt}"
