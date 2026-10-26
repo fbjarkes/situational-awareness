@@ -31,6 +31,13 @@ two-sentence interpretation. Breadth uses one shared MMOH/MMOF line chart;
 latest values appear in its legend. Technical provenance stays in JSON.
 Material data-quality warnings remain visible in the report.
 
+The S&P 500 section shows an SPY card with distance from the 200- and 50-day
+SMAs, consecutive days above or below the 50-day SMA, and consecutive down
+days. It reads `AMEX:SPY` from the bar store (or downloads it with a live
+provider); without stored SPY history the card says it is unavailable.
+Helpers live in `price_stats.py`. Readings are descriptive; the related
+studies are Research TODOs in `knowledge/index/spy.md`.
+
 Next planned section: SPDR sector analysis, using a sector table with RS-1,
 RS-3, and RS-6 columns for 1-, 3-, and 6-month relative returns. Proposed
 calculation: sector ETF return minus SPY return, expressed in percentage
@@ -136,6 +143,9 @@ and record the feed and price adjustment.
 uv run market-report.py --provider alpaca
 uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --alpaca --alpaca-feed sip --ma 50 --output data/gdx-breadth-sma50-alpaca.json
 ```
+
+With `--provider alpaca`, the report downloads SPY from Alpaca for the S&P 500
+card (`--alpaca-feed iex|sip`, default `iex`); credentials are then required.
 
 **Limitations.** MMOH and MMOF are TradingView-only indices. With
 `--provider alpaca` the report reads them from the latest stored TradingView

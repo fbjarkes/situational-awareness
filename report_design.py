@@ -73,6 +73,38 @@ def limitations_panel(report):
             '<p>Substituted series keep their original provider; they are labelled, not merged into another provider\'s data.</p></section>')
 
 
+CSS += """
+.metric-table{width:100%;border-collapse:collapse;margin:18px 0 4px;font-size:14px;font-variant-numeric:tabular-nums}.metric-table th,.metric-table td{padding:9px 4px;border-bottom:1px solid var(--line);text-align:left}.metric-table th{font-weight:500;color:var(--muted)}.metric-table td{text-align:right;font-size:16px}.metric-table tr:last-child>*{border-bottom:0}
+"""
+
+
+def spy_card(spy):
+    """SPY trend metrics as one table; unavailable data is stated, not hidden."""
+    title = '<div class="card-header"><div><h3 id="spy-title">SPY · S&amp;P 500 ETF</h3><p class="subheading">Trend and streak metrics</p></div>'
+    if "metrics" not in spy:
+        return (f'<article class="card" aria-labelledby="spy-title">{title}<span class="period">Unavailable</span></div>'
+                f'<div class="unavailable" role="note"><strong>No SPY data</strong>{escape(spy["unavailable"])}</div></article>')
+    m = spy["metrics"]
+    def pct(value):
+        return "n/a" if value is None else f"{value:+.2f}%"
+    def streak(key):
+        return f'{"≥" if m["lower_bound"][key] else ""}{m[key]}'
+    side = ("Cons. days above 50-day SMA", streak("cons_days_above_sma50")) if m["cons_days_above_sma50"] else ("Cons. days below 50-day SMA", streak("cons_days_below_sma50"))
+    rows = [("Close", f'{m["close"]:.2f}'), ("Distance from 200-day SMA", pct(m["distance_from_sma200_pct"])),
+            ("Distance from 50-day SMA", pct(m["distance_from_sma50_pct"])), side,
+            ("Cons. down days", streak("cons_down_days"))]
+    table = '<table class="metric-table"><tbody>' + "".join(f'<tr><th scope="row">{escape(k)}</th><td>{escape(v)}</td></tr>' for k, v in rows) + '</tbody></table>'
+    source = provider_name(spy["provider"]) + (f' · {spy["feed"]} feed' if spy.get("feed") else "") + f' · {spy["symbol"]}'
+    info = (f'<details class="details"><summary>Details and methodology</summary><p>Simple moving averages include the current close. '
+            'Distance is 100 × (close / SMA − 1). Streaks count consecutive sessions ending at the latest close; an unchanged close or a close equal to the SMA ends a streak. '
+            f'"≥" marks a streak that reaches the start of the downloaded history ({escape(m["history_start"])}, {m["history_sessions"]} sessions).</p>'
+            f'<p>Source: {escape(spy["source"])}. Data fetched: {escape(str(spy.get("fetched_at")))}. '
+            'Studies of these metrics are open Research TODOs in knowledge/index/spy.md.</p></details>')
+    return (f'<article class="card" aria-labelledby="spy-title">{title}<span class="period">{escape(spy["as_of"])}</span></div>{table}'
+            f'<div class="chart-caption"><span>{escape(source)}</span><span>{escape("Adjustment: " + spy["adjustment"] if spy.get("adjustment") else "Adjustment not recorded by provider")}</span></div>'
+            f'<p class="interpretation">{escape(spy["interpretation"])}</p>{info}</article>')
+
+
 NAV_SCRIPT = """
 const links = [...document.querySelectorAll('nav a')];
 const pages = [...document.querySelectorAll('.report-page')];
@@ -138,12 +170,15 @@ def render_report(report, chart, interpretation):
     status = ('<details class="data-status"><summary>Data availability</summary><ul>' +
               "".join(f'<li>{escape(note)}</li>' for note in dict.fromkeys(notes)) + '</ul></details>') if notes else ""
     source_symbols = set(report["series"])
+    spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
+    if "metrics" in spy:
+        source_symbols.add(spy["symbol"])
     if gdx:
         source_symbols.update(set(gdx["universe"]["symbols"]) - set(gdx["universe"].get("missing_symbols", [])))
     run = report.get("run_status", {})
     downloads = str(run["downloaded_symbols"]) if "downloaded_symbols" in run else "—"
     coverage_text = f'{gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]}' if gdx else "—"
-    source_detail = f'{len(report["series"])} indices' + (f' · {len(source_symbols) - len(report["series"])} GDX constituents' if gdx else '')
+    source_detail = f'{len(report["series"])} indices' + (' · SPY' if "metrics" in spy else '') + (f' · {len(source_symbols) - len(report["series"]) - ("metrics" in spy)} GDX constituents' if gdx else '')
     stats = [("Source symbols", str(len(source_symbols)), source_detail),
              ("Downloaded this run", downloads, ""),
              ("GDX coverage", coverage_text, "Eligible / constituent universe" if gdx else "Not included"),
@@ -180,7 +215,7 @@ def render_report(report, chart, interpretation):
                   f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed current constituents</span><span>Share of stocks (%)</span></div>'
                   f'<p class="interpretation">{escape(gdx["interpretation"])}</p>{details(gdx, gdx=True)}</article>')
     groups = [("market-breadth", "Market Breadth", breadth),
-              ("sp500", "S&P 500", '<div class="planned"><span>Planned</span>Price and trend · Sector relative strength</div>'),
+              ("sp500", "S&P 500", spy_card(spy) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes)]
     cards = []
     for key, title, _ in groups:
@@ -195,14 +230,19 @@ def render_report(report, chart, interpretation):
             preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"
             badge = "Available" if gdx else "Planned"
         else:
-            description = "Price, trend and relative strength across S&P 500 sectors."
-            preview = "Price and trend · Sector relative strength"
-            badge = "Planned"
+            description = "SPY trend and streak metrics; sector relative strength planned."
+            if "metrics" in spy:
+                m = spy["metrics"]
+                d200 = "" if m["distance_from_sma200_pct"] is None else f' · {m["distance_from_sma200_pct"]:+.1f}% vs 200-day'
+                preview = f'SPY {m["close"]:.2f}{d200} · {m["cons_down_days"]} down days'
+                badge = "Available"
+            else:
+                preview, badge = "SPY data unavailable", "Unavailable"
         cards.append(f'<a class="overview-card" href="#{key}"><div class="overview-card-top"><h3>{escape(title)}</h3><span class="period">{badge}</span></div><p>{escape(description)}</p><div class="overview-preview">{escape(preview)}</div><span class="open-section">Explore section <span aria-hidden="true">→</span></span></a>')
     overview = ('<section class="report-page overview" id="overview" aria-labelledby="overview-heading">'
                 '<h2 class="overview-label" id="overview-heading" tabindex="-1">Sections</h2><div class="overview-grid">' + ''.join(cards) + '</div></section>')
     navigation = '<a href="#overview" aria-current="page"><span>Overview</span></a>'
-    navigation += "".join(f'<a href="#{key}"><span>{escape(title)}</span>' + ('<span class="nav-tag">Planned</span>' if key == 'sp500' else '') + '</a>' for key, title, _ in groups)
+    navigation += "".join(f'<a href="#{key}"><span>{escape(title)}</span>' + ('<span class="nav-tag">Unavailable</span>' if key == 'sp500' and "metrics" not in spy else '') + '</a>' for key, title, _ in groups)
     body = overview + "".join(f'<section class="group report-page" id="{key}" aria-labelledby="{key}-heading"><a class="back-overview" href="#overview">← All sections</a><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading" tabindex="-1">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Market report · {report['requested_date']}</title><style>{CSS}</style></head>
 <body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">Daily market briefing</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>

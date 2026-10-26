@@ -16,13 +16,18 @@ import yaml
 from zoneinfo import ZoneInfo
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
-from providers import alpaca_symbol, alpaca_unavailable_reason, provider_label
+from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
+from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
+                         streak_is_lower_bound)
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
 COLORS = ("#67ddc4", "#ffc078")
 NY = ZoneInfo("America/New_York")
 MARKET_CLOSE = time(16, 0)
+SPY_SYMBOLS = {"tradingview": "AMEX:SPY", "alpaca": "SPY"}
+# Calendar days of SPY history: enough for a 200-day SMA plus long streaks.
+SPY_HISTORY_DAYS = 1100
 
 
 def months_before(day: date, months: int) -> date:
@@ -41,7 +46,7 @@ def read_snapshot(path: Path) -> dict:
     return payload
 
 
-async def fetch_tradingview(endpoint: str, as_of: date, start: date) -> dict:
+async def fetch_tradingview(endpoint: str, as_of: date, start: date, symbols: tuple[str, ...] = SYMBOLS) -> dict:
     # Authentication stays in the environment and is never written to reports.
     from mcp import ClientSession
     from mcp.client.streamable_http import streamablehttp_client
@@ -56,7 +61,7 @@ async def fetch_tradingview(endpoint: str, as_of: date, start: date) -> dict:
             candidates = [t.name for t in available.tools if t.name.endswith("get_ohlcv")]
             if len(candidates) != 1:
                 raise ValueError("MCP endpoint must expose one TradingView get_ohlcv tool")
-            for symbol in SYMBOLS:
+            for symbol in symbols:
                 result = await session.call_tool(candidates[0], {
                     "symbol": symbol, "interval": "1D", "count": 5000,
                     "date_from": start.isoformat(), "date_to": as_of.isoformat(),
@@ -119,7 +124,7 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
     mixed = len({s["as_of"] for s in series.values()}) > 1
     notes = ["Readings come from different dates or times; each line below says which."] if mixed else []
     for symbol, s in series.items():
-        name = symbol.split(":")[1]
+        name = symbol.split(":")[-1]
         if s["latest_status"] == "intraday":
             notes.append(f"{name}: {s['as_of']}; not a closing value. "
                          "Changes compare it with the previous close.")
@@ -163,6 +168,56 @@ def unavailable_report(requested: date, lookback: int, close_only: bool, reason:
                                  "Include today's bar when available; label it intraday if fetched before 16:00 ET."),
             "historical_note": "Historical mode filters observations by date; provider revisions are not reconstructed.",
             "series": {}, "breadth_unavailable": reason}
+
+
+def spy_section(payload: dict | None, provider: str, requested: date, lookback: int, now: datetime,
+                close_only: bool, source: str, unavailable: str | None = None) -> dict:
+    """Latest SPY trend metrics; descriptive only, no thresholds are applied."""
+    symbol = SPY_SYMBOLS[provider]
+    if payload is None or not payload["series"].get(symbol):
+        return {"symbol": symbol, "provider": provider, "unavailable": unavailable or f"No stored {symbol} history was found."}
+    base = build_report(payload, requested, lookback, source, now, close_only, (symbol,))
+    series = base["series"][symbol]
+    cutoff = date.fromisoformat(base["observation_cutoff"])
+    unique = {bar_date(b): float(b["c"]) for b in payload["series"][symbol] if b.get("c") is not None and bar_date(b) <= cutoff}
+    closes = [unique[d] for d in sorted(unique)]
+    above, below, down = cons_days_above_ma(closes, 50), cons_days_below_ma(closes, 50), cons_down_days(closes)
+    metrics = {"close": closes[-1],
+               "distance_from_sma200_pct": distance_from_ma(closes, 200),
+               "distance_from_sma50_pct": distance_from_ma(closes, 50),
+               "cons_days_above_sma50": above, "cons_days_below_sma50": below,
+               "cons_down_days": down,
+               "lower_bound": {"cons_days_above_sma50": streak_is_lower_bound(closes, above, 50),
+                               "cons_days_below_sma50": streak_is_lower_bound(closes, below, 50),
+                               "cons_down_days": streak_is_lower_bound(closes, down)},
+               "history_sessions": len(closes), "history_start": min(unique).isoformat()}
+    warnings = list(base["warnings"])
+    if metrics["distance_from_sma200_pct"] is None:
+        warnings.append(f"{symbol}: fewer than 200 sessions of history; 200-day distance unavailable.")
+    return {"symbol": symbol, "provider": provider, "source": source, "as_of": series["as_of"],
+            "latest_status": series["latest_status"], "latest": series["latest"],
+            "fetched_at": series["fetched_at"], "daily_change": series["daily_change"],
+            "input_bar_files": payload.get("bar_files", []), "feed": payload.get("feed"),
+            "adjustment": payload.get("adjustment"), "metrics": metrics, "warnings": warnings,
+            "definitions": {"sma": "simple average of the latest N closes, including the current close",
+                            "distance": "100 * (close / SMA - 1)",
+                            "streaks": "consecutive sessions ending at the latest close; ties end a streak",
+                            "lower_bound": "streak reaches the start of the downloaded history"},
+            "knowledge_sources": ["/index/spy.md"]}
+
+
+def spy_interpretation(spy: dict) -> str:
+    m = spy["metrics"]
+    plural = lambda n: f'{n} session{"" if n == 1 else "s"}'
+    side = (f'{plural(m["cons_days_above_sma50"])} above' if m["cons_days_above_sma50"]
+            else f'{plural(m["cons_days_below_sma50"])} below')
+    d200 = m["distance_from_sma200_pct"]
+    where = "unavailable relative to its 200-day average" if d200 is None else f'{abs(d200):.1f}% {"above" if d200 >= 0 else "below"} its 200-day average'
+    text = (f'SPY closed {where}, {side} its 50-day average, with {m["cons_down_days"]} consecutive down session{"" if m["cons_down_days"] == 1 else "s"}. '
+            'These are descriptive readings; the related studies are open Research TODOs, so no threshold is interpreted.')
+    if spy["latest_status"] == "intraday":
+        text += " Today's value is intraday and can change before the close."
+    return text
 
 
 def change_text(value: float | None) -> str:
@@ -318,6 +373,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--download-date", type=date.fromisoformat, help="Select a stored download batch")
     parser.add_argument("--gdx-breadth", type=Path, default=ROOT / "data/gdx-breadth-sma50.json", help="GDX custom breadth snapshot")
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
+    parser.add_argument("--alpaca-feed", choices=["iex", "sip"], default="iex", help="Alpaca feed for --provider alpaca; iex is free but not the consolidated close")
     parser.add_argument("--lookback", type=int, default=6, metavar="MONTHS")
     parser.add_argument("--format", default="html,json", help="html, json, or html,json")
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
@@ -338,6 +394,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         coverage = []
         report = None
+        spy_payload, spy_note, spy_downloads, spy_source = None, None, 0, "unavailable"
+        spy_provider = "alpaca" if args.provider == "alpaca" else "tradingview"
+        spy_start = requested - timedelta(days=SPY_HISTORY_DAYS)
+        batch = args.download_date.isoformat() if args.download_date else None
         if args.provider == "alpaca":
             if args.snapshot or args.refresh:
                 parser.error("--snapshot and --refresh do not apply to --provider alpaca")
@@ -357,6 +417,17 @@ def main(argv: list[str] | None = None) -> int:
                                  "status": "substituted" if payload else "unavailable",
                                  "reason": a["reason"],
                                  "source": f"stored TradingView batch day/{payload['download_date']}" if payload else None})
+            # SPY is a US ETF, so Alpaca supplies it directly; download failures fail the run.
+            alpaca_payload = fetch_alpaca_daily(["SPY"], spy_start, observation_cutoff(requested, today, args.close_only) + timedelta(days=1),
+                                                feed=args.alpaca_feed)
+            alpaca_payload.pop("empty_symbols")
+            if alpaca_payload["series"]:
+                saved = save_bars(alpaca_payload, args.data_root)
+                spy_payload = load_bars(["SPY"], args.data_root, provider="alpaca", download_date=saved[0].parent.name)
+                spy_downloads = 1
+                spy_source = f"Alpaca ({args.alpaca_feed} feed, fresh)"
+            else:
+                spy_note = "Alpaca returned no SPY daily bars for the requested window."
             names = "/".join(s.split(":")[1] for s in SYMBOLS)
             if payload:
                 source = f"bar store: day/{payload['download_date']} (TradingView; {names} unavailable from Alpaca)"
@@ -370,6 +441,14 @@ def main(argv: list[str] | None = None) -> int:
                 parser.error("--refresh requires --provider tradingview")
             payload = read_snapshot(args.snapshot) if args.snapshot else load_bars(SYMBOLS, args.data_root, download_date=args.download_date.isoformat() if args.download_date else None)
             source = f"snapshot: {args.snapshot.name}" if args.snapshot else f"bar store: day/{payload['download_date']}"
+            if args.snapshot:
+                spy_payload, spy_source = payload, source
+            else:
+                try:
+                    spy_payload = load_bars(["AMEX:SPY"], args.data_root, provider="tradingview", download_date=batch)
+                    spy_source = f"bar store: day/{spy_payload['download_date']}"
+                except ValueError:
+                    spy_note = "No stored TradingView AMEX:SPY history was found; download it to the bar store first."
         else:
             if not args.mcp_url:
                 parser.error("--provider tradingview requires --mcp-url or TRADINGVIEW_MCP_URL")
@@ -379,24 +458,38 @@ def main(argv: list[str] | None = None) -> int:
             if cached.get("bar_store_batch") and not args.refresh and requested < today:
                 payload = load_bars(SYMBOLS, args.data_root, download_date=cached["bar_store_batch"])
                 source = "TradingView MCP (cached)"
+                try:
+                    spy_payload = load_bars(["AMEX:SPY"], args.data_root, provider="tradingview", download_date=cached["bar_store_batch"])
+                    spy_source = source
+                except ValueError:
+                    spy_note = "Cached TradingView batch has no AMEX:SPY history; rerun with --refresh."
             else:
                 payload = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only), months_before(requested, args.lookback) - timedelta(days=20)))
+                spy_fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only), spy_start, ("AMEX:SPY",)))
                 saved = save_bars(payload, args.data_root)
+                save_bars(spy_fresh, args.data_root)
                 cache.parent.mkdir(parents=True, exist_ok=True)
                 cache.write_text(json.dumps({"bar_store_batch": saved[0].parent.name}), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
+                spy_payload = load_bars(["AMEX:SPY"], args.data_root, provider="tradingview", download_date=saved[0].parent.name)
+                spy_source, spy_downloads = source, 1
         if report is None:
             report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         report["requested_provider"] = None if args.provider == "snapshot" else args.provider
         report["provider_coverage"] = coverage
         attach_breadth_knowledge(report)
+        report["spy"] = spy_section(spy_payload, spy_provider, requested, args.lookback, now, args.close_only,
+                                    spy_source if spy_payload else "unavailable", spy_note)
+        if "metrics" in report["spy"]:
+            report["spy"]["interpretation"] = spy_interpretation(report["spy"])
+            report["warnings"].extend(report["spy"]["warnings"])
         attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
         report["research_todos"] = collect_research_todos(ROOT / "knowledge")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":
-            data_mode = "Alpaca · " + ("TradingView-only series from stored data" if payload else "breadth unavailable")
-        report["run_status"] = {"downloaded_symbols": len(payload["series"]) if fresh_download else 0,
+            data_mode = "Alpaca · SPY " + ("downloaded" if spy_downloads else "unavailable") + " · breadth " + ("from stored TradingView data" if payload else "unavailable")
+        report["run_status"] = {"downloaded_symbols": (len(payload["series"]) if fresh_download else 0) + spy_downloads,
                                 "data_mode": data_mode,
                                 "download_batch": payload.get("download_date") if payload else None}
         args.output.mkdir(parents=True, exist_ok=True)
@@ -407,6 +500,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Saved {path.resolve()}")
         for symbol, s in report["series"].items():
             print(f'{symbol}: {s["latest"]["close"]:.2f} | daily {change_text(s["daily_change"])} | {s["as_of"]}')
+        spy = report["spy"]
+        if "metrics" in spy:
+            m = spy["metrics"]
+            d200 = "n/a" if m["distance_from_sma200_pct"] is None else f'{m["distance_from_sma200_pct"]:+.2f}%'
+            print(f'{spy["symbol"]}: {m["close"]:.2f} | vs 200DMA {d200} | above 50DMA {m["cons_days_above_sma50"]} | below 50DMA {m["cons_days_below_sma50"]} | down days {m["cons_down_days"]} | {spy["as_of"]}')
+        else:
+            print(f'SPY unavailable: {spy["unavailable"]}')
         for item in report["provider_coverage"]:
             used = f'using {item["source"]}' if item["provider_used"] else "not shown"
             print(f'LIMITATION: {item["symbol"]} unavailable from {provider_label(item["requested_provider"])}: {item["reason"]} ({used})')

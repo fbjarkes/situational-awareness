@@ -4,10 +4,25 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 spec = importlib.util.spec_from_file_location("market_report", Path(__file__).with_name("market-report.py"))
 report = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(report)
+
+
+def spy_bars(n=260, end=date(2026, 10, 23)):
+    """Rising closes with a three-session decline at the end."""
+    from datetime import timedelta
+    closes = [100 + i for i in range(n - 3)] + [n + 95, n + 94, n + 93]
+    return [{"t": int(datetime.combine(end - timedelta(days=n - 1 - i), datetime.min.time(), timezone.utc).timestamp()) + 4 * 3600,
+             "c": float(c)} for i, c in enumerate(closes)]
+
+
+def fake_alpaca(symbols, start, end, *, feed, **_):
+    return {"schema_version": 1, "provider": "alpaca", "fetched_at": "2026-10-24T00:00:00Z", "feed": feed,
+            "adjustment": "split", "session_timezones": {"SPY": "America/New_York"},
+            "series": {"SPY": spy_bars()}, "empty_symbols": []}
 
 
 class ReportTests(unittest.TestCase):
@@ -146,8 +161,9 @@ class ReportTests(unittest.TestCase):
             root = Path(folder) / "store"
             save_bars(self.payload(), root)
             missing = Path(folder) / "no-gdx.json"
-            self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(root),
-                                          "--gdx-breadth", str(missing), "--output", folder]), 0)
+            with mock.patch.object(report, "fetch_alpaca_daily", fake_alpaca):
+                self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(root),
+                                              "--gdx-breadth", str(missing), "--output", folder]), 0)
             data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
             self.assertEqual(data["requested_provider"], "alpaca")
             self.assertEqual({c["status"] for c in data["provider_coverage"]}, {"substituted"})
@@ -156,12 +172,17 @@ class ReportTests(unittest.TestCase):
             self.assertIn("Provider limitations · 2", html)
             self.assertIn("not available from Alpaca", html)
             self.assertIn('class="source-note"', html)
+            self.assertEqual(data["spy"]["provider"], "alpaca")
+            self.assertEqual(data["spy"]["metrics"]["cons_down_days"], 3)
+            self.assertEqual(data["run_status"]["downloaded_symbols"], 1)
+            self.assertIn("Alpaca · iex feed · SPY", html)
 
     def test_alpaca_without_stored_breadth_renders_unavailable(self):
         (report.ROOT / "reports").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
-            self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(Path(folder) / "empty"),
-                                          "--gdx-breadth", str(Path(folder) / "no-gdx.json"), "--output", folder]), 0)
+            with mock.patch.object(report, "fetch_alpaca_daily", fake_alpaca):
+                self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(Path(folder) / "empty"),
+                                              "--gdx-breadth", str(Path(folder) / "no-gdx.json"), "--output", folder]), 0)
             html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
             self.assertIn("No breadth data for this provider", html)
             self.assertIn("Unavailable from the selected provider", html)
@@ -184,6 +205,38 @@ class ReportTests(unittest.TestCase):
         html = report.render_html(result)
         self.assertIn("1 of 2 GDX constituents", html)
         self.assertIn("Constituent prices: Alpaca.", html)
+
+    def test_spy_card_from_stored_tradingview_bars(self):
+        from bar_store import save_bars
+        (report.ROOT / "reports").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            root = Path(folder) / "store"
+            save_bars(self.payload(), root)
+            save_bars({"provider": "tradingview", "fetched_at": "2026-10-24T00:00:00Z", "series": {"AMEX:SPY": spy_bars()}}, root)
+            self.assertEqual(report.main(["--date", "2026-10-23", "--data-root", str(root),
+                                          "--gdx-breadth", str(Path(folder) / "none.json"), "--output", folder]), 0)
+            data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
+            m = data["spy"]["metrics"]
+            self.assertEqual(m["close"], 353.0)
+            self.assertEqual(m["cons_down_days"], 3)
+            # A steady rise stays above its 50-day SMA for all 211 evaluable sessions.
+            self.assertEqual(m["cons_days_above_sma50"], 211)
+            self.assertTrue(m["lower_bound"]["cons_days_above_sma50"])
+            closes = [100 + i for i in range(257)] + [355, 354, 353]
+            self.assertAlmostEqual(m["distance_from_sma200_pct"], 100 * (353 / (sum(closes[-200:]) / 200) - 1))
+            self.assertFalse(m["lower_bound"]["cons_down_days"])
+            html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
+            self.assertIn("Cons. down days", html)
+            self.assertIn("Distance from 200-day SMA", html)
+            self.assertIn("SPY 353.00", html)
+            self.assertIn("≥211", html)
+
+    def test_spy_unavailable_without_stored_history(self):
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
+        result["spy"] = report.spy_section(None, "tradingview", date(2026, 10, 23), 6, self.ny(24), False, "unavailable")
+        html = report.render_html(result)
+        self.assertIn("No SPY data", html)
+        self.assertIn("SPY data unavailable", html)
 
     def test_knowledge_records_alpaca_unavailability(self):
         for symbol in report.SYMBOLS:

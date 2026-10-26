@@ -2,6 +2,8 @@
 
 ## 2026-10-26
 
+- Added the SPY report card (distance from 200/50-day SMA, consecutive days above/below the 50-day SMA, consecutive down days) and price_stats.py helpers; recorded metric definitions and three SPY Research TODOs.
+- Added the index folder with a SPY concept and a separate SPY holdings list: 503 listed securities as of 2026-10-22, retrieved 2026-10-26 from the issuer's daily holdings file.
 - Added Alpaca as an alternative daily-bar provider and the data-providers reference covering symbol availability, substitution labelling, feed, and adjustment treatment.
 - Recorded per-provider availability for MMOH and MMOF: TradingView-only; Alpaca lookups returned not found.
 - Documented that Alpaca GDX breadth covers at most 32 of 59 constituents (US listings) and is not comparable with the TradingView full-universe series.

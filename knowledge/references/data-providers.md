@@ -54,6 +54,9 @@ TradingView full-universe series. Do not combine the two into one history.
 
 # Report behavior
 
+- SPY is available from both providers. Stored runs and `--provider tradingview`
+  use `AMEX:SPY`; `--provider alpaca` downloads `SPY` from Alpaca (about three
+  years of daily history) and labels the feed on the card.
 - `--provider alpaca` reads TradingView-only breadth series from the latest
   complete stored TradingView batch (or `--download-date`) and labels each one
   in a visible "Provider limitations" panel and on the section. JSON records
