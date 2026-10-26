@@ -125,6 +125,28 @@ local snapshot. Tokens and endpoint URLs are excluded from report metadata.
 The provider fetches a little extra history for five-session comparisons.
 It rejects truncated responses instead of silently reporting partial history.
 
+## Alpaca provider
+
+Alpaca is an alternative source for US-listed stocks and ETFs. Set
+`APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` (optionally `APCA_DATA_URL`).
+Downloads use the bar store with plain tickers (`NEM`, not `NYSE:NEM`)
+and record the feed and price adjustment.
+
+```powershell
+uv run market-report.py --provider alpaca
+uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --alpaca --alpaca-feed sip --ma 50 --output data/gdx-breadth-sma50-alpaca.json
+```
+
+**Limitations.** MMOH and MMOF are TradingView-only indices. With
+`--provider alpaca` the report reads them from the latest stored TradingView
+batch and shows a "Provider limitations" panel plus a source label on the
+section; with no stored batch the section is shown as unavailable. Alpaca has
+no foreign listings, so GDX breadth from Alpaca covers at most 32 of 59
+constituents; the missing ones are listed in the snapshot and the report.
+The free `iex` feed's close is IEX-only; use `--alpaca-feed sip` for research.
+Use `--provider alpaca` with stored reads of `custom-breadth.py` to select
+Alpaca files. See the [data providers reference](knowledge/references/data-providers.md).
+
 ## Dates and interpretation
 
 - `--date YYYY-MM-DD` means observations at or before that date. Default:

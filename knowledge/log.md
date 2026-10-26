@@ -1,5 +1,11 @@
 # Knowledge update log
 
+## 2026-10-26
+
+- Added Alpaca as an alternative daily-bar provider and the data-providers reference covering symbol availability, substitution labelling, feed, and adjustment treatment.
+- Recorded per-provider availability for MMOH and MMOF: TradingView-only; Alpaca lookups returned not found.
+- Documented that Alpaca GDX breadth covers at most 32 of 59 constituents (US listings) and is not comparable with the TradingView full-universe series.
+
 ## 2026-10-25
 
 - Added OKF/TODO authoring conventions to AGENTS.md and a GDX constituent breadth event-study research checklist.

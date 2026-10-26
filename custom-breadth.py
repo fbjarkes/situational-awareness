@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 
 from breadth import calculate_breadth
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
+from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily
 
 
 async def download_history(symbols, endpoint, end=None, data_root=DATA_ROOT):
@@ -60,6 +61,28 @@ async def download_history(symbols, endpoint, end=None, data_root=DATA_ROOT):
             "fetched_at": datetime.now(timezone.utc).isoformat()}
 
 
+def alpaca_source(symbols, args):
+    """Read or download Alpaca bars; return (payload, prices keyed by requested symbol, unavailable)."""
+    tickers = {s: alpaca_symbol(s) for s in symbols}
+    unavailable = {s: alpaca_unavailable_reason(s) for s, t in tickers.items() if t is None}
+    wanted = list(dict.fromkeys(t for t in tickers.values() if t))
+    if not wanted:
+        raise ValueError("None of the requested symbols are available from Alpaca")
+    if args.alpaca:
+        payload = fetch_alpaca_daily(wanted, args.history_start, args.end, feed=args.alpaca_feed,
+                                     adjustment=args.adjustment)
+        for ticker in payload.pop("empty_symbols"):
+            unavailable.update({s: "Alpaca returned no daily bars for this ticker." for s, t in tickers.items() if t == ticker})
+        saved = save_bars(payload, args.data_root)
+        source = load_bars(list(payload["series"]), args.data_root, provider="alpaca", download_date=saved[0].parent.name)
+    else:
+        source = load_bars(wanted, args.data_root, provider="alpaca",
+                           download_date=args.download_date.isoformat() if args.download_date else None)
+    by_ticker = prices_from_snapshot(source)
+    prices = {s: by_ticker[t] for s, t in tickers.items() if t in by_ticker}
+    return source, prices, unavailable
+
+
 def prices_from_snapshot(payload):
     prices = {}
     exchange_timezones = {"ASX": "Australia/Sydney", "HKEX": "Asia/Hong_Kong",
@@ -106,6 +129,12 @@ def main():
     data = parser.add_mutually_exclusive_group()
     data.add_argument("--input", type=Path, help="Daily snapshot with series: {symbol: [{t, c}, ...]}")
     data.add_argument("--mcp-url", help="Fetch full daily history from a TradingView MCP endpoint")
+    data.add_argument("--alpaca", action="store_true", help="Fetch daily history from Alpaca (US listings only; needs APCA_API_KEY_ID/APCA_API_SECRET_KEY)")
+    parser.add_argument("--provider", choices=["tradingview", "alpaca"], default="tradingview",
+                        help="Provider whose stored bars to read; --alpaca implies alpaca")
+    parser.add_argument("--alpaca-feed", choices=["iex", "sip"], default="iex", help="Alpaca feed; iex is free but not the consolidated close")
+    parser.add_argument("--adjustment", choices=["raw", "split", "dividend", "all"], default="split", help="Alpaca price adjustment")
+    parser.add_argument("--history-start", type=date.fromisoformat, default=date(2016, 1, 1), help="First date requested from Alpaca")
     parser.add_argument("--data-root", type=Path, default=DATA_ROOT, help="Raw bar root (default data/research)")
     parser.add_argument("--download-date", type=date.fromisoformat, help="Read a specific dated batch; default latest complete batch")
     parser.add_argument("--ma", type=int, default=50)
@@ -124,16 +153,25 @@ def main():
             symbols = [mapping[s] for s in symbols]
             if len(set(symbols)) != len(symbols):
                 raise ValueError("Symbol map must not map different constituents to the same provider symbol")
+        unavailable = {}
+        prices = None
+        if args.alpaca:
+            args.provider = "alpaca"
+            if args.download_date:
+                raise ValueError("--download-date selects stored bars; do not combine with --alpaca")
         if args.input:
             source = json.loads(args.input.read_text(encoding="utf-8"))
+        elif args.provider == "alpaca":
+            source, prices, unavailable = alpaca_source(symbols, args)
         elif args.mcp_url:
             if args.download_date:
                 raise ValueError("--download-date selects stored bars; do not combine with --mcp-url")
             asyncio.run(download_history(symbols, args.mcp_url, args.end, args.data_root))
             source = load_bars(symbols, args.data_root)
         else:
-            source = load_bars(symbols, args.data_root, download_date=args.download_date.isoformat() if args.download_date else None)
-        snapshot = calculate_breadth(symbols, prices_from_snapshot(source), args.ma,
+            source = load_bars(symbols, args.data_root, provider="tradingview",
+                               download_date=args.download_date.isoformat() if args.download_date else None)
+        snapshot = calculate_breadth(symbols, prices if prices is not None else prices_from_snapshot(source), args.ma,
                                      start=args.start, end=args.end, min_coverage=args.min_coverage,
                                      name=args.name, universe_as_of=args.universe_as_of.isoformat() if args.universe_as_of else None)
         snapshot["input_provider"] = source.get("provider")
@@ -142,12 +180,19 @@ def main():
         snapshot["input_bar_files"] = source.get("bar_files", [])
         snapshot["input_sha256"] = hashlib.sha256(json.dumps(source, sort_keys=True).encode()).hexdigest()
         snapshot["universe"]["issuer_symbols"] = issuer_symbols
+        # Symbols the provider cannot supply count as missing, with the reason kept.
+        snapshot["universe"]["provider_unavailable"] = unavailable
+        if source.get("provider") == "alpaca":
+            snapshot["input_feed"] = source.get("feed")
+            snapshot["input_adjustment"] = source.get("adjustment")
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(snapshot, indent=2, allow_nan=False), encoding="utf-8")
         bars = next(iter(snapshot["series"].values()))
         print(f"Saved {len(bars)} daily observations for {len(symbols)} constituents to {args.output}")
         if snapshot["universe"]["missing_symbols"]:
             print("WARNING: Missing histories: " + ", ".join(snapshot["universe"]["missing_symbols"]))
+        if unavailable:
+            print(f"LIMITATION: {len(unavailable)} of {len(symbols)} symbols are not available from {source.get('provider')}; breadth covers the rest only")
     except (ValueError, KeyError, OSError, TypeError) as error:
         parser.error(str(error))
     except Exception as error:

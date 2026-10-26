@@ -46,6 +46,9 @@ def save_bars(payload: dict, root: Path = ROOT, *, timeframe: str = "day") -> li
             old = json.loads(path.read_text(encoding="utf-8"))
             if old.get("provider") != payload.get("provider"):
                 raise ValueError(f"Provider conflict for {path.name}")
+            for key in ("feed", "adjustment"):
+                if old.get(key) != payload.get(key):
+                    raise ValueError(f"{key.title()} conflict for {path.name}; use another download date")
             history = {b["t"]: b for b in old["series"][symbol]}
             retrievals = old.get("retrievals", [])
             incoming = datetime.fromisoformat(fetched.replace("Z", "+00:00"))
@@ -66,9 +69,19 @@ def save_bars(payload: dict, root: Path = ROOT, *, timeframe: str = "day") -> li
     return paths
 
 
+def stored_provider(path: Path) -> str | None:
+    try:
+        return json.loads(path.read_bytes()).get("provider")
+    except (OSError, ValueError):
+        return None
+
+
 def load_bars(symbols, root: Path = ROOT, *, download_date: str | None = None,
-              timeframe: str = "day") -> dict:
-    """Read the latest complete dated batch; never silently mix download dates."""
+              timeframe: str = "day", provider: str | None = None) -> dict:
+    """Read the latest complete dated batch; never silently mix download dates.
+
+    With ``provider``, only files downloaded from that provider count.
+    """
     if timeframe != "day":
         raise ValueError("Only daily bar storage is supported currently")
     symbols = list(dict.fromkeys(symbols))
@@ -88,9 +101,13 @@ def load_bars(symbols, root: Path = ROOT, *, download_date: str | None = None,
             if folder.is_dir():
                 folders.append(folder)
         folders.sort(reverse=True)
-    folder = next((f for f in folders if all((f / symbol_filename(s)).is_file() for s in symbols)), None)
+    def complete(folder):
+        paths = [folder / symbol_filename(s) for s in symbols]
+        return all(p.is_file() and (provider is None or stored_provider(p) == provider) for p in paths)
+    folder = next((f for f in folders if complete(f)), None)
     if folder is None:
-        raise ValueError(f"No complete {timeframe} bar batch for {len(symbols)} symbols under {base}; download the missing histories or select --download-date")
+        source = f" {provider}" if provider else ""
+        raise ValueError(f"No complete{source} {timeframe} bar batch for {len(symbols)} symbols under {base}; download the missing histories or select --download-date")
     result = {"schema_version": 1, "series": {}, "notices": [], "bar_files": [],
               "symbol_fetched_at": {}, "session_timezones": {}, "download_date": folder.name}
     for symbol in symbols:
@@ -102,6 +119,10 @@ def load_bars(symbols, root: Path = ROOT, *, download_date: str | None = None,
         if result.get("provider", payload["provider"]) != payload["provider"]:
             raise ValueError("Cannot mix bar providers within a batch")
         result["provider"] = payload["provider"]
+        for key in ("feed", "adjustment"):
+            if key in payload:
+                if result.setdefault(key, payload[key]) != payload[key]:
+                    raise ValueError(f"Cannot mix {key} values within a batch")
         result["series"][symbol] = payload["series"][symbol]
         result["symbol_fetched_at"][symbol] = payload["fetched_at"]
         result["session_timezones"].update(payload.get("session_timezones", {}))

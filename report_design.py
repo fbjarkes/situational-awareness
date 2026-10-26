@@ -37,6 +37,42 @@ main:has(>.report-page:target)>.report-page:target{display:block}
 @media print{main>.report-page{display:block!important}.back-overview,.overview-grid{display:none}.welcome{padding:16px 0}.overview-label{display:none}}
 """
 
+CSS += """
+.limitations{border-left:3px solid #7fa7e0;background:#162238;padding:12px 16px;border-radius:4px;margin:18px 0 0;font-size:12px}.limitations h2{font-size:12px;font-weight:600;margin:0 0 6px}.limitations ul{margin:0;padding-left:18px}.limitations li{padding:2px 0}.limitations p{margin:6px 0 0;color:var(--muted)}
+.source-note{font-size:11px;color:var(--muted);margin:14px 0 0;padding:6px 10px;border:1px dashed var(--line);border-radius:5px;width:fit-content}.source-note strong{color:var(--ink);font-weight:550}
+.unavailable{margin:20px 0 4px;padding:18px;border:1px dashed #7fa7e0;border-radius:8px;font-size:13px}.unavailable strong{display:block;margin-bottom:4px}
+@media print{.limitations{border:1px solid #888;background:white}}
+"""
+
+PROVIDER_LABELS = {"tradingview": "TradingView", "alpaca": "Alpaca"}
+
+
+def provider_name(provider):
+    return PROVIDER_LABELS.get(provider, provider or "unknown")
+
+
+def limitations_panel(report):
+    """Visible summary of series a requested provider cannot supply."""
+    items = report.get("provider_coverage", [])
+    if not items:
+        return ""
+    rows = []
+    for item in items:
+        name = item["symbol"].split(":")[-1]
+        what = item.get("label", name)
+        if item["status"] == "substituted":
+            outcome = f'shown from {item["source"]}'
+        elif item["status"] == "partial":
+            outcome = item["source"]
+        else:
+            outcome = "not shown"
+        rows.append(f'<li><strong>{escape(what)}</strong> ({escape(item["section"])}): not available from '
+                    f'{escape(provider_name(item["requested_provider"]))}; {escape(outcome)}. {escape(item["reason"])}</li>')
+    return ('<section class="limitations" aria-labelledby="limitations-heading"><h2 id="limitations-heading">'
+            f'Provider limitations · {len(items)}</h2><ul>' + "".join(rows) + '</ul>'
+            '<p>Substituted series keep their original provider; they are labelled, not merged into another provider\'s data.</p></section>')
+
+
 NAV_SCRIPT = """
 const links = [...document.querySelectorAll('nav a')];
 const pages = [...document.querySelectorAll('.report-page')];
@@ -69,7 +105,9 @@ def details(report, *, gdx=False):
                 f'<p>Fixed holdings as of {escape(str(universe.get("as_of") or "unspecified"))}. Historical results use this same universe; they do not reconstruct historical fund membership.</p>'
                 f'<p>Missing prices are not carried forward. Minimum eligible coverage: {100 * definition["min_coverage"]:g}%. '
                 'Exchange-local session dates are aligned before calculation. No predictive threshold has been validated.</p>'
-                '<p>Knowledge: sectors/gdx.md · references/gdx-breadth.md.</p>')
+                f'<p>Constituent prices: {escape(provider_name(report.get("input_provider")))}.'
+                + (f' {len(report["provider_unavailable"])} constituents are not available from this provider and count as missing.' if report.get("provider_unavailable") else '')
+                + '</p><p>Knowledge: sectors/gdx.md · references/gdx-breadth.md.</p>')
     else:
         text = ('<p>MMOH: percentage above the 100-day average. MMOF: percentage above the 150-day average. '
                 'The provider stock universe and average type remain undocumented in the consulted sources.</p>'
@@ -90,7 +128,7 @@ def render_report(report, chart, interpretation):
     if gdx:
         all_series += list(gdx["series"].values())
     dates = sorted({s["latest"]["date"] for s in all_series})
-    freshness = ("Latest observation " + date.fromisoformat(dates[-1]).strftime("%d %b %Y"))
+    freshness = ("Latest observation " + date.fromisoformat(dates[-1]).strftime("%d %b %Y")) if dates else "No observations available"
     if len(dates) > 1:
         freshness += " · mixed observation dates"
     if any(s.get("latest_status") == "intraday" for s in all_series):
@@ -119,11 +157,19 @@ def render_report(report, chart, interpretation):
     research_status = f'<section class="research-todos" aria-labelledby="research-todos-heading"><h2 id="research-todos-heading">Open research TODOs · {len(todos)}</h2>{todo_list}</section>'
     readings = "".join(reading(s.split(":")[-1], value, color, dashed=i == 1)
                        for i, ((s, value), color) in enumerate(zip(report["series"].items(), ("#67ddc4", "#ffc078"))))
+    substituted = [c for c in report.get("provider_coverage", []) if c["section"] == "Market breadth" and c["status"] == "substituted"]
+    source_note = ""
+    if substituted:
+        source_note = (f'<p class="source-note"><strong>Source: {escape(provider_name(substituted[0]["provider_used"]))}</strong> · '
+                       f'{escape(substituted[0]["source"])} · not available from {escape(provider_name(substituted[0]["requested_provider"]))}</p>')
     breadth = (f'<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
                f'<p class="subheading">MMOH · 100-day average &nbsp; / &nbsp; MMOF · 150-day average</p></div><span class="period">{report["lookback_months"]}-month view</span></div>'
-               f'<div class="readings">{readings}</div><div class="chart">{responsive_chart(report)}</div>'
+               f'{source_note}<div class="readings">{readings}</div><div class="chart">{responsive_chart(report)}</div>'
                '<div class="chart-caption"><span>Share of stocks (%) · 0–100 scale</span><span>TradingView</span></div>'
-               f'<p class="interpretation">{escape(interpretation(report))}</p>{details(report)}</article>')
+               f'<p class="interpretation">{escape(interpretation(report))}</p>{details(report)}</article>') if report["series"] else (
+               '<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
+               '<p class="subheading">MMOH · 100-day average &nbsp; / &nbsp; MMOF · 150-day average</p></div><span class="period">Unavailable</span></div>'
+               f'<div class="unavailable" role="note"><strong>No breadth data for this provider</strong>{escape(report.get("breadth_unavailable", "No observations are available."))}</div></article>')
     themes = '<p class="planned"><span>Planned</span>Theme coverage will appear here as observations are added.</p>'
     if gdx:
         value = next(iter(gdx["series"].values()))
@@ -140,8 +186,10 @@ def render_report(report, chart, interpretation):
     for key, title, _ in groups:
         if key == "market-breadth":
             description = "Participation across the market, using MMOH and MMOF."
-            preview = " · ".join(f'{symbol.split(":")[-1]} {value["latest"]["close"]:.2f}%' for symbol, value in report["series"].items())
-            badge = "Available"
+            preview = " · ".join(f'{symbol.split(":")[-1]} {value["latest"]["close"]:.2f}%' for symbol, value in report["series"].items()) or "Unavailable from the selected provider"
+            badge = "Available" if report["series"] else "Unavailable"
+            if substituted:
+                badge = "TradingView data"
         elif key == "themes":
             description = "Explore focused market themes, starting with gold miners."
             preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"
@@ -158,4 +206,4 @@ def render_report(report, chart, interpretation):
     body = overview + "".join(f'<section class="group report-page" id="{key}" aria-labelledby="{key}-heading"><a class="back-overview" href="#overview">← All sections</a><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading" tabindex="-1">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Market report · {report['requested_date']}</title><style>{CSS}</style></head>
 <body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">Daily market briefing</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>
-<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{status_strip}{research_status}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''
+<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{limitations_panel(report)}{status_strip}{research_status}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''

@@ -6,8 +6,8 @@ resource: https://www.vaneck.com/us/en/investments/gold-miners-etf-gdx/overview
 tags: [gold, miners, GDX, equities]
 status: draft
 generated:
-  by: codex/market-report-poc
-  at: 2026-10-25T19:58:43Z
+  by: claude-code/claude-opus-5-5
+  at: "2026-10-26T12:00:00Z"
 sources:
   - id: vaneck-overview
     resource: https://www.vaneck.com/us/en/investments/gold-miners-etf-gdx/overview
@@ -144,6 +144,8 @@ holdings snapshot, excluding cash. A 50-day series has been generated from
 all 59 resolved constituents' TradingView histories through 2026-10-23.
 Local price data and the explicit symbol map are stored under ignored `data/`.
 The report shows it as a separate GDX breadth section, with daily coverage.
+Alpaca can supply only the US-listed subset of these constituents; see
+[data providers](/references/data-providers.md).
 
 The following are proposed analysis questions, not tested findings:
 

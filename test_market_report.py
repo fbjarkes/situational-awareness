@@ -139,6 +139,57 @@ class ReportTests(unittest.TestCase):
             self.assertIn("<svg", html)
             self.assertIn("MMOF", html)
 
+    def test_alpaca_labels_tradingview_only_breadth(self):
+        from bar_store import save_bars
+        (report.ROOT / "reports").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            root = Path(folder) / "store"
+            save_bars(self.payload(), root)
+            missing = Path(folder) / "no-gdx.json"
+            self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(root),
+                                          "--gdx-breadth", str(missing), "--output", folder]), 0)
+            data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
+            self.assertEqual(data["requested_provider"], "alpaca")
+            self.assertEqual({c["status"] for c in data["provider_coverage"]}, {"substituted"})
+            self.assertEqual(data["provider"], "tradingview")
+            html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
+            self.assertIn("Provider limitations · 2", html)
+            self.assertIn("not available from Alpaca", html)
+            self.assertIn('class="source-note"', html)
+
+    def test_alpaca_without_stored_breadth_renders_unavailable(self):
+        (report.ROOT / "reports").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            self.assertEqual(report.main(["--date", "2026-10-23", "--provider", "alpaca", "--data-root", str(Path(folder) / "empty"),
+                                          "--gdx-breadth", str(Path(folder) / "no-gdx.json"), "--output", folder]), 0)
+            html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
+            self.assertIn("No breadth data for this provider", html)
+            self.assertIn("Unavailable from the selected provider", html)
+            data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
+            self.assertEqual(data["series"], {})
+            self.assertEqual({c["status"] for c in data["provider_coverage"]}, {"unavailable"})
+
+    def test_gdx_alpaca_snapshot_shows_unavailable_constituents(self):
+        from breadth import calculate_breadth
+        result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
+        prices = {"NYSE:NEM": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23)}}
+        payload = calculate_breadth(["NYSE:NEM", "TSX:LUG"], prices, 2, name="CUSTOM:GDX-SMA2")
+        payload["input_provider"] = "alpaca"
+        payload["universe"]["provider_unavailable"] = {"TSX:LUG": "Not a US listing."}
+        with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
+            path = Path(folder) / "gdx.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            report.attach_gdx_breadth(result, path, self.ny(24), False)
+        self.assertEqual(result["provider_coverage"][0]["status"], "partial")
+        html = report.render_html(result)
+        self.assertIn("1 of 2 GDX constituents", html)
+        self.assertIn("Constituent prices: Alpaca.", html)
+
+    def test_knowledge_records_alpaca_unavailability(self):
+        for symbol in report.SYMBOLS:
+            self.assertEqual(report.provider_availability(symbol, "alpaca")["status"], "unavailable")
+            self.assertEqual(report.provider_availability(symbol, "tradingview")["symbol"], symbol)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,8 +5,8 @@ description: Equal-weight daily above/below SMA methodology for a supplied secur
 status: draft
 tags: [breadth, methodology, custom, GDX]
 generated:
-  by: codex/market-report-poc
-  at: 2026-10-25T19:25:19Z
+  by: claude-code/claude-opus-5-5
+  at: "2026-10-26T12:00:00Z"
 market_report:
   symbol: CUSTOM:GDX-SMA50
   section: gdx_breadth
@@ -68,6 +68,16 @@ prices only with the fixed-universe label: it introduces survivorship and
 membership bias and is not historical GDX portfolio breadth. Inception dates,
 holidays, mixed exchanges, currencies, and data gaps can change coverage.
 The 59 securities should not be conflated with the issuer's reported 65 holdings.
+
+# Alpaca constituent data
+
+`custom-breadth.py --alpaca` downloads constituents from Alpaca instead of
+TradingView. Alpaca carries US listings only, so foreign listings are
+recorded in `universe.provider_unavailable` and counted as missing; at most
+32 of the 59 constituents are covered. With the default 0.8 minimum
+coverage, percentages are suppressed. A lower cutoff yields a US-listed
+subset that must not be compared or merged with the TradingView series.
+See [data providers](/references/data-providers.md).
 
 # Limits
 

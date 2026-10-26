@@ -6,7 +6,8 @@ resource: https://www.tradingview.com/symbols/INDEX-MMOF/
 tags: [breadth, MMOF]
 status: draft
 generated:
-  by: codex/market-report-poc
+  by: claude-code/claude-opus-5-5
+  at: "2026-10-26T12:00:00Z"
 market_report:
   symbol: INDEX:MMOF
   section: breadth
@@ -18,10 +19,22 @@ market_report:
   evidence_status: exploratory
   studied_crossing_thresholds: [30, 25, 20]
   insight_source: /references/breadth-crossing-study.md
+  data_providers:
+    tradingview:
+      status: available
+      symbol: INDEX:MMOF
+    alpaca:
+      status: unavailable
+      reason: TradingView-calculated breadth index; Alpaca market data covers US-listed stocks and ETFs only.
+      checked_at: "2026-10-26"
+      details: /references/data-providers.md
 sources:
   - id: crossing-study
     resource: /references/breadth-crossing-study.md
     title: Exploratory breadth downward-crossing event study
+  - id: data-providers
+    resource: /references/data-providers.md
+    title: Market data providers and symbol availability
   - id: tradingview-symbol
     resource: https://www.tradingview.com/symbols/INDEX-MMOF/
     title: TradingView MMOF symbol overview
@@ -30,6 +43,14 @@ sources:
 
 The PoC fetches daily closing observations for `INDEX:MMOF` and displays them
 alongside [MMOH](/breadth/mmoh.md).
+
+# Provider availability
+
+`INDEX:MMOF` is available only from TradingView. Alpaca has no equivalent symbol;
+an Alpaca asset lookup for `MMOF` returned not found on
+2026-10-26.[^data-providers] Reports run with `--provider alpaca` read this series
+from a stored TradingView batch and label the substitution, or show the
+section as unavailable when no such batch exists.
 
 # Definition
 
@@ -89,3 +110,5 @@ Rarity, execution feasibility, and independent validation remain open questions.
 [^tradingview-symbol]: TradingView symbol overview, consulted 2026-10-25; community ideas are not provider methodology.
 
 [^crossing-study]: Exploratory TradingView-based SPY price-return event study; full tables, assumptions, and snapshot provenance are recorded in the linked research result. Worst terminal returns are in the local summary CSV.
+
+[^data-providers]: Provider coverage reference; records the Alpaca lookup and the report's substitution policy.

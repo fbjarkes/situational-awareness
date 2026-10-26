@@ -16,6 +16,7 @@ import yaml
 from zoneinfo import ZoneInfo
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
+from providers import alpaca_symbol, alpaca_unavailable_reason, provider_label
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
@@ -136,6 +137,34 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
             "series": series}
 
 
+def breadth_metadata(symbol: str) -> dict:
+    path = ROOT / "knowledge" / "breadth" / (symbol.split(":")[1].lower() + ".md")
+    return yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+
+
+def provider_availability(symbol: str, provider: str) -> dict:
+    """Availability of a report series from a provider, as recorded in the knowledge bundle."""
+    recorded = breadth_metadata(symbol).get("market_report", {}).get("data_providers", {}).get(provider)
+    if recorded:
+        return recorded
+    if provider == "alpaca" and alpaca_symbol(symbol) is None:
+        return {"status": "unavailable", "reason": alpaca_unavailable_reason(symbol)}
+    return {"status": "available", "symbol": symbol}
+
+
+def unavailable_report(requested: date, lookback: int, close_only: bool, reason: str) -> dict:
+    """A report shell whose breadth section explains why it has no data."""
+    return {"schema_version": 1, "title": "Daily situational awareness · Market breadth",
+            "requested_date": requested.isoformat(), "observation_cutoff": requested.isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(), "provider": None,
+            "data_fetched_at": None, "input_bar_files": [], "source": "unavailable",
+            "lookback_months": lookback, "warnings": [], "notes": [],
+            "daily_bar_policy": ("Exclude the current New York calendar date." if close_only else
+                                 "Include today's bar when available; label it intraday if fetched before 16:00 ET."),
+            "historical_note": "Historical mode filters observations by date; provider revisions are not reconstructed.",
+            "series": {}, "breadth_unavailable": reason}
+
+
 def change_text(value: float | None) -> str:
     return "unavailable" if value is None else f"{value:+.2f} points"
 
@@ -216,6 +245,8 @@ def breadth_interpretation(report: dict) -> str:
 
 
 def attach_breadth_knowledge(report: dict) -> None:
+    if not report["series"]:
+        return
     knowledge = {}
     for symbol in SYMBOLS:
         path = ROOT / "knowledge" / "breadth" / (symbol.split(":")[1].lower() + ".md")
@@ -247,6 +278,15 @@ def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool
     latest = next(b for b in payload["series"][symbols[0]] if bar_date(b).isoformat() == series["latest"]["date"])
     section["coverage"] = {k: latest[k] for k in ("above", "below", "equal", "eligible", "universe_size", "coverage")}
     section["definition"] = payload["definition"]
+    section["input_provider"] = payload.get("input_provider")
+    section["provider_unavailable"] = payload["universe"].get("provider_unavailable", {})
+    if section["provider_unavailable"]:
+        n, size = len(section["provider_unavailable"]), len(payload["universe"]["symbols"])
+        report.setdefault("provider_coverage", []).append({
+            "symbol": "CUSTOM:GDX-SMA50", "label": f"{n} of {size} GDX constituents", "section": "Gold miners",
+            "requested_provider": section["input_provider"], "provider_used": section["input_provider"], "status": "partial",
+            "source": "breadth uses the remaining listings, so it is not comparable with full-universe history",
+            "reason": "Foreign listings are not carried by this provider."})
     section["universe"] = payload["universe"]
     delta = series["five_session_change"]
     direction = (f"up {delta:.2f} percentage points over five observations" if delta > 0 else f"down {abs(delta):.2f} percentage points over five observations") if delta is not None else "with insufficient history for a five-observation comparison"
@@ -271,7 +311,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["daily"], nargs="?", default="daily")
     parser.add_argument("--date", type=date.fromisoformat, default=None, help="As-of date YYYY-MM-DD; default today in Stockholm")
-    parser.add_argument("--provider", choices=["snapshot", "tradingview"], default="snapshot")
+    parser.add_argument("--provider", choices=["snapshot", "tradingview", "alpaca"], default="snapshot",
+                        help="snapshot reads stored bars; tradingview/alpaca download. Series a provider cannot supply are labelled in the report")
     parser.add_argument("--snapshot", type=Path, help="Optional legacy combined snapshot; default reads the per-symbol bar store")
     parser.add_argument("--data-root", type=Path, default=DATA_ROOT)
     parser.add_argument("--download-date", type=date.fromisoformat, help="Select a stored download batch")
@@ -295,7 +336,36 @@ def main(argv: list[str] | None = None) -> int:
     if requested > report_today:
         parser.error("--date cannot be in the future")
     try:
-        if args.provider == "snapshot":
+        coverage = []
+        report = None
+        if args.provider == "alpaca":
+            if args.snapshot or args.refresh:
+                parser.error("--snapshot and --refresh do not apply to --provider alpaca")
+            availability = {s: provider_availability(s, "alpaca") for s in SYMBOLS}
+            if any(a["status"] != "unavailable" for a in availability.values()):
+                raise ValueError("Alpaca breadth downloads are not implemented; update the knowledge data_providers entry and the report together")
+            # Breadth indices exist only on TradingView: use a stored TradingView
+            # batch and label the substitution rather than dropping the section.
+            try:
+                payload = load_bars(SYMBOLS, args.data_root, provider="tradingview",
+                                    download_date=args.download_date.isoformat() if args.download_date else None)
+            except ValueError:
+                payload = None
+            for symbol, a in availability.items():
+                coverage.append({"symbol": symbol, "section": "Market breadth", "requested_provider": "alpaca",
+                                 "provider_used": "tradingview" if payload else None,
+                                 "status": "substituted" if payload else "unavailable",
+                                 "reason": a["reason"],
+                                 "source": f"stored TradingView batch day/{payload['download_date']}" if payload else None})
+            names = "/".join(s.split(":")[1] for s in SYMBOLS)
+            if payload:
+                source = f"bar store: day/{payload['download_date']} (TradingView; {names} unavailable from Alpaca)"
+            else:
+                source = "unavailable"
+                report = unavailable_report(requested, args.lookback, args.close_only,
+                                            f"{names} are not available from Alpaca and no stored TradingView batch was found. "
+                                            "Run with --provider tradingview, or download them to the bar store first.")
+        elif args.provider == "snapshot":
             if args.refresh:
                 parser.error("--refresh requires --provider tradingview")
             payload = read_snapshot(args.snapshot) if args.snapshot else load_bars(SYMBOLS, args.data_root, download_date=args.download_date.isoformat() if args.download_date else None)
@@ -315,14 +385,20 @@ def main(argv: list[str] | None = None) -> int:
                 cache.parent.mkdir(parents=True, exist_ok=True)
                 cache.write_text(json.dumps({"bar_store_batch": saved[0].parent.name}), encoding="utf-8")
                 source = "TradingView MCP (fresh)"
-        report = build_report(payload, requested, args.lookback, source, now, args.close_only)
+        if report is None:
+            report = build_report(payload, requested, args.lookback, source, now, args.close_only)
+        report["requested_provider"] = None if args.provider == "snapshot" else args.provider
+        report["provider_coverage"] = coverage
         attach_breadth_knowledge(report)
         attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
         report["research_todos"] = collect_research_todos(ROOT / "knowledge")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
+        data_mode = "Fresh download" if fresh_download else "Stored data"
+        if args.provider == "alpaca":
+            data_mode = "Alpaca · " + ("TradingView-only series from stored data" if payload else "breadth unavailable")
         report["run_status"] = {"downloaded_symbols": len(payload["series"]) if fresh_download else 0,
-                                "data_mode": "Fresh download" if fresh_download else "Stored data",
-                                "download_batch": payload.get("download_date")}
+                                "data_mode": data_mode,
+                                "download_batch": payload.get("download_date") if payload else None}
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
             path = args.output / f"market-report-{requested}.{fmt}"
@@ -331,6 +407,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Saved {path.resolve()}")
         for symbol, s in report["series"].items():
             print(f'{symbol}: {s["latest"]["close"]:.2f} | daily {change_text(s["daily_change"])} | {s["as_of"]}')
+        for item in report["provider_coverage"]:
+            used = f'using {item["source"]}' if item["provider_used"] else "not shown"
+            print(f'LIMITATION: {item["symbol"]} unavailable from {provider_label(item["requested_provider"])}: {item["reason"]} ({used})')
+        if report.get("breadth_unavailable"):
+            print(f'LIMITATION: {report["breadth_unavailable"]}')
         for note in report["notes"]:
             print(f"NOTE: {note}")
         for warning in report["warnings"]:
