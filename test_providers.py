@@ -37,6 +37,7 @@ class AlpacaProviderTests(unittest.TestCase):
         self.assertEqual(alpaca_symbol("AMEX:SPY"), "SPY")
         self.assertEqual(alpaca_symbol("NEM"), "NEM")
         self.assertIsNone(alpaca_symbol("INDEX:MMOH"))
+        self.assertIsNone(alpaca_symbol("CBOE:VIX"))
         self.assertIsNone(alpaca_symbol("TSX:LUG"))
         self.assertIsNone(alpaca_symbol("NST AU"))
 

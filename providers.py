@@ -28,6 +28,8 @@ def provider_label(provider: str) -> str:
 
 def alpaca_symbol(symbol: str) -> str | None:
     """Return the Alpaca ticker for a symbol, or None if Alpaca cannot supply it."""
+    if symbol.upper() in {"VIX", "CBOE:VIX", "TVC:VIX"}:
+        return None
     if ":" in symbol:
         exchange, ticker = symbol.split(":", 1)
         return ticker if exchange.upper() in US_EXCHANGES else None
@@ -38,6 +40,8 @@ def alpaca_symbol(symbol: str) -> str | None:
 
 
 def alpaca_unavailable_reason(symbol: str) -> str:
+    if symbol.upper() in {"VIX", "CBOE:VIX", "TVC:VIX"}:
+        return "Spot volatility index; Alpaca stock bars cover US-listed stocks and ETFs."
     if symbol.upper().startswith("INDEX:"):
         return "TradingView index; Alpaca does not publish breadth indices."
     return "Not a US listing; Alpaca market data covers US-listed stocks and ETFs only."

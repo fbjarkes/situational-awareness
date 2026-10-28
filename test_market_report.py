@@ -79,6 +79,19 @@ class ReportTests(unittest.TestCase):
     def test_month_end(self):
         self.assertEqual(report.months_before(date(2024, 3, 31), 1), date(2024, 2, 29))
 
+    def test_vix_low_metric_and_historical_cutoff(self):
+        payload = self.payload()
+        bars = payload["series"]["INDEX:MMOH"]
+        payload["series"] = {"CBOE:VIX": [{**bar, "c": 100 - bar["c"]} for bar in bars]}
+        result = report.vix_section(payload, date(2026, 10, 23), 6, self.ny(24), period=365)
+        self.assertEqual(result["latest"]["date"], "2026-10-23")
+        self.assertEqual(result["metrics"]["day_low"], 7)
+        self.assertTrue(result["day_low_lower_bound"])
+        payload["fetched_at"] = "2026-10-24T20:05:00Z"
+        current = report.vix_section(payload, date(2026, 10, 24), 6, self.ny(24, 16))
+        self.assertEqual(current["latest_status"], "intraday")
+        self.assertIn("provisional", current["interpretation"])
+
     def test_design_navigation_and_percentage_axes(self):
         from html.parser import HTMLParser
 
@@ -166,10 +179,11 @@ class ReportTests(unittest.TestCase):
                                               "--gdx-breadth", str(missing), "--output", folder]), 0)
             data = json.loads((Path(folder) / "market-report-2026-10-23.json").read_text())
             self.assertEqual(data["requested_provider"], "alpaca")
-            self.assertEqual({c["status"] for c in data["provider_coverage"]}, {"substituted"})
+            self.assertEqual({c["status"] for c in data["provider_coverage"] if c["section"] == "Market breadth"}, {"substituted"})
+            self.assertTrue(any(c["symbol"] == "CBOE:VIX" and c["status"] == "unavailable" for c in data["provider_coverage"]))
             self.assertEqual(data["provider"], "tradingview")
             html = (Path(folder) / "market-report-2026-10-23.html").read_text(encoding="utf-8")
-            self.assertIn("Provider limitations · 2", html)
+            self.assertIn("Provider limitations · 3", html)
             self.assertIn("not available from Alpaca", html)
             self.assertIn('class="source-note"', html)
             self.assertEqual(data["spy"]["provider"], "alpaca")

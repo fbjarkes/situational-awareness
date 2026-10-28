@@ -80,3 +80,23 @@ def streak_is_lower_bound(closes: Sequence[float], streak: int, period: int = 1)
     """True when a streak reaches the earliest evaluable session, so it may be longer."""
     evaluable = len(closes) - period + 1 if period > 1 else len(closes) - 1
     return streak > 0 and streak >= evaluable
+
+
+def lowest_close_period(closes: Sequence[float], period: int | None = None) -> int:
+    """Longest trailing window where the latest close is a strict new low.
+
+    Includes the latest observation: [12, 11, 10] -> 3; [10, 12, 11] -> 2.
+    A higher/equal latest close, or fewer than two observations, returns zero.
+    `period` caps the window including the latest observation; None uses all.
+    """
+    values = _validate(closes)
+    if period is not None:
+        values = values[-_period(period):]
+    if len(values) < 2 or values[-1] >= values[-2]:
+        return 0
+    count = 1
+    for previous in reversed(values[:-1]):
+        if previous <= values[-1]:
+            break
+        count += 1
+    return count

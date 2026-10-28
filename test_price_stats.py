@@ -1,10 +1,22 @@
 import unittest
 
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, cons_up_days,
-                         distance_from_ma, sma, streak_is_lower_bound)
+                         distance_from_ma, sma, streak_is_lower_bound, lowest_close_period)
 
 
 class PriceStatsTests(unittest.TestCase):
+    def test_lowest_close_period(self):
+        self.assertEqual(lowest_close_period(list(range(365, 0, -1))), 365)
+        self.assertEqual(lowest_close_period([10, 12, 11]), 2)
+        self.assertEqual(lowest_close_period([12, 10, 11]), 0)
+        self.assertEqual(lowest_close_period([12, 10, 10]), 0)
+        self.assertEqual(lowest_close_period([10, 12, 10]), 2)
+        self.assertEqual(lowest_close_period([12, 11, 10], 2), 2)
+        self.assertEqual(lowest_close_period([12, 11, 10], 1), 0)
+        self.assertEqual(lowest_close_period([]), 0)
+        self.assertEqual(lowest_close_period([10]), 0)
+        with self.assertRaises(ValueError):
+            lowest_close_period([10, 9], 0)
     def test_down_and_up_streaks(self):
         self.assertEqual(cons_down_days([10, 12, 11, 10, 9]), 3)
         self.assertEqual(cons_down_days([10, 9, 9]), 0)  # unchanged close ends the streak

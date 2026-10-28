@@ -18,7 +18,7 @@ from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
-                         streak_is_lower_bound)
+                         streak_is_lower_bound, lowest_close_period)
 
 ROOT = Path(__file__).resolve().parent
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
@@ -28,6 +28,7 @@ MARKET_CLOSE = time(16, 0)
 SPY_SYMBOLS = {"tradingview": "AMEX:SPY", "alpaca": "SPY"}
 # Calendar days of SPY history: enough for a 200-day SMA plus long streaks.
 SPY_HISTORY_DAYS = 1100
+VIX_SYMBOL = "CBOE:VIX"
 
 
 def months_before(day: date, months: int) -> date:
@@ -143,8 +144,12 @@ def build_report(payload: dict, requested: date, lookback: int, source: str,
 
 
 def breadth_metadata(symbol: str) -> dict:
-    path = ROOT / "knowledge" / "breadth" / (symbol.split(":")[1].lower() + ".md")
-    return yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+    filename = symbol.split(":")[-1].lower() + ".md"
+    for folder in ("breadth", "index"):
+        path = ROOT / "knowledge" / folder / filename
+        if path.exists():
+            return yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+    return {}
 
 
 def provider_availability(symbol: str, provider: str) -> dict:
@@ -218,6 +223,34 @@ def spy_interpretation(spy: dict) -> str:
     if spy["latest_status"] == "intraday":
         text += " Today's value is intraday and can change before the close."
     return text
+
+
+def vix_section(payload, requested, lookback, now, close_only=False, period=365):
+    if payload is None or not payload.get("series", {}).get(VIX_SYMBOL):
+        return {"symbol": VIX_SYMBOL, "provider": "tradingview", "unavailable": "No stored TradingView VIX history was found."}
+    base = build_report(payload, requested, lookback, "TradingView bar store", now, close_only, (VIX_SYMBOL,))
+    series = base["series"][VIX_SYMBOL]
+    cutoff = date.fromisoformat(base["observation_cutoff"])
+    history = {bar_date(b): float(b["c"]) for b in payload["series"][VIX_SYMBOL]
+               if b.get("c") is not None and bar_date(b) <= cutoff}
+    closes = [history[d] for d in sorted(history)]
+    low = lowest_close_period(closes, period)
+    limit = min(period, len(closes))
+    fetched = datetime.fromisoformat(series["fetched_at"].replace("Z", "+00:00")).astimezone(NY)
+    intraday = series["latest"]["date"] == fetched.date().isoformat() and fetched.time() < time(16, 15)
+    as_of = f'intraday {series["latest"]["date"]} {fetched:%H:%M} ET' if intraday else f'close {series["latest"]["date"]}'
+    description = (f'VIX is at a strict closing low across the latest {low} observations' if low else
+                   'VIX has not made a fresh lower close relative to the preceding observation')
+    text = f'{description}, describing the recent level of S&P 500 option-implied volatility rather than market direction.'
+    text += (' The reading and day-low metric are provisional until the session closes.' if intraday else
+             ' The day-low measure is descriptive and does not establish a trading signal.')
+    return {"symbol": VIX_SYMBOL, "provider": "tradingview", "latest": series["latest"],
+            "as_of": as_of, "latest_status": "intraday" if intraday else "close",
+            "fetched_at": series["fetched_at"], "metrics": {"close": closes[-1], "day_low": low},
+            "period": period, "history_sessions": len(closes), "history_start": min(history).isoformat(),
+            "effective_lookback": limit, "day_low_lower_bound": low > 0 and low == limit,
+            "interpretation": text, "warnings": base["warnings"],
+            "knowledge_sources": ["/index/vix.md"], "input_bar_files": payload.get("bar_files", [])}
 
 
 def change_text(value: float | None) -> str:
@@ -379,12 +412,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
     parser.add_argument("--refresh", action="store_true", help="Refresh live-provider cache")
     parser.add_argument("--close-only", action="store_true", help="Exclude today's bar; report previous closes only")
+    parser.add_argument("--vix-period", type=int, default=365, help="Maximum closes for VIX day-low metric (default 365 sessions)")
     args = parser.parse_args(argv)
     formats = set(args.format.split(","))
     if not formats or not formats <= {"html", "json"}:
         parser.error("--format must be html, json, or html,json")
     if not 1 <= args.lookback <= 120:
         parser.error("--lookback must be between 1 and 120 months")
+    if args.vix_period < 1:
+        parser.error("--vix-period must be positive")
     now = datetime.now(NY)
     today = now.date()
     report_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
@@ -398,6 +434,8 @@ def main(argv: list[str] | None = None) -> int:
         spy_provider = "alpaca" if args.provider == "alpaca" else "tradingview"
         spy_start = requested - timedelta(days=SPY_HISTORY_DAYS)
         batch = args.download_date.isoformat() if args.download_date else None
+        vix_downloads = 0
+        vix_batch = batch
         if args.provider == "alpaca":
             if args.snapshot or args.refresh:
                 parser.error("--snapshot and --refresh do not apply to --provider alpaca")
@@ -473,10 +511,29 @@ def main(argv: list[str] | None = None) -> int:
                 source = "TradingView MCP (fresh)"
                 spy_payload = load_bars(["AMEX:SPY"], args.data_root, provider="tradingview", download_date=saved[0].parent.name)
                 spy_source, spy_downloads = source, 1
+        if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
+            vix_fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
+                                                     requested - timedelta(days=max(SPY_HISTORY_DAYS, args.vix_period * 2)), (VIX_SYMBOL,)))
+            vix_saved = save_bars(vix_fresh, args.data_root)
+            vix_batch, vix_downloads = vix_saved[0].parent.name, 1
+        elif args.provider == "tradingview" and cached.get("bar_store_batch"):
+            vix_batch = cached["bar_store_batch"]
+        try:
+            vix_payload = load_bars([VIX_SYMBOL], args.data_root, provider="tradingview", download_date=vix_batch)
+        except ValueError:
+            vix_payload = None
+        if args.provider == "alpaca":
+            coverage.append({"symbol": VIX_SYMBOL, "section": "S&P 500", "requested_provider": "alpaca",
+                             "provider_used": "tradingview" if vix_payload else None,
+                             "status": "substituted" if vix_payload else "unavailable",
+                             "reason": "VIX is a spot volatility index, not a US stock or ETF available from Alpaca.",
+                             "source": f"stored TradingView batch day/{vix_payload['download_date']}" if vix_payload else None})
         if report is None:
             report = build_report(payload, requested, args.lookback, source, now, args.close_only)
         report["requested_provider"] = None if args.provider == "snapshot" else args.provider
         report["provider_coverage"] = coverage
+        report["vix"] = vix_section(vix_payload, requested, args.lookback, now, args.close_only, args.vix_period)
+        report["warnings"].extend(report["vix"].get("warnings", []))
         attach_breadth_knowledge(report)
         report["spy"] = spy_section(spy_payload, spy_provider, requested, args.lookback, now, args.close_only,
                                     spy_source if spy_payload else "unavailable", spy_note)
@@ -489,7 +546,7 @@ def main(argv: list[str] | None = None) -> int:
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":
             data_mode = "Alpaca · SPY " + ("downloaded" if spy_downloads else "unavailable") + " · breadth " + ("from stored TradingView data" if payload else "unavailable")
-        report["run_status"] = {"downloaded_symbols": (len(payload["series"]) if fresh_download else 0) + spy_downloads,
+        report["run_status"] = {"downloaded_symbols": (len(payload["series"]) if fresh_download else 0) + spy_downloads + vix_downloads,
                                 "data_mode": data_mode,
                                 "download_batch": payload.get("download_date") if payload else None}
         args.output.mkdir(parents=True, exist_ok=True)

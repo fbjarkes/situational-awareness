@@ -7,6 +7,23 @@ summary. No browser assets or external chart service are required.
 
 ## Report section template
 
+The S&P 500 section also includes the Cboe VIX spot index from TradingView.
+Its `Day low` metric is the longest trailing span where the latest observation
+is strictly lower than all earlier closes in that span, including the latest
+observation. It returns 0 on a higher/equal close, and 365 for a strict low
+across 365 observations. The report defaults to a 365-session cap; change it
+with `--vix-period`. Intraday VIX readings and their metrics are provisional.
+
+```python
+from price_utils import lowest_close
+
+lowest_close("CBOE:VIX", 365, as_of="2026-10-26")
+```
+
+This convenience function reads the dated bar store without downloading.
+For existing price arrays, use `price_stats.lowest_close_period(closes, period)`.
+VIX methodology and metric details are in [the knowledge concept](knowledge/index/vix.md).
+
 The HTML briefing opens on an overview with cards for Market Breadth,
 S&P 500, and Themes. Select a card or menu item to open just that section;
 All sections returns to the overview. URLs support direct section links,

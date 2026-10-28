@@ -105,6 +105,22 @@ def spy_card(spy):
             f'<p class="interpretation">{escape(spy["interpretation"])}</p>{info}</article>')
 
 
+def vix_card(vix):
+    title = '<div class="card-header"><div><h3 id="vix-title">VIX · S&amp;P 500 implied volatility</h3><p class="subheading">30-day expected volatility · spot index</p></div>'
+    if not vix or "metrics" not in vix:
+        reason = vix.get("unavailable", "VIX was not loaded for this report.") if vix else "VIX was not loaded for this report."
+        return f'<article class="card" style="margin-top:20px" aria-labelledby="vix-title">{title}<span class="period">Unavailable</span></div><p class="unavailable">{escape(reason)}</p></article>'
+    metrics = vix["metrics"]
+    table = (f'<table class="metric-table"><tbody><tr><th scope="row">Latest VIX</th><td>{metrics["close"]:.2f}</td></tr>'
+             f'<tr><th scope="row">Day low · up to {vix["period"]} sessions</th><td>{metrics["day_low"]}</td></tr></tbody></table>')
+    note = 'The search reached the available history or configured period; the low span may be longer.' if vix["day_low_lower_bound"] else 'Higher or equal to the preceding close returns 0; the current observation is included when counting a new low.'
+    info = (f'<details class="details"><summary>Details and methodology</summary><p>Day low is the longest trailing span in which the latest observation is strictly lower than every preceding observation, capped at {vix["period"]} sessions. A strict low across 365 closes returns 365; a tie ends the span.</p>'
+            f'<p>{note} {vix["history_sessions"]} closes available since {escape(vix["history_start"])}; effective lookback {vix["effective_lookback"]}.</p>'
+            f'<p>CBOE:VIX · TradingView · Fetched {escape(vix["fetched_at"])}. Knowledge: index/vix.md.</p></details>')
+    return (f'<article class="card" style="margin-top:20px" aria-labelledby="vix-title">{title}<span class="period">{escape(vix["as_of"])}</span></div>{table}'
+            f'<p class="interpretation">{escape(vix["interpretation"])}</p>{info}</article>')
+
+
 NAV_SCRIPT = """
 const links = [...document.querySelectorAll('nav a')];
 const pages = [...document.querySelectorAll('.report-page')];
@@ -156,7 +172,10 @@ def render_report(report, chart, interpretation):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
     requested = date.fromisoformat(report["requested_date"])
     gdx = report.get("gdx_breadth")
+    vix = report.get("vix")
     all_series = list(report["series"].values())
+    if vix and "metrics" in vix:
+        all_series.append(vix)
     if gdx:
         all_series += list(gdx["series"].values())
     dates = sorted({s["latest"]["date"] for s in all_series})
@@ -173,12 +192,14 @@ def render_report(report, chart, interpretation):
     spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
     if "metrics" in spy:
         source_symbols.add(spy["symbol"])
+    if vix and "metrics" in vix:
+        source_symbols.add(vix["symbol"])
     if gdx:
         source_symbols.update(set(gdx["universe"]["symbols"]) - set(gdx["universe"].get("missing_symbols", [])))
     run = report.get("run_status", {})
     downloads = str(run["downloaded_symbols"]) if "downloaded_symbols" in run else "—"
     coverage_text = f'{gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]}' if gdx else "—"
-    source_detail = f'{len(report["series"])} indices' + (' · SPY' if "metrics" in spy else '') + (f' · {len(source_symbols) - len(report["series"]) - ("metrics" in spy)} GDX constituents' if gdx else '')
+    source_detail = f'{len(report["series"])} breadth indices' + (' · SPY' if "metrics" in spy else '') + (' · VIX' if vix and "metrics" in vix else '') + (f' · {len(set(gdx["universe"]["symbols"]) - set(gdx["universe"].get("missing_symbols", [])))} GDX constituents' if gdx else '')
     stats = [("Source symbols", str(len(source_symbols)), source_detail),
              ("Downloaded this run", downloads, ""),
              ("GDX coverage", coverage_text, "Eligible / constituent universe" if gdx else "Not included"),
@@ -215,7 +236,7 @@ def render_report(report, chart, interpretation):
                   f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed current constituents</span><span>Share of stocks (%)</span></div>'
                   f'<p class="interpretation">{escape(gdx["interpretation"])}</p>{details(gdx, gdx=True)}</article>')
     groups = [("market-breadth", "Market Breadth", breadth),
-              ("sp500", "S&P 500", spy_card(spy) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
+              ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes)]
     cards = []
     for key, title, _ in groups:
@@ -230,7 +251,7 @@ def render_report(report, chart, interpretation):
             preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"
             badge = "Available" if gdx else "Planned"
         else:
-            description = "SPY trend and streak metrics; sector relative strength planned."
+            description = "SPY trend and streak metrics, plus VIX implied volatility."
             if "metrics" in spy:
                 m = spy["metrics"]
                 d200 = "" if m["distance_from_sma200_pct"] is None else f' · {m["distance_from_sma200_pct"]:+.1f}% vs 200-day'
