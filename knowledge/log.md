@@ -2,6 +2,7 @@
 
 ## 2026-10-28
 
+- Added the themes registry and shared ticker-universe manifest, linking the existing dated GDX holdings without duplicating them; recorded within-theme RS-high research and a proposed reusable utility.
 - Added an open SPY research plan for forward returns when at least 50% of S&P 500 constituents make new 20-day highs, with proposed event definitions, horizons, baseline, overlap, drawdowns, and membership biases.
 
 ## 2026-10-26
