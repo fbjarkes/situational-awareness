@@ -2,6 +2,8 @@
 
 ## 2026-10-28
 
+- Expanded themes into 16 proposed concepts with subthemes, a machine-readable registry, shared memberships, and methodology; retained active GDX holdings by reference and deprecated the old ticker manifest.
+
 - Recorded user-suggested 5- and 10-session theme RS calculation periods, distinguishing rolling relative returns from RS-level new-high lookbacks.
 - Added the themes registry and shared ticker-universe manifest, linking the existing dated GDX holdings without duplicating them; recorded within-theme RS-high research and a proposed reusable utility.
 - Added an open SPY research plan for forward returns when at least 50% of S&P 500 constituents make new 20-day highs, with proposed event definitions, horizons, baseline, overlap, drawdowns, and membership biases.

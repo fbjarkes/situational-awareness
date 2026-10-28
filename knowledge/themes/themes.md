@@ -1,12 +1,12 @@
 ---
 type: Reference
 title: Themes
-description: Registry of active project themes and proposed within-theme relative-strength research.
+description: Registry of active and proposed project themes and within-theme relative-strength research.
 tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:11:05Z"
+  at: "2026-10-28T22:38:39Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -14,50 +14,139 @@ sources:
   - id: user-proposal
     resource: User request in this project chat, 2026-10-28
     title: Theme registry and within-theme RS-high research proposal
+themes:
+  - id: ai
+    title: Artificial intelligence
+    concept: /themes/artificial-intelligence.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: robotics
+    title: Robotics and automation
+    concept: /themes/robotics-automation.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: cybersecurity
+    title: Cybersecurity
+    concept: /themes/cybersecurity.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: quantum
+    title: Quantum computing
+    concept: /themes/quantum-computing.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: space
+    title: Space economy
+    concept: /themes/space-economy.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: defense-tech
+    title: Defense technology
+    concept: /themes/defense-technology.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: mobility
+    title: Future mobility
+    concept: /themes/future-mobility.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: digital-finance
+    title: Digital finance
+    concept: /themes/digital-finance.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: health-innovation
+    title: Healthcare innovation
+    concept: /themes/healthcare-innovation.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: longevity
+    title: Longevity and metabolic health
+    concept: /themes/longevity-metabolic-health.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: electrification
+    title: Electrification and grid modernization
+    concept: /themes/electrification-grid.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: nuclear
+    title: Nuclear energy
+    concept: /themes/nuclear-energy.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: renewables
+    title: Renewable energy
+    concept: /themes/renewable-energy.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: resource-efficiency
+    title: Resource efficiency and circular economy
+    concept: /themes/resource-efficiency.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: food-agtech
+    title: Food and agricultural innovation
+    concept: /themes/food-agriculture-innovation.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: supply-resilience
+    title: Supply-chain resilience and reshoring
+    concept: /themes/supply-chain-resilience.md
+    classification: structural_theme
+    tracking_status: proposed
+  - id: gold-miners
+    title: Gold miners
+    concept: /sectors/gdx.md
+    classification: industry_basket
+    tracking_status: active
 market_report:
   section: themes
   implementation_status: registry_only
   evidence_status: exploratory
   enabled: false
 ---
-# Active themes
+# Theme registry
 
-Active means covered by this project, not a claim about current market leadership.
-Gold miners is the only theme currently represented in the report.[^gdx-concept]
+Document status (draft, stable, deprecated) describes knowledge maturity.
+Tracking status (proposed, active, inactive) describes project coverage.
+Active does not mean currently outperforming. IDs and classification fields are
+project extensions, not OKF standard fields.
 
-| Theme ID | Theme | Proxy | Knowledge | Ticker manifest |
+| Theme ID | Theme | Tracking status | Classification | Knowledge |
 |---|---|---|---|---|
-| gold-miners | Gold miners | AMEX:GDX | [GDX](/sectors/gdx.md) | [Gold miners universe](/themes/theme-tickers.md#gold-miners) |
+| ai | Artificial intelligence | proposed | structural_theme | [Concept](/themes/artificial-intelligence.md) |
+| robotics | Robotics and automation | proposed | structural_theme | [Concept](/themes/robotics-automation.md) |
+| cybersecurity | Cybersecurity | proposed | structural_theme | [Concept](/themes/cybersecurity.md) |
+| quantum | Quantum computing | proposed | structural_theme | [Concept](/themes/quantum-computing.md) |
+| space | Space economy | proposed | structural_theme | [Concept](/themes/space-economy.md) |
+| defense-tech | Defense technology | proposed | structural_theme | [Concept](/themes/defense-technology.md) |
+| mobility | Future mobility | proposed | structural_theme | [Concept](/themes/future-mobility.md) |
+| digital-finance | Digital finance | proposed | structural_theme | [Concept](/themes/digital-finance.md) |
+| health-innovation | Healthcare innovation | proposed | structural_theme | [Concept](/themes/healthcare-innovation.md) |
+| longevity | Longevity and metabolic health | proposed | structural_theme | [Concept](/themes/longevity-metabolic-health.md) |
+| electrification | Electrification and grid modernization | proposed | structural_theme | [Concept](/themes/electrification-grid.md) |
+| nuclear | Nuclear energy | proposed | structural_theme | [Concept](/themes/nuclear-energy.md) |
+| renewables | Renewable energy | proposed | structural_theme | [Concept](/themes/renewable-energy.md) |
+| resource-efficiency | Resource efficiency and circular economy | proposed | structural_theme | [Concept](/themes/resource-efficiency.md) |
+| food-agtech | Food and agricultural innovation | proposed | structural_theme | [Concept](/themes/food-agriculture-innovation.md) |
+| supply-resilience | Supply-chain resilience and reshoring | proposed | structural_theme | [Concept](/themes/supply-chain-resilience.md) |
+| gold-miners | Gold miners | active | industry_basket | [GDX](/sectors/gdx.md) |
 
-Add future themes here with a stable ID, scope, and an entry in the shared
-[ticker manifest](/themes/theme-tickers.md). Theme membership can overlap;
-retain dated membership and provider symbol mappings separately from raw bars.
+The broad themes draw on provider thematic frameworks; the exact subdivisions
+are a proposed project synthesis. These drafts do not establish stock membership
+or implement new report sections. Gold miners remains the existing report basket.[^gdx-concept]
 
-# Proposed relative strength
+# Shared conventions
 
-The user proposes tracking a stock making a new relative-strength high within
-its own theme.[^user-proposal] The following is a research design, not a finding
-or an implemented report signal.
+[Theme memberships](/themes/theme-memberships.md) is the shared relationship
+manifest, including links to existing dated holdings. Stocks may belong to
+multiple subthemes and themes; deduplicate within parent-theme calculations.
 
-Proposed RS series: `100 * stock_normalized_price / peer_index`, where both
-series start at 1 on the same session. The peer index compounds the equal-weight
-daily returns of the selected theme members, excluding the stock being tested.
-A stock's high nominal share price must not give it more benchmark weight.
-Rising RS indicates outperformance of the selected peers under this definition.
-
-Use 5 and 10 trading sessions as initial short-term RS calculation periods,
-as suggested by the user.[^user-proposal] For period n, report the relative
-return `100 * ((stock_t / stock_t_minus_n) / (peer_index_t / peer_index_t_minus_n) - 1)`
-in percent; n sessions requires n+1 aligned observations. These rolling returns
-are distinct from the normalized RS level and from the lookback used to detect
-a new high in that level. Keep calculation period and new-high lookback as
-separate utility parameters.
-
-Use matched sessions and a single provider and adjustment policy. Do not silently
-forward-fill missing prices or change the peer universe when data is missing.
-Specify minimum coverage, rebalancing, exchange-calendar alignment, and treatment
-of delistings before computing results. Current fixed holdings create survivorship
-bias when applied to earlier history.
+[Methodology](/themes/methodology.md) defines membership evidence, peer exclusion,
+equal weighting, date alignment, and proposed 5- and 10-session RS returns.
+RS calculation period and new-high lookback are separate parameters.
+The user's research proposal remains exploratory.[^user-proposal]
 
 # Research TODOs
 
