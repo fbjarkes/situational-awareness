@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T21:55:00Z"
+  at: "2026-10-28T22:11:05Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -45,6 +45,14 @@ daily returns of the selected theme members, excluding the stock being tested.
 A stock's high nominal share price must not give it more benchmark weight.
 Rising RS indicates outperformance of the selected peers under this definition.
 
+Use 5 and 10 trading sessions as initial short-term RS calculation periods,
+as suggested by the user.[^user-proposal] For period n, report the relative
+return `100 * ((stock_t / stock_t_minus_n) / (peer_index_t / peer_index_t_minus_n) - 1)`
+in percent; n sessions requires n+1 aligned observations. These rolling returns
+are distinct from the normalized RS level and from the lookback used to detect
+a new high in that level. Keep calculation period and new-high lookback as
+separate utility parameters.
+
 Use matched sessions and a single provider and adjustment policy. Do not silently
 forward-fill missing prices or change the peer universe when data is missing.
 Specify minimum coverage, rebalancing, exchange-calendar alignment, and treatment
@@ -66,6 +74,7 @@ bias when applied to earlier history.
 
 - [ ] Implement a reusable stock-versus-group RS utility after documenting the benchmark and missing-data contract.
   - Proposed interface: `relative_strength(symbol, group_symbols, period, ...)`, reading bars through `bar_store.load_bars` from one explicit batch and provider.
+  - Support 5- and 10-session rolling RS returns initially, alongside the normalized RS series; expose a separate `high_lookback` parameter for new-high flags.
   - Return a dated RS series, new-high flags, eligible peer counts, and input provenance; exclude the tested stock and reject an empty peer group.
   - Verify scale invariance, self-exclusion, aligned dates, missing-history handling, and strict new-high behavior before enabling report output.
 

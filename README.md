@@ -5,6 +5,36 @@ Python + uv proof of concept, starting with TradingView `INDEX:MMOH` and
 a JSON report containing the plotted observations and metadata, and a terminal
 summary. No browser assets or external chart service are required.
 
+## Reusable research price statistics
+
+`price_stats.py` accepts price sequences ordered oldest to newest, independent
+of symbol or provider. Load histories through `bar_store.load_bars` and select
+the intended price field and session cutoff before passing arrays.
+
+```python
+from price_stats import kma_compression, new_52w_high, days_since_52w_high
+
+kma_compression(closes)        # SMA periods 5, 10, 20, 50, 100, 150, 200
+new_52w_high(highs)            # strict daily-high breakout
+days_since_52w_high(closes)    # sessions since a strict closing-high breakout
+```
+
+- KMA compression: `100 * (max(key_SMAs) - min(key_SMAs)) / latest_close`.
+  All SMAs include the latest close. Lower values mean tighter compression;
+  this is a project formula, with no signal threshold implied. Requires 200
+  closes by default; custom distinct periods can be supplied.
+- New 52-week high: latest price strictly exceeds the preceding 252 observations
+  (253 prices required). `period` can override the trading-session approximation;
+  ties are not new highs. Use the same price field throughout an analysis.
+- Days since 52-week high: zero on a new-high event, otherwise sessions since the
+  most recent fully warmed-up event in the supplied history. It does not measure
+  the age of the maximum in today's trailing window. Ties do not reset it.
+
+Insufficient warmup returns `None`; days-since also returns `None` when no valid
+event exists in the supplied history. These functions count supplied observations,
+so callers must handle missing sessions, adjustments, and provisional bars explicitly.
+They do not download data or add report signals.
+
 ## Report section template
 
 The S&P 500 section also includes the Cboe VIX spot index from TradingView.

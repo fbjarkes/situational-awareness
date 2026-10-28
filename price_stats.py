@@ -10,6 +10,51 @@ from __future__ import annotations
 from collections.abc import Sequence
 import math
 
+KMA_PERIODS = (5, 10, 20, 50, 100, 150, 200)
+
+
+def kma_compression(closes: Sequence[float], periods: Sequence[int] = KMA_PERIODS) -> float | None:
+    """SMA range as percent of latest close: 100 * (max(SMAs)-min(SMAs))/close.
+
+    Lower means tighter compression; zero means all averages coincide.
+    Requires every requested SMA; returns None without full warmup.
+    """
+    values = _validate(closes)
+    windows = [_period(p) for p in periods]
+    if len(set(windows)) < 2 or len(set(windows)) != len(windows):
+        raise ValueError("Provide at least two distinct moving-average periods")
+    if len(values) < max(windows):
+        return None
+    averages = [math.fsum(values[-p:]) / p for p in windows]
+    return 100 * (max(averages) - min(averages)) / values[-1]
+
+
+def new_52w_high(prices: Sequence[float], period: int = 252) -> bool | None:
+    """Whether latest price strictly exceeds the preceding `period` prices.
+
+    52 weeks is approximated by 252 trading sessions, excluding today.
+    Pass daily highs for intraday-high research, closes for closing highs.
+    Ties return False; insufficient history returns None.
+    """
+    values, period = _validate(prices), _period(period)
+    if len(values) <= period:
+        return None
+    return values[-1] > max(values[-period - 1:-1])
+
+
+def days_since_52w_high(prices: Sequence[float], period: int = 252) -> int | None:
+    """Sessions since the most recent strict rolling-high event; today is zero.
+
+    Each event must exceed its own preceding `period` observations. Returns
+    None if no fully warmed-up event exists in the supplied history; this
+    differs from the age of the maximum in today's trailing window.
+    """
+    values, period = _validate(prices), _period(period)
+    for i in range(len(values) - 1, period - 1, -1):
+        if values[i] > max(values[i - period:i]):
+            return len(values) - 1 - i
+    return None
+
 
 def _validate(closes: Sequence[float]) -> list[float]:
     values = [float(c) for c in closes]
