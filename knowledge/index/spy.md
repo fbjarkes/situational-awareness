@@ -6,8 +6,8 @@ resource: https://www.ssga.com/us/en/intermediary/etfs/state-street-spdr-sp-500-
 tags: [SPY, S&P 500, index, benchmark, equities]
 status: draft
 generated:
-  by: claude-code/claude-opus-5-5
-  at: "2026-10-26T11:00:00Z"
+  by: codex/market-report-poc
+  at: "2026-10-28"
 sources:
   - id: ssga-daily-holdings
     resource: https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-spy.xlsx
@@ -94,6 +94,14 @@ studies below are recorded.
 
 # Research TODOs
 
+- [ ] Study SPY forward returns when at least 50% of S&P 500 constituents make a new 20-day high.
+  - Proposed definition: a constituent's close strictly exceeds its preceding 20 trading-session closes; confirm closing highs versus intraday highs before running the study.
+  - Trigger: qualifying constituents represent at least 50% of the point-in-time constituent universe; disclose missing histories and coverage rather than shrinking the denominator silently.
+  - Horizons: 10, 20, 30, 50, 100, and 200 trading sessions after the signal-session close.
+  - Baseline: unconditional SPY returns over the same sample and horizons, with a consistent adjustment and dividend policy.
+  - Report: sample sizes, mean, median, positive frequency, and worst interim drawdown; disclose incomplete forward horizons.
+  - Overlap: report all qualifying sessions and separately first crossings from below 50%, including a non-overlapping event sample.
+  - Biases: prefer point-in-time membership, account for multiple share classes and delistings, and document survivorship bias if current holdings are used historically; disclose close-based execution assumptions and costs.
 - [ ] Study SPY forward returns by distance from the 200-day SMA.
   - Buckets: below -10%, -10% to -5%, -5% to 0%, 0% to +5%, +5% to +10%, above +10%.
   - Horizons: 10, 20, and 50 trading sessions from the signal-session close.

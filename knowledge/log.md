@@ -1,5 +1,9 @@
 # Knowledge update log
 
+## 2026-10-28
+
+- Added an open SPY research plan for forward returns when at least 50% of S&P 500 constituents make new 20-day highs, with proposed event definitions, horizons, baseline, overlap, drawdowns, and membership biases.
+
 ## 2026-10-26
 
 - Added the sourced VIX concept, reusable closing-low span utility, and VIX metrics in the S&P 500 report section.
