@@ -6,8 +6,14 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T22:13:57Z"
 sources:
+  - id: cibr-holdings
+    resource: https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker=CIBR
+    title: First Trust CIBR holdings as of 2026-10-28, consulted 2026-10-29
+  - id: user-selection
+    resource: User request in this project chat, 2026-10-29
+    title: Add the proposed twelve core cybersecurity companies and three extended candidates
   - id: gdx-holdings
     resource: /sectors/gdx.md
     title: GDX dated holdings snapshot
@@ -15,14 +21,38 @@ sources:
 # Memberships
 
 One row represents one security-to-subtheme relationship. Multiple relationships
-per stock are allowed. No reviewed stock assignments have yet been added for the
-new proposed themes; the table is intentionally empty.
+per stock are allowed. Parent-theme assignments can leave Subtheme ID blank
+pending a sourced subtheme review. The cybersecurity selection below was recorded
+on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:PANW | cybersecurity | | core universe | core | | | 2026-10-29 | Palo Alto Networks; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:CRWD | cybersecurity | | core universe | core | | | 2026-10-29 | CrowdStrike; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:FTNT | cybersecurity | | core universe | core | | | 2026-10-29 | Fortinet; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:ZS | cybersecurity | | core universe | core | | | 2026-10-29 | Zscaler; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:CHKP | cybersecurity | | core universe | core | | | 2026-10-29 | Check Point Software; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:OKTA | cybersecurity | | core universe | core | | | 2026-10-29 | Okta; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NYSE:S | cybersecurity | | core universe | core | | | 2026-10-29 | SentinelOne; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:QLYS | cybersecurity | | core universe | core | | | 2026-10-29 | Qualys; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:TENB | cybersecurity | | core universe | core | | | 2026-10-29 | Tenable; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:VRNS | cybersecurity | | core universe | core | | | 2026-10-29 | Varonis Systems; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NYSE:RBRK | cybersecurity | | core universe | core | | | 2026-10-29 | Rubrik; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:NTSK | cybersecurity | | core universe | core | | | 2026-10-29 | Netskope; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
+| NYSE:NET | cybersecurity | | extended candidate | diversified | | | 2026-10-29 | Cloudflare; optional extension of the initial universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:FFIV | cybersecurity | | extended candidate | diversified | | | 2026-10-29 | F5; optional extension of the initial universe | [^cibr-holdings] [^user-selection] |
+| NASDAQ:AKAM | cybersecurity | | extended candidate | diversified | | | 2026-10-29 | Akamai Technologies; optional extension of the initial universe | [^cibr-holdings] [^user-selection] |
 
 Use provider-qualified symbols. Unknown validity dates are left blank, not inferred
 from a review date. Follow [methodology](/themes/methodology.md) when adding rows.
+
+The 15 companies appear in CIBR's 2026-10-28 holdings.[^cibr-holdings]
+Core versus extended and exposure labels are the project's provisional selection,
+not issuer classifications or verified revenue thresholds. Use the 12 core rows
+for the initial universe; including the three extended candidates requires an
+explicit universe choice. Reviewed records the source/selection review date,
+not an independent validation of company exposure or a historical membership date.
+Subtheme assignments and provider symbol resolution remain pending before execution.
 
 # Existing universe references
 
@@ -36,3 +66,5 @@ constituent. This dated snapshot is not historical point-in-time membership.
 The manifest review does not constitute a new holdings download.
 
 [^gdx-holdings]: Existing GDX holdings snapshot as of 2026-10-22; linked without duplicating the ticker list.
+[^cibr-holdings]: First Trust CIBR issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's exposure labels.
+[^user-selection]: User approved adding the proposed 12 core companies and three extended candidates on 2026-10-29.

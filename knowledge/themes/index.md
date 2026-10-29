@@ -5,7 +5,7 @@
 - [Methodology](methodology.md) - Membership, weighting, alignment, and RS conventions.
 - [Artificial intelligence](artificial-intelligence.md) - Proposed theme and subthemes.
 - [Robotics and automation](robotics-automation.md) - Proposed theme and subthemes.
-- [Cybersecurity](cybersecurity.md) - Proposed theme and subthemes.
+- [Cybersecurity](cybersecurity.md) - Initial 12-stock universe, three extended candidates, and proposed subthemes.
 - [Quantum computing](quantum-computing.md) - Proposed theme and subthemes.
 - [Space economy](space-economy.md) - Proposed theme and subthemes.
 - [Defense technology](defense-technology.md) - Proposed theme and subthemes.

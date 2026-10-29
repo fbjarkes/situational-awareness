@@ -1,5 +1,9 @@
 # Knowledge update log
 
+## 2026-10-29
+
+- Populated cybersecurity memberships with 12 core stocks and three optional extended candidates, sourced to CIBR holdings dated 2026-10-28; recorded review dates, provisional exposure labels, pending subthemes, and BUG as a proposed ETF proxy.
+
 ## 2026-10-28
 
 - Expanded themes into 16 proposed concepts with subthemes, a machine-readable registry, shared memberships, and methodology; retained active GDX holdings by reference and deprecated the old ticker manifest.
