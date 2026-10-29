@@ -14,7 +14,7 @@
 - [Future mobility](future-mobility.md) - Five US-listed air-mobility candidates, with piloted versus autonomous distinctions.
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.
 - [Healthcare innovation](healthcare-innovation.md) - Proposed theme and subthemes.
-- [Longevity and metabolic health](longevity-metabolic-health.md) - Proposed theme and subthemes.
+- [Longevity and metabolic health](longevity-metabolic-health.md) - Five US-listed metabolic-health core candidates, one extension, and longevity evidence gaps.
 - [Electrification and grid modernization](electrification-grid.md) - Ten US-listed core candidates, two broader extensions, and proposed subthemes.
 - [Nuclear energy](nuclear-energy.md) - Initial 10-stock selection, two generation extensions, and proposed subthemes.
 - [Renewable energy](renewable-energy.md) - Proposed theme and subthemes.

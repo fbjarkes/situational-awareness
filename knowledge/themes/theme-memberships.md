@@ -6,8 +6,29 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:57:28Z"
+  at: "2026-10-29T22:59:28Z"
 sources:
+  - id: lilly-metabolic
+    resource: https://investor.lilly.com/news-releases/news-release-details/lilly-reports-second-quarter-2026-financial-results-raises-full
+    title: Lilly issuer Q2 2026 results, NYSE LLY and metabolic medicines, consulted 2026-10-29
+  - id: novo-metabolic
+    resource: https://www.novonordisk.com/content/nncorp/global/en/news-and-media/news-and-ir-materials/news-details.html?id=916590
+    title: Novo Nordisk issuer Q2 2026 update, obesity and diabetes portfolio, consulted 2026-10-29
+  - id: novo-listing
+    resource: https://www.novonordisk.com/about/corporate-governance.html
+    title: Novo Nordisk issuer NYSE NVO ADR listing, consulted 2026-10-29
+  - id: viking-metabolic
+    resource: https://ir.vikingtherapeutics.com/2026-10-28-Viking-Therapeutics-Reports-Third-Quarter-2026-Financial-Results-and-Provides-Corporate-Update
+    title: Viking issuer update dated 2026-10-28, Nasdaq VKTX and clinical metabolic programs, consulted 2026-10-29
+  - id: structure-metabolic
+    resource: https://ir.structuretx.com/news-releases/news-release-details/structure-therapeutics-reports-second-quarter-2026-financial
+    title: Structure issuer results dated 2026-08-06, Nasdaq GPCR and clinical obesity programs, consulted 2026-10-29
+  - id: dexcom-metabolic
+    resource: https://investors.dexcom.com/news/news-details/2026/Dexcom-Reports-Third-Quarter-2026-Financial-Results/default.aspx
+    title: Dexcom issuer results dated 2026-10-29, Nasdaq DXCM and glucose monitoring, consulted 2026-10-29
+  - id: altimmune-metabolic
+    resource: https://ir.altimmune.com/news-releases/news-release-details/altimmune-announces-second-quarter-2026-financial-results-and
+    title: Altimmune issuer update dated 2026-08-12, Nasdaq ALT and clinical liver-disease programs, consulted 2026-10-29
   - id: joby-aircraft
     resource: https://www.jobyaviation.com/technology
     title: Joby aircraft specifications; piloted electric air taxi, consulted 2026-10-29
@@ -93,6 +114,12 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NYSE:LLY | longevity | longevity-obesity-treatments | core universe | diversified | | | 2026-10-29 | Eli Lilly; established metabolic medicines and obesity pipeline | [^lilly-metabolic] |
+| NYSE:NVO | longevity | longevity-obesity-treatments | core universe | core | | | 2026-10-29 | Novo Nordisk ADR; obesity and diabetes medicines | [^novo-metabolic] [^novo-listing] |
+| NASDAQ:VKTX | longevity | longevity-obesity-treatments | core universe | core | | | 2026-10-29 | Viking Therapeutics; clinical-stage metabolic and obesity programs | [^viking-metabolic] |
+| NASDAQ:GPCR | longevity | longevity-obesity-treatments | core universe | core | | | 2026-10-29 | Structure Therapeutics ADS; clinical-stage oral obesity programs | [^structure-metabolic] |
+| NASDAQ:DXCM | longevity | longevity-glucose-monitoring | core universe | core | | | 2026-10-29 | Dexcom; glucose monitoring and diabetes management | [^dexcom-metabolic] |
+| NASDAQ:ALT | longevity | longevity-metabolic-liver-disease | extended candidate | core | | | 2026-10-29 | Altimmune; clinical-stage liver-disease programs; metabolic-health extension | [^altimmune-metabolic] |
 | NYSE:JOBY | drones | drones-autonomous-aviation | extended candidate | diversified | | | 2026-10-29 | Joby Aviation; autonomous flight technology distinct from piloted air taxi | [^joby-autonomy] [^joby-aircraft] |
 | NYSE:JOBY | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | Joby Aviation; piloted electric air taxi | [^joby-aircraft] |
 | NYSE:JOBY | mobility | mobility-autonomous-aviation | core universe | diversified | | | 2026-10-29 | Joby Aviation; separate autonomy technology; deduplicate within parent theme | [^joby-autonomy] |
@@ -194,6 +221,15 @@ candidate may be a diversified business. Subtheme and current provider symbol
 checks remain pending; no historical membership start is inferred from review.
 The source fund holds foreign listings that are excluded from this US-only subset.
 
+# Longevity and metabolic health selection
+
+The initial six-stock selection covers metabolic treatments, glucose monitoring,
+and a metabolic liver-disease extension. It is not a list of demonstrated
+lifespan-extension companies. Healthy-ageing and eldercare remain unpopulated.
+Subtheme assignments are project judgments based on cited issuer descriptions;
+revenue thresholds and predictive effects have not been independently validated.
+Separate clinical developers, established medicines, and devices in peer studies.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -242,3 +278,11 @@ The manifest review does not constitute a new holdings download.
 [^eve-issuer]: Eve issuer results, 2026-08-04; NYSE EVEX and eVTOL development; consulted 2026-10-29.
 [^vertical-listing]: Vertical issuer release, 2026-10-02; NYSE EVTL, piloted aircraft, and listing notice; consulted 2026-10-29.
 [^ehang-issuer]: EHang issuer Q2 2026 results; pilotless eVTOL and Nasdaq EH; consulted 2026-10-29.
+
+[^lilly-metabolic]: Lilly issuer Q2 2026 results, NYSE LLY and metabolic medicines; consulted 2026-10-29.
+[^novo-metabolic]: Novo Nordisk issuer Q2 2026 update, obesity and diabetes portfolio; consulted 2026-10-29.
+[^novo-listing]: Novo Nordisk issuer NYSE NVO ADR listing; consulted 2026-10-29.
+[^viking-metabolic]: Viking issuer update dated 2026-10-28, Nasdaq VKTX and clinical metabolic programs; consulted 2026-10-29.
+[^structure-metabolic]: Structure issuer results dated 2026-08-06, Nasdaq GPCR and clinical obesity programs; consulted 2026-10-29.
+[^dexcom-metabolic]: Dexcom issuer results dated 2026-10-29, Nasdaq DXCM and glucose monitoring; consulted 2026-10-29.
+[^altimmune-metabolic]: Altimmune issuer update dated 2026-08-12, Nasdaq ALT and clinical liver-disease programs; consulted 2026-10-29.
