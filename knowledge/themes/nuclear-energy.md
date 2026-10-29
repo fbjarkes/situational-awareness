@@ -6,8 +6,11 @@ tags: [themes, nuclear]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T22:16:10Z"
 sources:
+  - id: nlr-holdings
+    resource: https://www.vaneck.com/us/en/investments/uranium-nuclear-energy-etf-nlr/overview
+    title: VanEck NLR mandate and holdings as of 2026-10-28, consulted 2026-10-29
   - id: provider-framework
     resource: https://www.msci.com/our-solutions/indexes/thematic-investing/themes-and-sub-themes
     title: Provider thematic classification framework
@@ -55,9 +58,24 @@ to the scope. Marketing references alone do not establish membership. Record
 exposure as core, diversified, or indirect, supported by a source and rationale.
 Membership can overlap other themes and subthemes.
 
-No constituent list is populated for this proposed theme. Add reviewed, dated
-relationships to [Theme memberships](/themes/theme-memberships.md); do not infer
-historical membership from the date of classification.
+The [shared membership table](/themes/theme-memberships.md) records an initial
+10-stock core selection: CCJ, BWXT, LEU, UEC, NXE, DNN, UUUU, OKLO, SMR,
+and NNE. CEG and PEG form an optional generation extension. All 12 appear in
+VanEck NLR's holdings dated 2026-10-28.[^nlr-holdings]
+
+This is a selected US-listed starting universe, not the complete global nuclear
+industry or the full NLR portfolio. Core versus extended is a provisional project
+choice, not an issuer classification, revenue threshold, or maturity ranking.
+Pre-commercial reactor developers and established operating businesses should
+be analyzed separately; company-specific subthemes and commercial-stage evidence
+remain pending review. Refer to the shared table for symbols and selection roles.
+Review dates do not establish historical membership.
+
+NLR is a proposed ETF comparison proxy. Its mandate spans uranium mining,
+nuclear facilities, generation, and equipment/services.[^nlr-holdings]
+The ETF is not a stock peer-group member; its weighting and international
+holdings differ from this selection. No report section or RS calculation is
+enabled by recording these companies.
 
 # Interpretation and research
 
@@ -70,3 +88,4 @@ is maintained once in the registry.
 
 [^provider-framework]: Provider framework consulted during project taxonomy research on 2026-10-28; supports broad categories, not every proposed subdivision.
 [^project-taxonomy]: User-approved first-draft organization, 2026-10-28; membership and predictive effects remain unvalidated.
+[^nlr-holdings]: VanEck NLR issuer fund page, mandate, and holdings as of 2026-10-28; consulted 2026-10-29. Supports inclusion, not the project's selection roles or exposure labels.

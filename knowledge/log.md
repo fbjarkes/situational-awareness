@@ -2,6 +2,7 @@
 
 ## 2026-10-29
 
+- Populated nuclear energy with 10 core stocks and two optional generation extensions from NLR holdings dated 2026-10-28; recorded source/review dates, provisional classifications, pending subthemes, and NLR as a proposed proxy.
 - Populated cybersecurity memberships with 12 core stocks and three optional extended candidates, sourced to CIBR holdings dated 2026-10-28; recorded review dates, provisional exposure labels, pending subthemes, and BUG as a proposed ETF proxy.
 
 ## 2026-10-28

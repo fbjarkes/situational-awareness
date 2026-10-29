@@ -6,8 +6,11 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:13:57Z"
+  at: "2026-10-29T22:16:10Z"
 sources:
+  - id: nlr-holdings
+    resource: https://www.vaneck.com/us/en/investments/uranium-nuclear-energy-etf-nlr/overview
+    title: VanEck NLR holdings as of 2026-10-28, consulted 2026-10-29
   - id: cibr-holdings
     resource: https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker=CIBR
     title: First Trust CIBR holdings as of 2026-10-28, consulted 2026-10-29
@@ -27,6 +30,18 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NYSE:CCJ | nuclear | | core universe | core | | | 2026-10-29 | Cameco; selected nuclear universe constituent | [^nlr-holdings] |
+| NYSE:BWXT | nuclear | | core universe | core | | | 2026-10-29 | BWX Technologies; selected nuclear universe constituent | [^nlr-holdings] |
+| AMEX:LEU | nuclear | | core universe | core | | | 2026-10-29 | Centrus Energy; selected nuclear universe constituent | [^nlr-holdings] |
+| AMEX:UEC | nuclear | | core universe | core | | | 2026-10-29 | Uranium Energy; selected nuclear universe constituent | [^nlr-holdings] |
+| NYSE:NXE | nuclear | | core universe | core | | | 2026-10-29 | NexGen Energy; selected nuclear universe constituent | [^nlr-holdings] |
+| AMEX:DNN | nuclear | | core universe | core | | | 2026-10-29 | Denison Mines; selected nuclear universe constituent | [^nlr-holdings] |
+| AMEX:UUUU | nuclear | | core universe | core | | | 2026-10-29 | Energy Fuels; selected nuclear universe constituent | [^nlr-holdings] |
+| NYSE:OKLO | nuclear | | core universe | core | | | 2026-10-29 | Oklo; selected nuclear universe constituent | [^nlr-holdings] |
+| NYSE:SMR | nuclear | | core universe | core | | | 2026-10-29 | NuScale Power; selected nuclear universe constituent | [^nlr-holdings] |
+| NASDAQ:NNE | nuclear | | core universe | core | | | 2026-10-29 | NANO Nuclear Energy; selected nuclear universe constituent | [^nlr-holdings] |
+| NASDAQ:CEG | nuclear | | extended candidate | diversified | | | 2026-10-29 | Constellation Energy; optional generation extension | [^nlr-holdings] |
+| NYSE:PEG | nuclear | | extended candidate | diversified | | | 2026-10-29 | Public Service Enterprise Group; optional generation extension | [^nlr-holdings] |
 | NASDAQ:PANW | cybersecurity | | core universe | core | | | 2026-10-29 | Palo Alto Networks; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
 | NASDAQ:CRWD | cybersecurity | | core universe | core | | | 2026-10-29 | CrowdStrike; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
 | NASDAQ:FTNT | cybersecurity | | core universe | core | | | 2026-10-29 | Fortinet; selected for initial cybersecurity universe | [^cibr-holdings] [^user-selection] |
@@ -56,6 +71,13 @@ Subtheme assignments and provider symbol resolution remain pending before execut
 
 # Existing universe references
 
+The nuclear selection comprises 10 core rows and two optional generation
+extensions, all present in NLR holdings dated 2026-10-28.[^nlr-holdings]
+Selection roles and exposure labels are provisional project judgments; ETF
+inclusion does not verify revenue concentration or commercial readiness.
+Subthemes and provider-qualified symbols require confirmation before execution.
+Validity dates remain unknown. This is a custom subset, not an NLR replication.
+
 | Theme ID | Membership as of | Authoritative ticker list | Securities | Selection |
 |---|---|---|---:|---|
 | gold-miners | 2026-10-22 | [GDX holdings](/sectors/gdx.md) | 59 | Security rows; exclude cash and Other/Cash |
@@ -68,3 +90,4 @@ The manifest review does not constitute a new holdings download.
 [^gdx-holdings]: Existing GDX holdings snapshot as of 2026-10-22; linked without duplicating the ticker list.
 [^cibr-holdings]: First Trust CIBR issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's exposure labels.
 [^user-selection]: User approved adding the proposed 12 core companies and three extended candidates on 2026-10-29.
+[^nlr-holdings]: VanEck NLR issuer holdings dated 2026-10-28, consulted 2026-10-29; project shortlist recorded 2026-10-29 without a historical membership claim.
