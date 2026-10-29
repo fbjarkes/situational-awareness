@@ -2,6 +2,8 @@
 
 ## 2026-10-29
 
+- Added ten US-listed Electrification and Grid core candidates and two broader extensions from GRID holdings dated 2026-10-28, with review dates, provisional classifications, and GRID as a proposed proxy.
+
 - Added the Drones theme with six US-listed candidates (AVAV, KTOS, RCAT, ONDS, UMAC, DPRO), issuer sources, dated reviews, provisional classifications, and explicit Defense Technology overlap.
 
 - Added six US-listed Defense Technology core candidates and four broader defense extensions, with issuer/SHLD sources, review dates, provisional classifications, and SHLD as a proposed proxy.

@@ -15,7 +15,7 @@
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.
 - [Healthcare innovation](healthcare-innovation.md) - Proposed theme and subthemes.
 - [Longevity and metabolic health](longevity-metabolic-health.md) - Proposed theme and subthemes.
-- [Electrification and grid modernization](electrification-grid.md) - Proposed theme and subthemes.
+- [Electrification and grid modernization](electrification-grid.md) - Ten US-listed core candidates, two broader extensions, and proposed subthemes.
 - [Nuclear energy](nuclear-energy.md) - Initial 10-stock selection, two generation extensions, and proposed subthemes.
 - [Renewable energy](renewable-energy.md) - Proposed theme and subthemes.
 - [Resource efficiency and circular economy](resource-efficiency.md) - Proposed theme and subthemes.

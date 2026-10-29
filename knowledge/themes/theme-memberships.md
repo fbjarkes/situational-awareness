@@ -6,8 +6,11 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:37:54Z"
+  at: "2026-10-29T22:46:33Z"
 sources:
+  - id: grid-holdings
+    resource: https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker=GRID
+    title: First Trust GRID holdings as of 2026-10-28, consulted 2026-10-29
   - id: ondas-issuer
     resource: https://www.ondas.com/
     title: Ondas issuer business description and Nasdaq ONDS listing, consulted 2026-10-29
@@ -72,6 +75,18 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NYSE:ETN | electrification | | core universe | diversified | | | 2026-10-29 | Eaton; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:PWR | electrification | | core universe | core | | | 2026-10-29 | Quanta Services; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:HUBB | electrification | | core universe | core | | | 2026-10-29 | Hubbell; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:NVT | electrification | | core universe | core | | | 2026-10-29 | nVent Electric; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:GEV | electrification | | core universe | diversified | | | 2026-10-29 | GE Vernova; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NASDAQ:MYRG | electrification | | core universe | core | | | 2026-10-29 | MYR Group; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NASDAQ:ITRI | electrification | | core universe | core | | | 2026-10-29 | Itron; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NASDAQ:AMSC | electrification | | core universe | core | | | 2026-10-29 | American Superconductor; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:WCC | electrification | | core universe | diversified | | | 2026-10-29 | WESCO International; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NASDAQ:FLNC | electrification | | core universe | core | | | 2026-10-29 | Fluence Energy; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NYSE:JCI | electrification | | extended candidate | diversified | | | 2026-10-29 | Johnson Controls International; selected GRID holding for project electrification universe | [^grid-holdings] |
+| NASDAQ:TSLA | electrification | | extended candidate | diversified | | | 2026-10-29 | Tesla; selected GRID holding for project electrification universe | [^grid-holdings] |
 | NASDAQ:AVAV | drones | | core universe | core | | | 2026-10-29 | AeroVironment; Uncrewed aerial systems | [^avav-issuer] |
 | NASDAQ:KTOS | drones | | core universe | diversified | | | 2026-10-29 | Kratos Defense & Security Solutions; Unmanned systems within broader defense operations | [^ktos-issuer] |
 | NASDAQ:RCAT | drones | | core universe | core | | | 2026-10-29 | Red Cat Holdings; Defense drone and robotic systems | [^rcat-issuer] |
@@ -145,6 +160,15 @@ judgments, not verified revenue thresholds. Subthemes, provider symbol resolutio
 and historical membership validity remain pending. Source review is not an
 independent validation of predictive effects or a historical membership start.
 
+# Electrification and grid selection
+
+The selection has ten core candidates and two optional extensions, using the
+GRID issuer snapshot dated 2026-10-28. Core/extended and exposure labels are
+provisional project judgments. Selection role is separate from exposure: a core
+candidate may be a diversified business. Subtheme and current provider symbol
+checks remain pending; no historical membership start is inferred from review.
+The source fund holds foreign listings that are excluded from this US-only subset.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -184,3 +208,5 @@ The manifest review does not constitute a new holdings download.
 [^umac-issuer]: Unusual Machines issuer page; drone-industry products, consulted 2026-10-29.
 [^umac-listing]: SEC Form 8-K dated 2026-01-15 lists UMAC on NYSE American; current provider symbol resolution required before execution.
 [^dpro-release]: Draganfly issuer release dated 2026-09-29, distributed through Nasdaq; Nasdaq DPRO and drone systems/technology, consulted 2026-10-29.
+
+[^grid-holdings]: First Trust GRID issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's selection roles or revenue-concentration labels.
