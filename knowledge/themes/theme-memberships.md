@@ -6,8 +6,23 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:32:00Z"
+  at: "2026-10-29T23:43:42Z"
 sources:
+  - id: nebius-cloud
+    resource: https://nebius.com/about
+    title: Nebius issuer AI-cloud platform and Nasdaq NBIS listing, consulted 2026-10-30
+  - id: nebius-group
+    resource: https://nebius.com/newsroom/nebius-reports-second-quarter-2026-financial-results
+    title: Nebius issuer Q2 2026 results and other group activities, consulted 2026-10-30
+  - id: coreweave-cloud
+    resource: https://coreweave.com/why-coreweave
+    title: CoreWeave issuer specialized GPU cloud description and Nasdaq CRWV listing, consulted 2026-10-30
+  - id: iren-cloud
+    resource: https://www.sec.gov/Archives/edgar/data/1878848/000187884826000052/iren-20260630.htm
+    title: IREN fiscal 2026 Form 10-K, AI Cloud/mining business mix and transition, consulted 2026-10-30
+  - id: iren-results
+    resource: https://iren.gcs-web.com/news-releases/news-release-details/iren-reports-fy26-results
+    title: IREN issuer results dated 2026-08-27; fiscal 2026 segment revenue and Nasdaq IREN, consulted 2026-10-30
   - id: smh-universe
     resource: https://www.vaneck.com/us/en/investments/semiconductor-etf-smh/holdings
     title: VanEck SMH issuer holdings dated 2026-10-28; universe evidence, not project classifications, consulted 2026-10-30
@@ -318,6 +333,9 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:NBIS | ai | ai-neoclouds | core universe | core | | | 2026-10-30 | Nebius Group; direct AI-cloud supplier with other group interests | [^nebius-cloud] [^nebius-group] |
+| NASDAQ:CRWV | ai | ai-neoclouds | core universe | core | | | 2026-10-30 | CoreWeave; direct specialized AI-cloud supplier | [^coreweave-cloud] |
+| NASDAQ:IREN | ai | ai-neoclouds | core universe | diversified | | | 2026-10-30 | IREN; direct AI-cloud supplier transitioning from Bitcoin mining; mixed fiscal 2026 revenue | [^iren-cloud] [^iren-results] |
 | NASDAQ:NVDA | semiconductors | semis-compute | core universe | core | | | 2026-10-30 | NVIDIA; proposed AI accelerators and compute assignment; separate profile attributes | [^nvda-semis] [^semis-project] |
 | NASDAQ:AMD | semiconductors | semis-compute | core universe | core | | | 2026-10-30 | Advanced Micro Devices; proposed AI accelerators and compute assignment; separate profile attributes | [^amd-semis] [^semis-project] |
 | NASDAQ:TXN | semiconductors | semis-analog-embedded | core universe | core | | | 2026-10-30 | Texas Instruments; proposed Analog and embedded assignment; separate profile attributes | [^txn-semis] [^semis-project] |
@@ -676,3 +694,9 @@ The manifest review does not constitute a new holdings download.
 [^cdns-semis]: Cadence issuer computational software, chip design, and IP; consulted 2026-10-30.
 [^arm-semis]: Arm issuer IP licensing and Arm-designed compute silicon portfolio; consulted 2026-10-30.
 [^semis-project]: Seven-subtheme project design and separate business/end-market attributes; consulted 2026-10-30.
+
+[^nebius-cloud]: Nebius issuer AI-cloud platform and Nasdaq NBIS listing; consulted 2026-10-30.
+[^nebius-group]: Nebius issuer Q2 2026 results and other group activities; consulted 2026-10-30.
+[^coreweave-cloud]: CoreWeave issuer specialized GPU cloud description and Nasdaq CRWV listing; consulted 2026-10-30.
+[^iren-cloud]: IREN fiscal 2026 Form 10-K, AI Cloud/mining business mix and transition; consulted 2026-10-30.
+[^iren-results]: IREN issuer results dated 2026-08-27; fiscal 2026 segment revenue and Nasdaq IREN; consulted 2026-10-30.

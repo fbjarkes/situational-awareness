@@ -10,7 +10,7 @@
 - [Themes](themes.md) - Registry and authoritative RS research checklist.
 - [Theme memberships](theme-memberships.md) - Shared dated stock relationships and existing universe references.
 - [Methodology](methodology.md) - Membership, weighting, alignment, and RS conventions.
-- [Artificial intelligence](artificial-intelligence.md) - Proposed theme and subthemes.
+- [Artificial intelligence](artificial-intelligence.md) - NBIS, CRWV, and IREN neocloud candidates; distinct hyperscaler category and dated exposure notes.
 - [Robotics and automation](robotics-automation.md) - Five US-listed core candidates, two ecosystem extensions, and proposed subthemes.
 - [Cybersecurity](cybersecurity.md) - Initial 12-stock universe, three extended candidates, and proposed subthemes.
 - [Quantum computing](quantum-computing.md) - Four US-listed core candidates, three diversified extensions, and proposed subthemes.

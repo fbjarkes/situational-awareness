@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Added separate AI neocloud and hyperscaler/platform categories; populated NBIS, CRWV, and IREN with issuer evidence, direct-supplier roles, and dated IREN mining-to-cloud transition context, keeping other AI segments unpopulated.
+
 - Added the Semiconductors parent theme, seven product subthemes, and 18 US-listed candidates; introduced separate security profiles for business models, ecosystem roles, and end markets, with explicit chipmaker/ecosystem RS scopes, overlapping tags, and insufficient-peer handling.
 
 - Populated Space and Satellites with VSAT, SPCX, RKLB, ASTS, IRDM, PL, RDW, and LUNR; recorded issuer sources, dated reviews, subthemes, SPCX ticker-reuse history, and the pending Rocket Lab/Iridium transaction.
