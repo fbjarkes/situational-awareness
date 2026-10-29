@@ -1,13 +1,16 @@
 ---
 type: Reference
-title: Renewable energy
+title: Clean energy and renewables
 description: Companies enabling renewable energy production and associated systems.
 tags: [themes, renewables]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T23:14:13Z"
 sources:
+  - id: tan-holdings
+    resource: https://www.invesco.com/us/en/financial-products/etfs/invesco-solar-etf.html
+    title: Invesco TAN issuer holdings snapshot dated 2026-10-12, consulted 2026-10-30
   - id: provider-framework
     resource: https://www.msci.com/our-solutions/indexes/thematic-investing/themes-and-sub-themes
     title: Provider thematic classification framework
@@ -52,9 +55,38 @@ to the scope. Marketing references alone do not establish membership. Record
 exposure as core, diversified, or indirect, supported by a source and rationale.
 Membership can overlap other themes and subthemes.
 
-No constituent list is populated for this proposed theme. Add reviewed, dated
-relationships to [Theme memberships](/themes/theme-memberships.md); do not infer
-historical membership from the date of classification.
+# Clean Energy boundary
+
+Clean Energy is the display name for this existing renewable-energy concept;
+retain the `renewables` theme ID and file path to preserve existing links.
+The initial universe focuses on renewable generation and its equipment supply
+chain. [Nuclear energy](/themes/nuclear-energy.md) is separately tracked as
+low-carbon generation. This project taxonomy is not a universal definition
+of clean energy or a lifecycle-emissions certification.
+
+[Batteries](/themes/batteries.md) is a distinct cross-cutting theme. Storage
+shifts electricity across time; it is not itself a primary generation source,
+and battery exposure alone does not establish renewable-energy exposure.
+Companies can have explicit memberships in both themes where justified.
+
+# Initial universe
+
+The [shared membership table](/themes/theme-memberships.md) records seven core
+candidates: FSLR (First Solar), NXT (Nextpower), ENPH (Enphase Energy), SEDG
+(SolarEdge Technologies), RUN (Sunrun), ENLT (Enlight Renewable Energy), and
+CWEN (Clearway Energy Class C). HASI (HA Sustainable Infrastructure Capital)
+is an optional finance-related extension. All eight appear in the TAN issuer
+holdings snapshot dated 2026-10-12.[^tan-holdings]
+
+Only US exchange-listed securities are eligible, including foreign issuers.
+Use CWEN as the chosen Clearway share class; do not also count CWEN.A as a
+second company. This initial selection is solar-heavy and does not populate
+all proposed wind or hydrogen subthemes. TAN is a solar comparison proxy,
+not a benchmark for the entire clean-energy economy; it has global holdings
+outside this US-only subset. Selection roles/exposure labels are provisional
+project choices. Subthemes and current provider symbols require review before
+execution; review dates do not establish historical membership. No new report
+output or trading rule is enabled.
 
 # Interpretation and research
 
@@ -67,3 +99,5 @@ is maintained once in the registry.
 
 [^provider-framework]: Provider framework consulted during project taxonomy research on 2026-10-28; supports broad categories, not every proposed subdivision.
 [^project-taxonomy]: User-approved first-draft organization, 2026-10-28; membership and predictive effects remain unvalidated.
+
+[^tan-holdings]: Invesco TAN issuer holdings snapshot dated 2026-10-12; consulted 2026-10-30.

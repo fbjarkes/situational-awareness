@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:37:54Z"
+  at: "2026-10-29T23:14:13Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -15,6 +15,11 @@ sources:
     resource: User request in this project chat, 2026-10-28
     title: Theme registry and within-theme RS-high research proposal
 themes:
+  - id: batteries
+    title: Batteries
+    concept: /themes/batteries.md
+    classification: structural_theme
+    tracking_status: proposed
   - id: drones
     title: Drones
     concept: /themes/drones.md
@@ -81,7 +86,7 @@ themes:
     classification: structural_theme
     tracking_status: proposed
   - id: renewables
-    title: Renewable energy
+    title: Clean energy and renewables
     concept: /themes/renewable-energy.md
     classification: structural_theme
     tracking_status: proposed
@@ -133,7 +138,8 @@ project extensions, not OKF standard fields.
 | longevity | Longevity and metabolic health | proposed | structural_theme | [Concept](/themes/longevity-metabolic-health.md) |
 | electrification | Electrification and grid modernization | proposed | structural_theme | [Concept](/themes/electrification-grid.md) |
 | nuclear | Nuclear energy | proposed | structural_theme | [Concept](/themes/nuclear-energy.md) |
-| renewables | Renewable energy | proposed | structural_theme | [Concept](/themes/renewable-energy.md) |
+| batteries | Batteries | proposed | structural_theme | [Concept](/themes/batteries.md) |
+| renewables | Clean energy and renewables | proposed | structural_theme | [Concept](/themes/renewable-energy.md) |
 | resource-efficiency | Resource efficiency and circular economy | proposed | structural_theme | [Concept](/themes/resource-efficiency.md) |
 | food-agtech | Food and agricultural innovation | proposed | structural_theme | [Concept](/themes/food-agriculture-innovation.md) |
 | supply-resilience | Supply-chain resilience and reshoring | proposed | structural_theme | [Concept](/themes/supply-chain-resilience.md) |

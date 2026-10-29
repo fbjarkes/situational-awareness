@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Populated Clean Energy using the existing renewables concept/ID and added a separate Batteries theme, with US-listed universes (8 and 7 names), dated issuer evidence, separate proxies, and explicit generation/storage/mobility boundaries.
+
 - Added IONQ, RGTI, QBTS, and QUBT as initial quantum core candidates, with IBM, MSFT, and GOOGL as diversified extensions; recorded issuer sources, review dates, D-Wave Nasdaq transfer, Alphabet share-class deduplication, and technical-evidence limitations.
 
 ## 2026-10-29

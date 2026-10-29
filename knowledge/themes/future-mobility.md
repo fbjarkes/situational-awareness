@@ -6,7 +6,7 @@ tags: [themes, mobility]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:57:28Z"
+  at: "2026-10-29T23:14:13Z"
 sources:
   - id: joby-aircraft
     resource: https://www.jobyaviation.com/technology
@@ -104,6 +104,9 @@ checked before execution.[^vertical-listing] Eve describes itself as
 pre-operational.[^eve-issuer] Provider symbols, adjustments, corporate actions,
 and current listing status must be checked before research. No ETF proxy or
 new report output is selected by this update.
+
+[Batteries](/themes/batteries.md) is a separate cross-cutting theme for cells,
+materials, and storage systems; an EV company is not automatically a battery member.
 
 # Interpretation and research
 

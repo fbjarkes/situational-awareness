@@ -6,8 +6,29 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:01:31Z"
+  at: "2026-10-29T23:14:13Z"
 sources:
+  - id: tan-holdings
+    resource: https://www.invesco.com/us/en/financial-products/etfs/invesco-solar-etf.html
+    title: Invesco TAN issuer holdings snapshot dated 2026-10-12, consulted 2026-10-30
+  - id: lit-holdings
+    resource: https://www.globalxetfs.com/funds/lit/
+    title: Global X LIT mandate and holdings dated 2026-10-28, consulted 2026-10-30
+  - id: enovix-batteries
+    resource: https://ir.enovix.com/news-releases/news-release-details/enovixs-taa-compliant-battery-manufacturing-strengthens-position
+    title: Enovix issuer battery description and Nasdaq ENVX listing, 2026-09-01, consulted 2026-10-30
+  - id: quantumscape-batteries
+    resource: https://www.quantumscape.com/quantumscape-announces-plans-for-100-mwh-solid-state-battery-production-line-for-ai-data-centers-aerospace-and-defense/
+    title: QuantumScape issuer solid-state battery development and Nasdaq QS listing, 2026-10-21, consulted 2026-10-30
+  - id: eos-batteries
+    resource: https://investors.eose.com/news-releases/news-release-details/eos-energy-enterprises-announces-preliminary-third-quarter-2026
+    title: Eos issuer zinc storage systems and Nasdaq EOSE listing, 2026-10-19, consulted 2026-10-30
+  - id: fluence-batteries
+    resource: https://ir.fluenceenergy.com/news-releases/news-release-details/fluence-secures-long-term-battery-supply-through-multiyear
+    title: Fluence issuer battery-system integration and Nasdaq FLNC listing, 2026-09-24, consulted 2026-10-30
+  - id: enersys-batteries
+    resource: https://www.sec.gov/Archives/edgar/data/1289308/000128930826000009/exhibit991-closureoftjmxma.htm
+    title: EnerSys issuer stored-energy and battery manufacturing description, NYSE ENS, 2026-03-25, consulted 2026-10-30
   - id: ionq-issuer
     resource: https://investors.ionq.com/overview/
     title: IonQ issuer quantum computing platform description, consulted 2026-10-30
@@ -141,6 +162,21 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:FSLR | renewables | | core universe | core | | | 2026-10-30 | First Solar; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NASDAQ:NXT | renewables | | core universe | core | | | 2026-10-30 | Nextpower; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NASDAQ:ENPH | renewables | | core universe | core | | | 2026-10-30 | Enphase Energy; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NASDAQ:SEDG | renewables | | core universe | core | | | 2026-10-30 | SolarEdge Technologies; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NASDAQ:RUN | renewables | | core universe | core | | | 2026-10-30 | Sunrun; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NASDAQ:ENLT | renewables | | core universe | core | | | 2026-10-30 | Enlight Renewable Energy; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NYSE:CWEN | renewables | | core universe | core | | | 2026-10-30 | Clearway Energy Class C; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NYSE:HASI | renewables | | extended candidate | diversified | | | 2026-10-30 | HA Sustainable Infrastructure Capital; selected TAN holding for Clean Energy universe | [^tan-holdings] |
+| NYSE:ALB | batteries | batteries-materials | core universe | core | | | 2026-10-30 | Albemarle; selected battery value-chain exposure | [^lit-holdings] |
+| NASDAQ:ENVX | batteries | batteries-cells | core universe | core | | | 2026-10-30 | Enovix; selected battery value-chain exposure | [^enovix-batteries] |
+| NASDAQ:QS | batteries | batteries-cells | core universe | core | | | 2026-10-30 | QuantumScape; selected battery value-chain exposure | [^quantumscape-batteries] |
+| NASDAQ:EOSE | batteries | batteries-systems | core universe | core | | | 2026-10-30 | Eos Energy Enterprises; selected battery value-chain exposure | [^eos-batteries] |
+| NASDAQ:FLNC | batteries | batteries-systems | core universe | core | | | 2026-10-30 | Fluence Energy; selected battery value-chain exposure | [^fluence-batteries] |
+| NYSE:ENS | batteries | batteries-systems | core universe | core | | | 2026-10-30 | EnerSys; selected battery value-chain exposure | [^enersys-batteries] |
+| NASDAQ:TSLA | batteries |  | extended candidate | diversified | | | 2026-10-30 | Tesla; selected battery value-chain exposure | [^lit-holdings] |
 | NYSE:IONQ | quantum | | core universe | core | | | 2026-10-30 | IonQ; Quantum computing and related platform technologies | [^ionq-issuer] |
 | NASDAQ:RGTI | quantum | | core universe | core | | | 2026-10-30 | Rigetti Computing; Quantum processors and cloud systems | [^rigetti-issuer] |
 | NASDAQ:QBTS | quantum | | core universe | core | | | 2026-10-30 | D-Wave Quantum; Quantum systems and services; Nasdaq transfer effective July 2026 | [^dwave-issuer] [^dwave-listing] [^dwave-transfer] |
@@ -340,3 +376,11 @@ The manifest review does not constitute a new holdings download.
 [^ibm-quantum]: IBM issuer quantum systems and software platform; consulted 2026-10-30.
 [^microsoft-quantum]: Microsoft Azure Quantum platform and quantum research; consulted 2026-10-30.
 [^google-quantum]: Google Quantum AI hardware and software research; consulted 2026-10-30.
+
+[^tan-holdings]: Invesco TAN issuer holdings snapshot dated 2026-10-12; consulted 2026-10-30.
+[^lit-holdings]: Global X LIT mandate and holdings dated 2026-10-28; consulted 2026-10-30.
+[^enovix-batteries]: Enovix issuer battery description and Nasdaq ENVX listing, 2026-09-01; consulted 2026-10-30.
+[^quantumscape-batteries]: QuantumScape issuer solid-state battery development and Nasdaq QS listing, 2026-10-21; consulted 2026-10-30.
+[^eos-batteries]: Eos issuer zinc storage systems and Nasdaq EOSE listing, 2026-10-19; consulted 2026-10-30.
+[^fluence-batteries]: Fluence issuer battery-system integration and Nasdaq FLNC listing, 2026-09-24; consulted 2026-10-30.
+[^enersys-batteries]: EnerSys issuer stored-energy and battery manufacturing description, NYSE ENS, 2026-03-25; consulted 2026-10-30.

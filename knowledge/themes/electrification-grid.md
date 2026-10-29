@@ -6,7 +6,7 @@ tags: [themes, electrification]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:46:33Z"
+  at: "2026-10-29T23:14:13Z"
 sources:
   - id: grid-holdings
     resource: https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker=GRID
@@ -76,6 +76,9 @@ and broader industrial businesses may need separate peer groups. Review dates
 do not establish historical membership. GRID is a proposed ETF comparison proxy;
 its international holdings differ from this US-only basket, and the ETF is not
 itself a stock peer-group member. No new report output or trading rule is enabled.
+
+Battery materials, cells, and storage-system peers are separately tracked in
+[Batteries](/themes/batteries.md); FLNC and TSLA have overlapping memberships.
 
 # Interpretation and research
 

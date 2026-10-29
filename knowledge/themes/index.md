@@ -17,7 +17,8 @@
 - [Longevity and metabolic health](longevity-metabolic-health.md) - Five US-listed metabolic-health core candidates, one extension, and longevity evidence gaps.
 - [Electrification and grid modernization](electrification-grid.md) - Ten US-listed core candidates, two broader extensions, and proposed subthemes.
 - [Nuclear energy](nuclear-energy.md) - Initial 10-stock selection, two generation extensions, and proposed subthemes.
-- [Renewable energy](renewable-energy.md) - Proposed theme and subthemes.
+- [Clean energy and renewables](renewable-energy.md) - Seven US-listed core candidates and one finance extension.
+- [Batteries](batteries.md) - Six US-listed core candidates and Tesla as an extension; materials, cells, and systems.
 - [Resource efficiency and circular economy](resource-efficiency.md) - Proposed theme and subthemes.
 - [Food and agricultural innovation](food-agriculture-innovation.md) - Proposed theme and subthemes.
 - [Supply-chain resilience and reshoring](supply-chain-resilience.md) - Proposed theme and subthemes.
