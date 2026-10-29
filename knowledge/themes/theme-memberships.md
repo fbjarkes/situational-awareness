@@ -6,8 +6,26 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:46:33Z"
+  at: "2026-10-29T22:57:28Z"
 sources:
+  - id: joby-aircraft
+    resource: https://www.jobyaviation.com/technology
+    title: Joby aircraft specifications; piloted electric air taxi, consulted 2026-10-29
+  - id: joby-autonomy
+    resource: https://www.jobyaviation.com/news/joby-completes-first-ever-fully-autonomous-flight-across-the-united-states
+    title: Joby autonomous-flight demonstration, 2026-09-18; NYSE JOBY, consulted 2026-10-29
+  - id: archer-issuer
+    resource: https://investors.archer.com/news/news-details/2026/Archer-Announces-Fourth-Quarter-and-Full-Year-2025-Results-US-and-UAE-Air-Taxi-Pilot-Programs-On-Track-for-2026/default.aspx
+    title: Archer issuer release, 2026-03-02; NYSE ACHR and piloted air taxis, consulted 2026-10-29
+  - id: eve-issuer
+    resource: https://ir.eveairmobility.com/news-events/press-releases/detail/118/eve-holding-inc-reports-second-quarter-2026-results
+    title: Eve issuer results, 2026-08-04; NYSE EVEX and eVTOL development, consulted 2026-10-29
+  - id: vertical-listing
+    resource: https://www.sec.gov/Archives/edgar/data/1867102/000110465926113318/tm2625635d1_ex99-1.htm
+    title: Vertical issuer release, 2026-10-02; NYSE EVTL, piloted aircraft, and listing notice, consulted 2026-10-29
+  - id: ehang-issuer
+    resource: https://ehang.gcs-web.com/news-releases/news-release-details/ehang-reports-second-quarter-2026-unaudited-financial-results
+    title: EHang issuer Q2 2026 results; pilotless eVTOL and Nasdaq EH, consulted 2026-10-29
   - id: grid-holdings
     resource: https://www.ftportfolios.com/Retail/Etf/EtfHoldings.aspx?Ticker=GRID
     title: First Trust GRID holdings as of 2026-10-28, consulted 2026-10-29
@@ -75,6 +93,13 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NYSE:JOBY | drones | drones-autonomous-aviation | extended candidate | diversified | | | 2026-10-29 | Joby Aviation; autonomous flight technology distinct from piloted air taxi | [^joby-autonomy] [^joby-aircraft] |
+| NYSE:JOBY | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | Joby Aviation; piloted electric air taxi | [^joby-aircraft] |
+| NYSE:JOBY | mobility | mobility-autonomous-aviation | core universe | diversified | | | 2026-10-29 | Joby Aviation; separate autonomy technology; deduplicate within parent theme | [^joby-autonomy] |
+| NYSE:ACHR | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | Archer Aviation; piloted eVTOL air taxis | [^archer-issuer] |
+| NYSE:EVEX | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | Eve Holding; eVTOL and urban air mobility development | [^eve-issuer] |
+| NYSE:EVTL | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | Vertical Aerospace; piloted eVTOL; monitor disclosed NYSE noncompliance | [^vertical-listing] |
+| NASDAQ:EH | mobility | mobility-air-taxis | core universe | core | | | 2026-10-29 | EHang ADS; pilotless passenger eVTOL | [^ehang-issuer] |
 | NYSE:ETN | electrification | | core universe | diversified | | | 2026-10-29 | Eaton; selected GRID holding for project electrification universe | [^grid-holdings] |
 | NYSE:PWR | electrification | | core universe | core | | | 2026-10-29 | Quanta Services; selected GRID holding for project electrification universe | [^grid-holdings] |
 | NYSE:HUBB | electrification | | core universe | core | | | 2026-10-29 | Hubbell; selected GRID holding for project electrification universe | [^grid-holdings] |
@@ -210,3 +235,10 @@ The manifest review does not constitute a new holdings download.
 [^dpro-release]: Draganfly issuer release dated 2026-09-29, distributed through Nasdaq; Nasdaq DPRO and drone systems/technology, consulted 2026-10-29.
 
 [^grid-holdings]: First Trust GRID issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's selection roles or revenue-concentration labels.
+
+[^joby-aircraft]: Joby aircraft specifications; piloted electric air taxi; consulted 2026-10-29.
+[^joby-autonomy]: Joby autonomous-flight demonstration, 2026-09-18; NYSE JOBY; consulted 2026-10-29.
+[^archer-issuer]: Archer issuer release, 2026-03-02; NYSE ACHR and piloted air taxis; consulted 2026-10-29.
+[^eve-issuer]: Eve issuer results, 2026-08-04; NYSE EVEX and eVTOL development; consulted 2026-10-29.
+[^vertical-listing]: Vertical issuer release, 2026-10-02; NYSE EVTL, piloted aircraft, and listing notice; consulted 2026-10-29.
+[^ehang-issuer]: EHang issuer Q2 2026 results; pilotless eVTOL and Nasdaq EH; consulted 2026-10-29.

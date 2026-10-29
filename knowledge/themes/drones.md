@@ -6,8 +6,14 @@ tags: [themes, drones, autonomy, defense-tech]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:37:54Z"
+  at: "2026-10-29T22:57:28Z"
 sources:
+  - id: joby-aircraft
+    resource: https://www.jobyaviation.com/technology
+    title: Joby aircraft specifications; piloted electric air taxi, consulted 2026-10-29
+  - id: joby-autonomy
+    resource: https://www.jobyaviation.com/news/joby-completes-first-ever-fully-autonomous-flight-across-the-united-states
+    title: Joby autonomous-flight demonstration, 2026-09-18; NYSE JOBY, consulted 2026-10-29
   - id: avav-issuer
     resource: https://investor.avinc.com/news-events/press-releases
     title: AeroVironment issuer uncrewed-system releases, consulted 2026-10-29
@@ -36,6 +42,8 @@ theme:
   tracking_status: proposed
   memberships: /themes/theme-memberships.md
   subthemes:
+    - id: drones-autonomous-aviation
+      title: Autonomous aviation
     - id: drones-platforms
       title: Drone platforms
     - id: drones-components
@@ -59,7 +67,7 @@ are excluded. This is a project theme, not an official industry classification.
 # Initial universe
 
 The authoritative [shared membership table](/themes/theme-memberships.md)
-contains six initial candidates:
+contains six initial core candidates and JOBY as an extended candidate:
 
 | Ticker | Company | Inclusion rationale |
 |---|---|---|
@@ -69,8 +77,13 @@ contains six initial candidates:
 | ONDS | Ondas | Autonomous drone systems and counter-UAS. [^ondas-issuer] |
 | UMAC | Unusual Machines | Drone-industry products and components. [^umac-issuer] [^umac-listing] |
 | DPRO | Draganfly | Drone solutions, systems, and technologies. [^dpro-release] |
+| JOBY | Joby Aviation | Extended autonomous-aviation exposure, separate from its piloted air taxi. [^joby-autonomy] |
 
-All six are initial core-universe candidates; exposure labels are provisional
+The original six are core-universe candidates; JOBY is extended. Its air taxi
+is piloted, while its separately demonstrated autonomy technology supports the
+Drones relationship.[^joby-aircraft][^joby-autonomy] See
+[Future mobility](/themes/future-mobility.md) for air-taxi peers.
+All exposure labels remain provisional; exposure labels are provisional
 project judgments, not verified revenue thresholds. KTOS is marked diversified
 because the cited issuer description spans multiple defense businesses.
 Subtheme assignments and current provider-qualified symbols require review
@@ -99,3 +112,6 @@ in the registry.
 [^umac-issuer]: Unusual Machines issuer page; drone-industry products, consulted 2026-10-29.
 [^umac-listing]: SEC Form 8-K dated 2026-01-15 lists UMAC on NYSE American; current provider symbol resolution required before execution.
 [^dpro-release]: Draganfly issuer release dated 2026-09-29, distributed through Nasdaq; Nasdaq DPRO and drone systems/technology, consulted 2026-10-29.
+
+[^joby-aircraft]: Joby aircraft specifications; piloted electric air taxi; consulted 2026-10-29.
+[^joby-autonomy]: Joby autonomous-flight demonstration, 2026-09-18; NYSE JOBY; consulted 2026-10-29.

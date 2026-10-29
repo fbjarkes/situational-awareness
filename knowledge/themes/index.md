@@ -1,6 +1,6 @@
 # Themes
 
-- [Drones](drones.md) - Six US-listed candidates spanning drone platforms and enabling technologies.
+- [Drones](drones.md) - Six US-listed core candidates and JOBY as an autonomous-aviation extension.
 
 - [Themes](themes.md) - Registry and authoritative RS research checklist.
 - [Theme memberships](theme-memberships.md) - Shared dated stock relationships and existing universe references.
@@ -11,7 +11,7 @@
 - [Quantum computing](quantum-computing.md) - Proposed theme and subthemes.
 - [Space economy](space-economy.md) - Proposed theme and subthemes.
 - [Defense technology](defense-technology.md) - Six US-listed core candidates, four broader defense extensions, and proposed subthemes.
-- [Future mobility](future-mobility.md) - Proposed theme and subthemes.
+- [Future mobility](future-mobility.md) - Five US-listed air-mobility candidates, with piloted versus autonomous distinctions.
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.
 - [Healthcare innovation](healthcare-innovation.md) - Proposed theme and subthemes.
 - [Longevity and metabolic health](longevity-metabolic-health.md) - Proposed theme and subthemes.
