@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Populated Space and Satellites with VSAT, SPCX, RKLB, ASTS, IRDM, PL, RDW, and LUNR; recorded issuer sources, dated reviews, subthemes, SPCX ticker-reuse history, and the pending Rocket Lab/Iridium transaction.
+
 - Added Nasdaq PURR (Hyperliquid Strategies) as a Crypto treasury company with HYPE/staking exposure, distinct from ETF exposures; recorded fiscal 2026 filing evidence and legacy-business history limitations.
 
 - Added BITO and ETHE as separately tracked Crypto fund exposures; distinguished Bitcoin futures/swaps from spot/staked Ether, excluded funds from company breadth/peer groups, and documented historical structure and total-return treatment.

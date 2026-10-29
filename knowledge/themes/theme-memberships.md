@@ -6,8 +6,44 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:24:03Z"
+  at: "2026-10-29T23:26:42Z"
 sources:
+  - id: viasat-space
+    resource: https://investors.viasat.com/
+    title: Viasat issuer satellite communications and services updates, consulted 2026-10-30
+  - id: viasat-listing
+    resource: https://d1f19qmytqk9eo.cloudfront.net/edgar0105/2026/05/29/797721/000119312526248290/document/vsat-20260331.htm
+    title: Viasat fiscal 2026 Form 10-K, Nasdaq VSAT, consulted 2026-10-30
+  - id: spacex-listing
+    resource: https://ir.spacex.com/faqs-and-contact/
+    title: SpaceX issuer FAQ, Nasdaq SPCX and IPO on 2026-06-12, consulted 2026-10-30
+  - id: spacex-history
+    resource: https://nasdaqtrader.com/TraderNews.aspx?id=DTN2026-8
+    title: Nasdaq listing notice, SPCX issuer identity and ticker-reuse history warning, consulted 2026-10-30
+  - id: rocketlab-space
+    resource: https://investors.rocketlabcorp.com/
+    title: Rocket Lab issuer launch and space systems description, consulted 2026-10-30
+  - id: rocketlab-listing
+    resource: https://investors.rocketlabcorp.com/news-releases/news-release-details/rocket-lab-join-nasdaq-100-index
+    title: Rocket Lab issuer release dated 2026-06-12, Nasdaq RKLB, consulted 2026-10-30
+  - id: ast-space
+    resource: https://investors.ast-science.com/
+    title: AST SpaceMobile issuer satellite cellular broadband and Nasdaq ASTS, consulted 2026-10-30
+  - id: iridium-space
+    resource: https://investor.iridium.com/financial-information/annual-reports/default.aspx
+    title: Iridium issuer satellite communications and Nasdaq IRDM, consulted 2026-10-30
+  - id: iridium-acquisition
+    resource: https://investors.rocketlabcorp.com/news-releases/news-release-details/rocket-lab-fully-funds-iridium-acquisition-including-completion
+    title: Rocket Lab issuer pending Iridium transaction update dated 2026-09-15, consulted 2026-10-30
+  - id: planet-space
+    resource: https://investors.planet.com/financials/quarterly-results/
+    title: Planet issuer Earth data and satellite services, NYSE PL, consulted 2026-10-30
+  - id: redwire-space
+    resource: https://ir.rdw.com/
+    title: Redwire issuer space/defense infrastructure and NYSE RDW, consulted 2026-10-30
+  - id: lunr-space
+    resource: https://investors.intuitivemachines.com/news-releases/news-release-details/intuitive-machines-reports-second-quarter-2026-financial-results
+    title: Intuitive Machines issuer space infrastructure results dated 2026-08-13, Nasdaq LUNR, consulted 2026-10-30
   - id: purr-treasury
     resource: https://www.sec.gov/Archives/edgar/data/2078856/000119312526370281/purr-20260630.htm
     title: Hyperliquid Strategies fiscal 2026 Form 10-K, Nasdaq PURR and HYPE treasury/staking business, consulted 2026-10-30
@@ -222,6 +258,14 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:VSAT | space | space-satellite-communications | core universe | core | | | 2026-10-30 | Viasat; Satellite communications | [^viasat-space] [^viasat-listing] |
+| NASDAQ:SPCX | space | space-launch-systems | core universe | core | | | 2026-10-30 | SpaceX; Launch/space infrastructure; verify post-IPO issuer history only | [^spacex-history] [^spacex-listing] |
+| NASDAQ:RKLB | space | space-launch-systems | core universe | core | | | 2026-10-30 | Rocket Lab; Launch services and space systems | [^rocketlab-space] [^rocketlab-listing] |
+| NASDAQ:ASTS | space | space-satellite-communications | core universe | core | | | 2026-10-30 | AST SpaceMobile; Satellite cellular broadband | [^ast-space] |
+| NASDAQ:IRDM | space | space-satellite-communications | core universe | core | | | 2026-10-30 | Iridium Communications; Satellite communications; monitor pending acquisition | [^iridium-space] [^iridium-acquisition] |
+| NYSE:PL | space | space-earth-observation | core universe | core | | | 2026-10-30 | Planet Labs PBC; Earth observation and satellite data | [^planet-space] |
+| NYSE:RDW | space |  | core universe | diversified | | | 2026-10-30 | Redwire; Space and defense infrastructure; exact subtheme pending | [^redwire-space] |
+| NASDAQ:LUNR | space | space-ground-infrastructure | core universe | core | | | 2026-10-30 | Intuitive Machines; Space infrastructure and ground connectivity | [^lunr-space] |
 | NASDAQ:PURR | crypto-blockchain | crypto-treasury | core universe | core | | | 2026-10-30 | Hyperliquid Strategies; HYPE treasury, staking, and validator activities; company equity, not an ETF | [^purr-treasury] |
 | NASDAQ:COIN | crypto-blockchain | crypto-markets | core universe | core | | | 2026-10-30 | Coinbase Global; Crypto trading and services | [^coinbase-crypto] |
 | NYSE:CRCL | crypto-blockchain | crypto-stablecoins | core universe | core | | | 2026-10-30 | Circle Internet Group; Stablecoin and public-blockchain services | [^circle-crypto] |
@@ -511,3 +555,16 @@ The manifest review does not constitute a new holdings download.
 [^ethe-issuer]: Grayscale ETHE issuer page, consulted 2026-10-30; Ether holdings, staking, NYSE Arca listing, and historical OTC-to-ETP transition.
 
 [^purr-treasury]: Hyperliquid Strategies fiscal-year 2026 Form 10-K; Nasdaq PURR common stock, HYPE accumulation, staking, and validator activities; consulted 2026-10-30.
+
+[^viasat-space]: Viasat issuer satellite communications and services updates; consulted 2026-10-30.
+[^viasat-listing]: Viasat fiscal 2026 Form 10-K, Nasdaq VSAT; consulted 2026-10-30.
+[^spacex-listing]: SpaceX issuer FAQ, Nasdaq SPCX and IPO on 2026-06-12; consulted 2026-10-30.
+[^spacex-history]: Nasdaq listing notice, SPCX issuer identity and ticker-reuse history warning; consulted 2026-10-30.
+[^rocketlab-space]: Rocket Lab issuer launch and space systems description; consulted 2026-10-30.
+[^rocketlab-listing]: Rocket Lab issuer release dated 2026-06-12, Nasdaq RKLB; consulted 2026-10-30.
+[^ast-space]: AST SpaceMobile issuer satellite cellular broadband and Nasdaq ASTS; consulted 2026-10-30.
+[^iridium-space]: Iridium issuer satellite communications and Nasdaq IRDM; consulted 2026-10-30.
+[^iridium-acquisition]: Rocket Lab issuer pending Iridium transaction update dated 2026-09-15; consulted 2026-10-30.
+[^planet-space]: Planet issuer Earth data and satellite services, NYSE PL; consulted 2026-10-30.
+[^redwire-space]: Redwire issuer space/defense infrastructure and NYSE RDW; consulted 2026-10-30.
+[^lunr-space]: Intuitive Machines issuer space infrastructure results dated 2026-08-13, Nasdaq LUNR; consulted 2026-10-30.

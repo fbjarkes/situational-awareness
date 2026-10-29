@@ -11,7 +11,7 @@
 - [Robotics and automation](robotics-automation.md) - Five US-listed core candidates, two ecosystem extensions, and proposed subthemes.
 - [Cybersecurity](cybersecurity.md) - Initial 12-stock universe, three extended candidates, and proposed subthemes.
 - [Quantum computing](quantum-computing.md) - Four US-listed core candidates, three diversified extensions, and proposed subthemes.
-- [Space economy](space-economy.md) - Proposed theme and subthemes.
+- [Space and satellites](space-economy.md) - Eight US-listed candidates including VSAT and SPCX, with security-history and acquisition considerations.
 - [Defense technology](defense-technology.md) - Six US-listed core candidates, four broader defense extensions, and proposed subthemes.
 - [Future mobility](future-mobility.md) - Five US-listed air-mobility candidates, with piloted versus autonomous distinctions.
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.

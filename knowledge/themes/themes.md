@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:20:57Z"
+  at: "2026-10-29T23:26:42Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -51,7 +51,7 @@ themes:
     classification: structural_theme
     tracking_status: proposed
   - id: space
-    title: Space economy
+    title: Space and satellites
     concept: /themes/space-economy.md
     classification: structural_theme
     tracking_status: proposed
@@ -135,7 +135,7 @@ project extensions, not OKF standard fields.
 | robotics | Robotics and automation | proposed | structural_theme | [Concept](/themes/robotics-automation.md) |
 | cybersecurity | Cybersecurity | proposed | structural_theme | [Concept](/themes/cybersecurity.md) |
 | quantum | Quantum computing | proposed | structural_theme | [Concept](/themes/quantum-computing.md) |
-| space | Space economy | proposed | structural_theme | [Concept](/themes/space-economy.md) |
+| space | Space and satellites | proposed | structural_theme | [Concept](/themes/space-economy.md) |
 | defense-tech | Defense technology | proposed | structural_theme | [Concept](/themes/defense-technology.md) |
 | mobility | Future mobility | proposed | structural_theme | [Concept](/themes/future-mobility.md) |
 | crypto-blockchain | Crypto and blockchain | proposed | structural_theme | [Concept](/themes/crypto-blockchain.md) |
