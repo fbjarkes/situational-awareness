@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Added Crypto and Blockchain with COIN, CRCL, GEMI, MARA, RIOT, CLSK, and MSTR core candidates plus HOOD as an extension; recorded issuer sources, dated reviews, distinct business segments, BKCH proxy, and Digital Finance overlap.
+
 - Populated Healthcare Technology and Innovation with TEM, GH, NTRA, RXRX, and SDGR as core candidates plus HIMS, ISRG, and DXCM extensions; recorded issuer evidence, peer subthemes, review dates, and Robotics/Metabolic Health overlaps.
 
 - Populated Clean Energy using the existing renewables concept/ID and added a separate Batteries theme, with US-listed universes (8 and 7 names), dated issuer evidence, separate proxies, and explicit generation/storage/mobility boundaries.

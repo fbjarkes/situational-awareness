@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:16:22Z"
+  at: "2026-10-29T23:20:57Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -15,6 +15,11 @@ sources:
     resource: User request in this project chat, 2026-10-28
     title: Theme registry and within-theme RS-high research proposal
 themes:
+  - id: crypto-blockchain
+    title: Crypto and blockchain
+    concept: /themes/crypto-blockchain.md
+    classification: structural_theme
+    tracking_status: proposed
   - id: batteries
     title: Batteries
     concept: /themes/batteries.md
@@ -133,6 +138,7 @@ project extensions, not OKF standard fields.
 | space | Space economy | proposed | structural_theme | [Concept](/themes/space-economy.md) |
 | defense-tech | Defense technology | proposed | structural_theme | [Concept](/themes/defense-technology.md) |
 | mobility | Future mobility | proposed | structural_theme | [Concept](/themes/future-mobility.md) |
+| crypto-blockchain | Crypto and blockchain | proposed | structural_theme | [Concept](/themes/crypto-blockchain.md) |
 | digital-finance | Digital finance | proposed | structural_theme | [Concept](/themes/digital-finance.md) |
 | health-innovation | Healthcare technology and innovation | proposed | structural_theme | [Concept](/themes/healthcare-innovation.md) |
 | longevity | Longevity and metabolic health | proposed | structural_theme | [Concept](/themes/longevity-metabolic-health.md) |

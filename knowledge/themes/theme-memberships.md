@@ -6,8 +6,35 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:16:22Z"
+  at: "2026-10-29T23:20:57Z"
 sources:
+  - id: coinbase-crypto
+    resource: https://investor.coinbase.com/news/news-details/2026/Coinbase-Q3-2026-Earnings-Show-All-time-high-Coinbase-One-Subscribers-and-Prediction-Markets-Surpassing-200-Million-in-Annualized-Revenue/default.aspx
+    title: Coinbase issuer Q3 2026 results, crypto trading/services and Nasdaq COIN, consulted 2026-10-30
+  - id: circle-crypto
+    resource: https://investor.circle.com/overview/default.aspx
+    title: Circle issuer stablecoins, public-blockchain services, and NYSE CRCL listing, consulted 2026-10-30
+  - id: gemini-crypto
+    resource: https://investors.gemini.com/news-releases/news-release-details/gemini-reports-second-quarter-2026-results
+    title: Gemini issuer Q2 2026 results, crypto platform and Nasdaq GEMI, consulted 2026-10-30
+  - id: mara-crypto
+    resource: https://ir.mara.com/news-events/press-releases/detail/1427/mara-announces-second-quarter-2026-results
+    title: MARA issuer Q2 2026 results, digital infrastructure and Nasdaq MARA, consulted 2026-10-30
+  - id: riot-crypto
+    resource: https://www.riotplatforms.com/
+    title: Riot issuer Bitcoin mining, data centers, and Nasdaq RIOT, consulted 2026-10-30
+  - id: cleanspark-crypto
+    resource: https://investors.cleanspark.com/
+    title: CleanSpark issuer Bitcoin/compute infrastructure and Nasdaq CLSK, consulted 2026-10-30
+  - id: strategy-crypto
+    resource: https://www.sec.gov/Archives/edgar/data/1050446/000119312526352145/d169243dfwp.htm
+    title: Strategy issuer August 2026 investor briefing, Bitcoin treasury/software and Nasdaq MSTR, consulted 2026-10-30
+  - id: robinhood-crypto
+    resource: https://investors.robinhood.com/
+    title: Robinhood issuer diversified brokerage/crypto platform and Nasdaq HOOD, consulted 2026-10-30
+  - id: bkch-proxy
+    resource: https://www.globalxetfs.com/funds/bkch/
+    title: Global X BKCH blockchain mandate and holdings dated 2026-10-28, consulted 2026-10-30
   - id: tempus-healthtech
     resource: https://investors.tempus.com/news-events/news-releases
     title: Tempus issuer precision-medicine, diagnostics, and AI descriptions; Nasdaq TEM, consulted 2026-10-30
@@ -186,6 +213,14 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:COIN | crypto-blockchain | crypto-markets | core universe | core | | | 2026-10-30 | Coinbase Global; Crypto trading and services | [^coinbase-crypto] |
+| NYSE:CRCL | crypto-blockchain | crypto-stablecoins | core universe | core | | | 2026-10-30 | Circle Internet Group; Stablecoin and public-blockchain services | [^circle-crypto] |
+| NASDAQ:GEMI | crypto-blockchain | crypto-markets | core universe | diversified | | | 2026-10-30 | Gemini Space Station; Crypto and broader financial markets platform | [^gemini-crypto] |
+| NASDAQ:MARA | crypto-blockchain | crypto-mining | core universe | core | | | 2026-10-30 | MARA Holdings; Digital asset compute and infrastructure | [^mara-crypto] |
+| NASDAQ:RIOT | crypto-blockchain | crypto-mining | core universe | diversified | | | 2026-10-30 | Riot Platforms; Bitcoin mining, data centers, and engineering | [^riot-crypto] |
+| NASDAQ:CLSK | crypto-blockchain | crypto-mining | core universe | diversified | | | 2026-10-30 | CleanSpark; Bitcoin/compute infrastructure and data-center diversification | [^cleanspark-crypto] |
+| NASDAQ:MSTR | crypto-blockchain | crypto-treasury | core universe | core | | | 2026-10-30 | Strategy; Bitcoin treasury with software and capital-markets activities | [^strategy-crypto] |
+| NASDAQ:HOOD | crypto-blockchain | crypto-markets | extended candidate | diversified | | | 2026-10-30 | Robinhood Markets; Financial platform including crypto | [^robinhood-crypto] |
 | NASDAQ:TEM | health-innovation | health-innovation-precision-medicine | core universe | core | | | 2026-10-30 | Tempus AI; AI-enabled precision medicine and diagnostics | [^tempus-healthtech] |
 | NASDAQ:GH | health-innovation | health-innovation-precision-medicine | core universe | core | | | 2026-10-30 | Guardant Health; Precision oncology and screening | [^guardant-healthtech] |
 | NASDAQ:NTRA | health-innovation | health-innovation-genomics | core universe | core | | | 2026-10-30 | Natera; Cell-free DNA and genetic testing | [^natera-healthtech] |
@@ -435,3 +470,13 @@ The manifest review does not constitute a new holdings download.
 [^schrodinger-healthtech]: Schrodinger issuer computational molecular discovery update, 2026-01-12; Nasdaq SDGR; consulted 2026-10-30.
 [^hims-healthtech]: Hims and Hers issuer digital care platform and NYSE HIMS listing; consulted 2026-10-30.
 [^intuitive-healthtech]: Intuitive issuer robotic-assisted surgery and Nasdaq ISRG listing; consulted 2026-10-30.
+
+[^coinbase-crypto]: Coinbase issuer Q3 2026 results, crypto trading/services and Nasdaq COIN; consulted 2026-10-30.
+[^circle-crypto]: Circle issuer stablecoins, public-blockchain services, and NYSE CRCL listing; consulted 2026-10-30.
+[^gemini-crypto]: Gemini issuer Q2 2026 results, crypto platform and Nasdaq GEMI; consulted 2026-10-30.
+[^mara-crypto]: MARA issuer Q2 2026 results, digital infrastructure and Nasdaq MARA; consulted 2026-10-30.
+[^riot-crypto]: Riot issuer Bitcoin mining, data centers, and Nasdaq RIOT; consulted 2026-10-30.
+[^cleanspark-crypto]: CleanSpark issuer Bitcoin/compute infrastructure and Nasdaq CLSK; consulted 2026-10-30.
+[^strategy-crypto]: Strategy issuer August 2026 investor briefing, Bitcoin treasury/software and Nasdaq MSTR; consulted 2026-10-30.
+[^robinhood-crypto]: Robinhood issuer diversified brokerage/crypto platform and Nasdaq HOOD; consulted 2026-10-30.
+[^bkch-proxy]: Global X BKCH blockchain mandate and holdings dated 2026-10-28; consulted 2026-10-30.

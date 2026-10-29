@@ -1,5 +1,7 @@
 # Themes
 
+- [Crypto and blockchain](crypto-blockchain.md) - Seven US-listed core candidates and Robinhood as a diversified extension.
+
 - [Drones](drones.md) - Six US-listed core candidates and JOBY as an autonomous-aviation extension.
 
 - [Themes](themes.md) - Registry and authoritative RS research checklist.

@@ -6,7 +6,7 @@ tags: [themes, digital-finance]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T23:20:57Z"
 sources:
   - id: provider-framework
     resource: https://www.msci.com/our-solutions/indexes/thematic-investing/themes-and-sub-themes
@@ -55,6 +55,12 @@ Membership can overlap other themes and subthemes.
 No constituent list is populated for this proposed theme. Add reviewed, dated
 relationships to [Theme memberships](/themes/theme-memberships.md); do not infer
 historical membership from the date of classification.
+
+# Related focused themes
+
+[Crypto and blockchain](/themes/crypto-blockchain.md) has a separately curated
+US-listed universe for crypto markets, stablecoins, mining, and treasury exposure.
+Digital finance is broader; no automatic membership inheritance applies.
 
 # Interpretation and research
 
