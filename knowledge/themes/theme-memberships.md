@@ -6,8 +6,17 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:20:57Z"
+  at: "2026-10-29T23:24:03Z"
 sources:
+  - id: purr-treasury
+    resource: https://www.sec.gov/Archives/edgar/data/2078856/000119312526370281/purr-20260630.htm
+    title: Hyperliquid Strategies fiscal 2026 Form 10-K, Nasdaq PURR and HYPE treasury/staking business, consulted 2026-10-30
+  - id: bito-issuer
+    resource: https://www.proshares.com/our-etfs/strategic/bito
+    title: ProShares BITO strategy and fund details, consulted 2026-10-30
+  - id: ethe-issuer
+    resource: https://etfs.grayscale.com/ethe
+    title: Grayscale Ethereum Staking ETF strategy and NYSE Arca listing, consulted 2026-10-30
   - id: coinbase-crypto
     resource: https://investor.coinbase.com/news/news-details/2026/Coinbase-Q3-2026-Earnings-Show-All-time-high-Coinbase-One-Subscribers-and-Prediction-Markets-Surpassing-200-Million-in-Annualized-Revenue/default.aspx
     title: Coinbase issuer Q3 2026 results, crypto trading/services and Nasdaq COIN, consulted 2026-10-30
@@ -213,6 +222,7 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:PURR | crypto-blockchain | crypto-treasury | core universe | core | | | 2026-10-30 | Hyperliquid Strategies; HYPE treasury, staking, and validator activities; company equity, not an ETF | [^purr-treasury] |
 | NASDAQ:COIN | crypto-blockchain | crypto-markets | core universe | core | | | 2026-10-30 | Coinbase Global; Crypto trading and services | [^coinbase-crypto] |
 | NYSE:CRCL | crypto-blockchain | crypto-stablecoins | core universe | core | | | 2026-10-30 | Circle Internet Group; Stablecoin and public-blockchain services | [^circle-crypto] |
 | NASDAQ:GEMI | crypto-blockchain | crypto-markets | core universe | diversified | | | 2026-10-30 | Gemini Space Station; Crypto and broader financial markets platform | [^gemini-crypto] |
@@ -387,6 +397,22 @@ ISRG overlaps Robotics; DXCM overlaps Metabolic Health. Subtheme classifications
 are provisional and not independently verified revenue thresholds. Provider
 resolution remains required; review dates do not establish historical membership.
 
+# Crypto fund exposures
+
+These user-requested US-listed funds are tracked separately from the stock
+membership table. Their role is asset exposure, never a company peer or breadth
+constituent. Symbols are proposed provider mappings pending resolution.
+
+| Symbol | Theme ID | Ticker | Instrument type | Role | Underlying | Reviewed | Source |
+|---|---|---|---|---|---|---|---|
+| AMEX:BITO | crypto-blockchain | BITO | Futures ETF | crypto asset exposure | Bitcoin-linked futures/swaps; no direct bitcoin | 2026-10-30 | [^bito-issuer] |
+| AMEX:ETHE | crypto-blockchain | ETHE | Spot/staking ETP | crypto asset exposure | Ether holdings with staking | 2026-10-30 | [^ethe-issuer] |
+
+The exchange listing is US-based; AMEX is the proposed TradingView qualifier
+for these NYSE Arca products. Validity dates are not inferred from review dates.
+See [Crypto and blockchain](/themes/crypto-blockchain.md#crypto-asset-etfetp-exposures)
+for price-adjustment and structural considerations.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -480,3 +506,8 @@ The manifest review does not constitute a new holdings download.
 [^strategy-crypto]: Strategy issuer August 2026 investor briefing, Bitcoin treasury/software and Nasdaq MSTR; consulted 2026-10-30.
 [^robinhood-crypto]: Robinhood issuer diversified brokerage/crypto platform and Nasdaq HOOD; consulted 2026-10-30.
 [^bkch-proxy]: Global X BKCH blockchain mandate and holdings dated 2026-10-28; consulted 2026-10-30.
+
+[^bito-issuer]: ProShares BITO issuer page, consulted 2026-10-30; futures/swaps exposure without direct bitcoin holdings and monthly distributions where applicable.
+[^ethe-issuer]: Grayscale ETHE issuer page, consulted 2026-10-30; Ether holdings, staking, NYSE Arca listing, and historical OTC-to-ETP transition.
+
+[^purr-treasury]: Hyperliquid Strategies fiscal-year 2026 Form 10-K; Nasdaq PURR common stock, HYPE accumulation, staking, and validator activities; consulted 2026-10-30.

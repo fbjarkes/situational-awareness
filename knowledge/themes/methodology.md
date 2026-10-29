@@ -6,7 +6,7 @@ tags: [themes, methodology, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:33:06Z"
+  at: "2026-10-29T23:23:17Z"
 sources:
   - id: project-design
     resource: /themes/themes.md
@@ -39,6 +39,15 @@ diversified, indirect), review date, and membership validity dates when known.
 Unknown validity dates stay unknown: a review date does not establish when a
 company first acquired its exposure. Preserve past membership and source dates.
 Keep document status separate from tracking status.
+
+# Separately tracked funds
+
+The user-requested Crypto ETF/ETP exposures are recorded in a separate
+[fund table](/themes/theme-memberships.md#crypto-fund-exposures). The US-listing
+restriction still applies, but these are asset-exposure series rather than stocks.
+Never include them in company counts, stock breadth denominators, or stock peer
+benchmarks. Select them explicitly for asset comparisons and document structure,
+distributions, adjustments, and valuation-session alignment.
 
 # Benchmark and weighting
 

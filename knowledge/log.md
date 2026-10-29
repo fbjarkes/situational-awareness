@@ -2,6 +2,10 @@
 
 ## 2026-10-30
 
+- Added Nasdaq PURR (Hyperliquid Strategies) as a Crypto treasury company with HYPE/staking exposure, distinct from ETF exposures; recorded fiscal 2026 filing evidence and legacy-business history limitations.
+
+- Added BITO and ETHE as separately tracked Crypto fund exposures; distinguished Bitcoin futures/swaps from spot/staked Ether, excluded funds from company breadth/peer groups, and documented historical structure and total-return treatment.
+
 - Added Crypto and Blockchain with COIN, CRCL, GEMI, MARA, RIOT, CLSK, and MSTR core candidates plus HOOD as an extension; recorded issuer sources, dated reviews, distinct business segments, BKCH proxy, and Digital Finance overlap.
 
 - Populated Healthcare Technology and Innovation with TEM, GH, NTRA, RXRX, and SDGR as core candidates plus HIMS, ISRG, and DXCM extensions; recorded issuer evidence, peer subthemes, review dates, and Robotics/Metabolic Health overlaps.

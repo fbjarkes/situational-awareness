@@ -1,13 +1,22 @@
 ---
 type: Reference
 title: Crypto and blockchain
-description: US-listed companies providing crypto markets, stablecoin infrastructure, mining, and digital-asset treasury exposure.
+description: US-listed crypto and blockchain companies plus separately tracked crypto-linked ETF/ETP exposures.
 tags: [themes, crypto, blockchain, digital-finance]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:20:57Z"
+  at: "2026-10-29T23:24:03Z"
 sources:
+  - id: purr-treasury
+    resource: https://www.sec.gov/Archives/edgar/data/2078856/000119312526370281/purr-20260630.htm
+    title: Hyperliquid Strategies fiscal 2026 Form 10-K, Nasdaq PURR and HYPE treasury/staking business, consulted 2026-10-30
+  - id: bito-issuer
+    resource: https://www.proshares.com/our-etfs/strategic/bito
+    title: ProShares BITO strategy and fund details, consulted 2026-10-30
+  - id: ethe-issuer
+    resource: https://etfs.grayscale.com/ethe
+    title: Grayscale Ethereum Staking ETF strategy and NYSE Arca listing, consulted 2026-10-30
   - id: coinbase-crypto
     resource: https://investor.coinbase.com/news/news-details/2026/Coinbase-Q3-2026-Earnings-Show-All-time-high-Coinbase-One-Subscribers-and-Prediction-Markets-Surpassing-200-Million-in-Annualized-Revenue/default.aspx
     title: Coinbase issuer Q3 2026 results, crypto trading/services and Nasdaq COIN, consulted 2026-10-30
@@ -50,6 +59,19 @@ theme:
       title: Mining and digital infrastructure
     - id: crypto-treasury
       title: Digital-asset treasury exposure
+fund_exposures:
+  - ticker: BITO
+    symbol: AMEX:BITO
+    instrument_type: futures_etf
+    underlying: bitcoin
+    role: crypto_asset_exposure
+    stock_peer_group: false
+  - ticker: ETHE
+    symbol: AMEX:ETHE
+    instrument_type: spot_staking_etp
+    underlying: ether
+    role: crypto_asset_exposure
+    stock_peer_group: false
 market_report:
   section: themes
   implementation_status: universe_recorded
@@ -60,9 +82,10 @@ market_report:
 
 Equity exposure to crypto markets, stablecoin/payment infrastructure, blockchain
 services, mining-related infrastructure, and corporate digital-asset treasuries.
-Only US exchange-listed stocks are eligible, including foreign issuers and ADRs;
-exclude foreign-only and OTC listings. Tokens, spot-crypto ETFs, leveraged funds,
-preferred shares, and warrants are outside this initial common-equity universe.
+Company memberships use US exchange-listed stocks, including foreign issuers
+and ADRs. Separately track user-requested US-listed crypto ETF/ETP exposures
+below; they are not company constituents. Exclude foreign-only/OTC listings,
+tokens, leveraged funds, preferred shares, and warrants from these universes.
 
 This is a narrower theme than [Digital finance](/themes/digital-finance.md), which
 also covers ordinary payments and financial platforms without material crypto
@@ -82,6 +105,7 @@ The authoritative [shared membership table](/themes/theme-memberships.md) contai
 | RIOT | Riot Platforms | Bitcoin mining and digital infrastructure. [^riot-crypto] | Core |
 | CLSK | CleanSpark | Bitcoin/compute infrastructure with data-center diversification. [^cleanspark-crypto] | Core |
 | MSTR | Strategy | Bitcoin treasury alongside other businesses. [^strategy-crypto] | Core |
+| PURR | Hyperliquid Strategies | HYPE treasury, staking, and validator activities. [^purr-treasury] | Core |
 | HOOD | Robinhood Markets | Broader financial platform including crypto. [^robinhood-crypto] | Extended |
 
 Core-universe role is distinct from exposure concentration. Exposure labels and
@@ -91,6 +115,37 @@ AI/HPC data centers. Reassess business mix before treating them as pure miners.
 The shortlist is not exhaustive. Current provider symbols and corporate actions
 must be checked before execution; review dates do not establish historical
 membership. Do not count Strategy preferred instruments as extra company members.
+
+PURR is common stock in Hyperliquid Strategies, not a fund or the HYPE token.
+Its proposed `crypto-treasury` membership is supported by its HYPE accumulation
+and staking strategy.[^purr-treasury] Compare it with treasury companies separately
+from exchanges and miners; token concentration, financing, dilution, and staking
+operations can cause its equity returns to diverge from HYPE returns. Do not
+splice legacy Sonnet biotech price history into a crypto-treasury study without
+disclosing the business transition. Review date is not a membership start date.
+
+# Crypto asset ETF/ETP exposures
+
+The separate [fund table](/themes/theme-memberships.md#crypto-fund-exposures)
+records BITO and ETHE, reviewed 2026-10-30:
+
+| Ticker | Product | Underlying exposure | Structure |
+|---|---|---|---|
+| BITO | ProShares Bitcoin ETF | Bitcoin-linked | Futures and swaps; no direct bitcoin holdings. [^bito-issuer] |
+| ETHE | Grayscale Ethereum Staking ETF | Ether | Spot Ether holdings with staking. [^ethe-issuer] |
+
+Both are crypto-linked products, but BITO is not a spot-bitcoin fund. ETHE is
+an ETP branded as an ETF; its structure differs from BITO's registered fund.
+Do not combine fund rows with company rows for equal-weight stock breadth or
+stock-versus-peer RS. Compare their returns as explicitly selected asset-exposure
+series instead. BKCH remains a blockchain-equity proxy, distinct from these funds.
+Provider-qualified symbols require resolution before execution.
+
+For research, record expenses, distributions, futures roll/basis effects, staking,
+and NAV premium/discount treatment. Use a consistent total-return policy;
+unadjusted closing prices can misrepresent performance around distributions.
+ETHE's earlier OTC period and 2024 ETP transition require separate historical
+regime treatment.[^ethe-issuer] Review dates do not establish historical membership.
 
 # Comparison and research
 
@@ -117,3 +172,8 @@ trading rule is enabled.
 [^strategy-crypto]: Strategy issuer August 2026 investor briefing, Bitcoin treasury/software and Nasdaq MSTR; consulted 2026-10-30.
 [^robinhood-crypto]: Robinhood issuer diversified brokerage/crypto platform and Nasdaq HOOD; consulted 2026-10-30.
 [^bkch-proxy]: Global X BKCH blockchain mandate and holdings dated 2026-10-28; consulted 2026-10-30.
+
+[^bito-issuer]: ProShares BITO issuer page, consulted 2026-10-30; futures/swaps exposure without direct bitcoin holdings and monthly distributions where applicable.
+[^ethe-issuer]: Grayscale ETHE issuer page, consulted 2026-10-30; Ether holdings, staking, NYSE Arca listing, and historical OTC-to-ETP transition.
+
+[^purr-treasury]: Hyperliquid Strategies fiscal-year 2026 Form 10-K; Nasdaq PURR common stock, HYPE accumulation, staking, and validator activities; consulted 2026-10-30.

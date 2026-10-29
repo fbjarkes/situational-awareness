@@ -1,6 +1,6 @@
 # Themes
 
-- [Crypto and blockchain](crypto-blockchain.md) - Seven US-listed core candidates and Robinhood as a diversified extension.
+- [Crypto and blockchain](crypto-blockchain.md) - Eight US-listed core candidates, Robinhood extension, and separate BITO/ETHE fund exposures.
 
 - [Drones](drones.md) - Six US-listed core candidates and JOBY as an autonomous-aviation extension.
 
