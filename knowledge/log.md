@@ -1,5 +1,9 @@
 # Knowledge update log
 
+## 2026-10-30
+
+- Added IONQ, RGTI, QBTS, and QUBT as initial quantum core candidates, with IBM, MSFT, and GOOGL as diversified extensions; recorded issuer sources, review dates, D-Wave Nasdaq transfer, Alphabet share-class deduplication, and technical-evidence limitations.
+
 ## 2026-10-29
 
 - Added LLY, NVO, VKTX, GPCR, and DXCM as metabolic-health core candidates and ALT as a liver-disease extension, with issuer sources, dated reviews, new monitoring/liver subthemes, and explicit longevity evidence gaps.

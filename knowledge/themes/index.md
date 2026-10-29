@@ -8,7 +8,7 @@
 - [Artificial intelligence](artificial-intelligence.md) - Proposed theme and subthemes.
 - [Robotics and automation](robotics-automation.md) - Five US-listed core candidates, two ecosystem extensions, and proposed subthemes.
 - [Cybersecurity](cybersecurity.md) - Initial 12-stock universe, three extended candidates, and proposed subthemes.
-- [Quantum computing](quantum-computing.md) - Proposed theme and subthemes.
+- [Quantum computing](quantum-computing.md) - Four US-listed core candidates, three diversified extensions, and proposed subthemes.
 - [Space economy](space-economy.md) - Proposed theme and subthemes.
 - [Defense technology](defense-technology.md) - Six US-listed core candidates, four broader defense extensions, and proposed subthemes.
 - [Future mobility](future-mobility.md) - Five US-listed air-mobility candidates, with piloted versus autonomous distinctions.

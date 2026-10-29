@@ -6,8 +6,35 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:59:28Z"
+  at: "2026-10-29T23:01:31Z"
 sources:
+  - id: ionq-issuer
+    resource: https://investors.ionq.com/overview/
+    title: IonQ issuer quantum computing platform description, consulted 2026-10-30
+  - id: rigetti-issuer
+    resource: https://investors.rigetti.com/ir-resources/investor-faqs
+    title: Rigetti issuer cloud quantum systems and Nasdaq RGTI listing, consulted 2026-10-30
+  - id: dwave-issuer
+    resource: https://ir.dwavequantum.com/
+    title: D-Wave issuer quantum systems and services description, consulted 2026-10-30
+  - id: dwave-listing
+    resource: https://ir.dwavequantum.com/resources/investor-faqs/
+    title: D-Wave issuer current Nasdaq QBTS listing, consulted 2026-10-30
+  - id: dwave-transfer
+    resource: https://www.sec.gov/Archives/edgar/data/1907982/000190798226000129/qbts-20260630.htm
+    title: D-Wave Q2 2026 Form 10-Q confirms Nasdaq trading began 2026-07-27, consulted 2026-10-30
+  - id: qubt-issuer
+    resource: https://quantumcomputinginc.com/investor-relations
+    title: Quantum Computing Inc issuer photonic systems and Nasdaq QUBT listing, consulted 2026-10-30
+  - id: ibm-quantum
+    resource: https://www.ibm.com/quantum
+    title: IBM issuer quantum systems and software platform, consulted 2026-10-30
+  - id: microsoft-quantum
+    resource: https://azure.microsoft.com/en-us/solutions/quantum-computing/
+    title: Microsoft Azure Quantum platform and quantum research, consulted 2026-10-30
+  - id: google-quantum
+    resource: https://quantumai.google/
+    title: Google Quantum AI hardware and software research, consulted 2026-10-30
   - id: lilly-metabolic
     resource: https://investor.lilly.com/news-releases/news-release-details/lilly-reports-second-quarter-2026-financial-results-raises-full
     title: Lilly issuer Q2 2026 results, NYSE LLY and metabolic medicines, consulted 2026-10-29
@@ -114,6 +141,13 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NYSE:IONQ | quantum | | core universe | core | | | 2026-10-30 | IonQ; Quantum computing and related platform technologies | [^ionq-issuer] |
+| NASDAQ:RGTI | quantum | | core universe | core | | | 2026-10-30 | Rigetti Computing; Quantum processors and cloud systems | [^rigetti-issuer] |
+| NASDAQ:QBTS | quantum | | core universe | core | | | 2026-10-30 | D-Wave Quantum; Quantum systems and services; Nasdaq transfer effective July 2026 | [^dwave-issuer] [^dwave-listing] [^dwave-transfer] |
+| NASDAQ:QUBT | quantum | | core universe | core | | | 2026-10-30 | Quantum Computing Inc.; Photonic quantum systems and related technologies | [^qubt-issuer] |
+| NYSE:IBM | quantum | | extended candidate | diversified | | | 2026-10-30 | IBM; Quantum systems and Qiskit within broader technology business | [^ibm-quantum] |
+| NASDAQ:MSFT | quantum | | extended candidate | diversified | | | 2026-10-30 | Microsoft; Azure Quantum and quantum research within broader technology business | [^microsoft-quantum] |
+| NASDAQ:GOOGL | quantum | | extended candidate | diversified | | | 2026-10-30 | Alphabet Class A; Google Quantum AI; one Alphabet share class selected | [^google-quantum] |
 | NYSE:LLY | longevity | longevity-obesity-treatments | core universe | diversified | | | 2026-10-29 | Eli Lilly; established metabolic medicines and obesity pipeline | [^lilly-metabolic] |
 | NYSE:NVO | longevity | longevity-obesity-treatments | core universe | core | | | 2026-10-29 | Novo Nordisk ADR; obesity and diabetes medicines | [^novo-metabolic] [^novo-listing] |
 | NASDAQ:VKTX | longevity | longevity-obesity-treatments | core universe | core | | | 2026-10-29 | Viking Therapeutics; clinical-stage metabolic and obesity programs | [^viking-metabolic] |
@@ -230,6 +264,16 @@ Subtheme assignments are project judgments based on cited issuer descriptions;
 revenue thresholds and predictive effects have not been independently validated.
 Separate clinical developers, established medicines, and devices in peer studies.
 
+# Quantum computing selection
+
+Four initial core candidates and three diversified extensions are recorded from
+issuer sources reviewed 2026-10-30. These are provisional exposure judgments,
+not revenue thresholds or verified technical-performance claims. Distinguish
+hardware architectures and broader technology companies in research. Company-level
+subthemes remain pending. D-Wave is Nasdaq-listed following its July 2026 transfer;
+Alphabet is represented once through GOOGL. Current provider symbol resolution
+is required before execution; review dates do not establish historical membership.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -286,3 +330,13 @@ The manifest review does not constitute a new holdings download.
 [^structure-metabolic]: Structure issuer results dated 2026-08-06, Nasdaq GPCR and clinical obesity programs; consulted 2026-10-29.
 [^dexcom-metabolic]: Dexcom issuer results dated 2026-10-29, Nasdaq DXCM and glucose monitoring; consulted 2026-10-29.
 [^altimmune-metabolic]: Altimmune issuer update dated 2026-08-12, Nasdaq ALT and clinical liver-disease programs; consulted 2026-10-29.
+
+[^ionq-issuer]: IonQ issuer quantum computing platform description; consulted 2026-10-30.
+[^rigetti-issuer]: Rigetti issuer cloud quantum systems and Nasdaq RGTI listing; consulted 2026-10-30.
+[^dwave-issuer]: D-Wave issuer quantum systems and services description; consulted 2026-10-30.
+[^dwave-listing]: D-Wave issuer current Nasdaq QBTS listing; consulted 2026-10-30.
+[^dwave-transfer]: D-Wave Q2 2026 Form 10-Q confirms Nasdaq trading began 2026-07-27; consulted 2026-10-30.
+[^qubt-issuer]: Quantum Computing Inc issuer photonic systems and Nasdaq QUBT listing; consulted 2026-10-30.
+[^ibm-quantum]: IBM issuer quantum systems and software platform; consulted 2026-10-30.
+[^microsoft-quantum]: Microsoft Azure Quantum platform and quantum research; consulted 2026-10-30.
+[^google-quantum]: Google Quantum AI hardware and software research; consulted 2026-10-30.
