@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Added the Semiconductors parent theme, seven product subthemes, and 18 US-listed candidates; introduced separate security profiles for business models, ecosystem roles, and end markets, with explicit chipmaker/ecosystem RS scopes, overlapping tags, and insufficient-peer handling.
+
 - Populated Space and Satellites with VSAT, SPCX, RKLB, ASTS, IRDM, PL, RDW, and LUNR; recorded issuer sources, dated reviews, subthemes, SPCX ticker-reuse history, and the pending Rocket Lab/Iridium transaction.
 
 - Added Nasdaq PURR (Hyperliquid Strategies) as a Crypto treasury company with HYPE/staking exposure, distinct from ETF exposures; recorded fiscal 2026 filing evidence and legacy-business history limitations.

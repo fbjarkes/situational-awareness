@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:26:42Z"
+  at: "2026-10-29T23:32:00Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -15,6 +15,11 @@ sources:
     resource: User request in this project chat, 2026-10-28
     title: Theme registry and within-theme RS-high research proposal
 themes:
+  - id: semiconductors
+    title: Semiconductors
+    concept: /themes/semiconductors.md
+    classification: industry_basket
+    tracking_status: proposed
   - id: crypto-blockchain
     title: Crypto and blockchain
     concept: /themes/crypto-blockchain.md
@@ -138,6 +143,7 @@ project extensions, not OKF standard fields.
 | space | Space and satellites | proposed | structural_theme | [Concept](/themes/space-economy.md) |
 | defense-tech | Defense technology | proposed | structural_theme | [Concept](/themes/defense-technology.md) |
 | mobility | Future mobility | proposed | structural_theme | [Concept](/themes/future-mobility.md) |
+| semiconductors | Semiconductors | proposed | industry_basket | [Concept](/themes/semiconductors.md) |
 | crypto-blockchain | Crypto and blockchain | proposed | structural_theme | [Concept](/themes/crypto-blockchain.md) |
 | digital-finance | Digital finance | proposed | structural_theme | [Concept](/themes/digital-finance.md) |
 | health-innovation | Healthcare technology and innovation | proposed | structural_theme | [Concept](/themes/healthcare-innovation.md) |

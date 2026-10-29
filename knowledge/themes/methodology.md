@@ -6,7 +6,7 @@ tags: [themes, methodology, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:23:17Z"
+  at: "2026-10-29T23:32:00Z"
 sources:
   - id: project-design
     resource: /themes/themes.md
@@ -39,6 +39,18 @@ diversified, indirect), review date, and membership validity dates when known.
 Unknown validity dates stay unknown: a review date does not establish when a
 company first acquired its exposure. Preserve past membership and source dates.
 Keep document status separate from tracking status.
+
+# Separate classification dimensions
+
+Product subthemes, business models, and end markets answer different questions.
+Keep them separate rather than encoding a business model as an end-market theme.
+[Semiconductors](/themes/semiconductors.md) defines seven product subthemes;
+[its profile table](/themes/semiconductor-profiles.md) stores per-security
+business models, ecosystem roles, and qualitative end-market tags.
+Use explicit chipmaker-only versus ecosystem scopes, deduplicate companies,
+exclude the tested stock, and report unavailable RS when no peers remain.
+Do not interpret overlapping tags as disjoint or revenue-weighted categories.
+These are knowledge conventions; runtime universe filtering is not implemented.
 
 # Separately tracked funds
 

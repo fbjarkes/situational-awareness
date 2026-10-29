@@ -1,5 +1,8 @@
 # Themes
 
+- [Semiconductors](semiconductors.md) - Parent theme with seven product subthemes and 18 US-listed candidates.
+- [Semiconductor profiles](semiconductor-profiles.md) - Separate business-model, ecosystem-role, and end-market attributes.
+
 - [Crypto and blockchain](crypto-blockchain.md) - Eight US-listed core candidates, Robinhood extension, and separate BITO/ETHE fund exposures.
 
 - [Drones](drones.md) - Six US-listed core candidates and JOBY as an autonomous-aviation extension.

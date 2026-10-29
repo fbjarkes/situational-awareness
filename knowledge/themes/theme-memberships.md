@@ -6,8 +6,68 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:26:42Z"
+  at: "2026-10-29T23:32:00Z"
 sources:
+  - id: smh-universe
+    resource: https://www.vaneck.com/us/en/investments/semiconductor-etf-smh/holdings
+    title: VanEck SMH issuer holdings dated 2026-10-28; universe evidence, not project classifications, consulted 2026-10-30
+  - id: smhx-model
+    resource: https://www.vaneck.com/us/en/investments/fabless-semiconductor-etf-smhx/holdings
+    title: VanEck SMHX fabless semiconductor fund; business-model context, consulted 2026-10-30
+  - id: nvda-semis
+    resource: https://www.nvidia.com/en-us/about-nvidia/
+    title: NVIDIA issuer accelerated computing, AI, and graphics description, consulted 2026-10-30
+  - id: amd-semis
+    resource: https://www.amd.com/en/corporate.html
+    title: AMD issuer compute, graphics, accelerators, and embedded portfolio, consulted 2026-10-30
+  - id: txn-semis
+    resource: https://www.ti.com/about-ti.html
+    title: Texas Instruments issuer analog/embedded products and manufacturing, consulted 2026-10-30
+  - id: adi-semis
+    resource: https://www.analog.com/en/who-we-are.html
+    title: Analog Devices issuer analog portfolio and hybrid manufacturing network, consulted 2026-10-30
+  - id: mchp-semis
+    resource: https://www.microchip.com/en-us/about/corporate-overview
+    title: Microchip issuer embedded control, manufacturing, and market description, consulted 2026-10-30
+  - id: qcom-semis
+    resource: https://www.qualcomm.com/company
+    title: Qualcomm issuer processors, modems, connectivity, and licensing context, consulted 2026-10-30
+  - id: mrvl-semis
+    resource: https://www.marvell.com/company.html
+    title: Marvell issuer compute, connectivity, and storage portfolio, consulted 2026-10-30
+  - id: mu-semis
+    resource: https://www.micron.com/about
+    title: Micron issuer memory/storage products and markets, consulted 2026-10-30
+  - id: tsm-semis
+    resource: https://www.tsmc.com/english/aboutTSMC
+    title: TSMC issuer dedicated foundry services, consulted 2026-10-30
+  - id: gfs-semis
+    resource: https://investors.gf.com/
+    title: GlobalFoundries issuer manufacturing and end-market description, consulted 2026-10-30
+  - id: amat-semis
+    resource: https://www.appliedmaterials.com/us/en/about.html
+    title: Applied Materials issuer semiconductor equipment description, consulted 2026-10-30
+  - id: lrcx-semis
+    resource: https://www.lamresearch.com/company/
+    title: Lam Research issuer semiconductor manufacturing processes and equipment, consulted 2026-10-30
+  - id: klac-semis
+    resource: https://www.kla.com/company
+    title: KLA issuer process control and semiconductor manufacturing solutions, consulted 2026-10-30
+  - id: asml-semis
+    resource: https://www.asml.com/en/company
+    title: ASML issuer lithography and related equipment, consulted 2026-10-30
+  - id: snps-semis
+    resource: https://www.synopsys.com/company.html
+    title: Synopsys issuer EDA, IP, and system-design products, consulted 2026-10-30
+  - id: cdns-semis
+    resource: https://www.cadence.com/en_US/home/company.html
+    title: Cadence issuer computational software, chip design, and IP, consulted 2026-10-30
+  - id: arm-semis
+    resource: https://www.arm.com/company
+    title: Arm issuer IP licensing and Arm-designed compute silicon portfolio, consulted 2026-10-30
+  - id: semis-project
+    resource: User-approved semiconductor taxonomy in this project chat, 2026-10-30
+    title: Seven-subtheme project design and separate business/end-market attributes, consulted 2026-10-30
   - id: viasat-space
     resource: https://investors.viasat.com/
     title: Viasat issuer satellite communications and services updates, consulted 2026-10-30
@@ -258,6 +318,24 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:NVDA | semiconductors | semis-compute | core universe | core | | | 2026-10-30 | NVIDIA; proposed AI accelerators and compute assignment; separate profile attributes | [^nvda-semis] [^semis-project] |
+| NASDAQ:AMD | semiconductors | semis-compute | core universe | core | | | 2026-10-30 | Advanced Micro Devices; proposed AI accelerators and compute assignment; separate profile attributes | [^amd-semis] [^semis-project] |
+| NASDAQ:TXN | semiconductors | semis-analog-embedded | core universe | core | | | 2026-10-30 | Texas Instruments; proposed Analog and embedded assignment; separate profile attributes | [^txn-semis] [^semis-project] |
+| NASDAQ:ADI | semiconductors | semis-analog-embedded | core universe | core | | | 2026-10-30 | Analog Devices; proposed Analog and embedded assignment; separate profile attributes | [^adi-semis] [^semis-project] |
+| NASDAQ:MCHP | semiconductors | semis-analog-embedded | core universe | core | | | 2026-10-30 | Microchip Technology; proposed Analog and embedded assignment; separate profile attributes | [^mchp-semis] [^semis-project] |
+| NASDAQ:AVGO | semiconductors | semis-connectivity | core universe | diversified | | | 2026-10-30 | Broadcom; proposed Connectivity and communications assignment; separate profile attributes | [^smhx-model] [^semis-project] |
+| NASDAQ:QCOM | semiconductors | semis-connectivity | core universe | core | | | 2026-10-30 | Qualcomm; proposed Connectivity and communications assignment; separate profile attributes | [^qcom-semis] [^semis-project] |
+| NASDAQ:MRVL | semiconductors | semis-connectivity | core universe | core | | | 2026-10-30 | Marvell Technology; proposed Connectivity and communications assignment; separate profile attributes | [^mrvl-semis] [^semis-project] |
+| NASDAQ:MU | semiconductors | semis-memory | core universe | core | | | 2026-10-30 | Micron Technology; proposed Memory and storage chips assignment; separate profile attributes | [^mu-semis] [^semis-project] |
+| NYSE:TSM | semiconductors | semis-foundries | core universe | core | | | 2026-10-30 | Taiwan Semiconductor Manufacturing ADR; proposed Foundries assignment; separate profile attributes | [^tsm-semis] [^semis-project] |
+| NASDAQ:GFS | semiconductors | semis-foundries | core universe | core | | | 2026-10-30 | GlobalFoundries; proposed Foundries assignment; separate profile attributes | [^gfs-semis] [^semis-project] |
+| NASDAQ:AMAT | semiconductors | semis-equipment | core universe | core | | | 2026-10-30 | Applied Materials; proposed Manufacturing equipment assignment; separate profile attributes | [^amat-semis] [^semis-project] |
+| NASDAQ:LRCX | semiconductors | semis-equipment | core universe | core | | | 2026-10-30 | Lam Research; proposed Manufacturing equipment assignment; separate profile attributes | [^lrcx-semis] [^semis-project] |
+| NASDAQ:KLAC | semiconductors | semis-equipment | core universe | core | | | 2026-10-30 | KLA; proposed Manufacturing equipment assignment; separate profile attributes | [^klac-semis] [^semis-project] |
+| NASDAQ:ASML | semiconductors | semis-equipment | core universe | core | | | 2026-10-30 | ASML Holding; proposed Manufacturing equipment assignment; separate profile attributes | [^asml-semis] [^semis-project] |
+| NASDAQ:SNPS | semiconductors | semis-design-ip | core universe | core | | | 2026-10-30 | Synopsys; proposed Chip-design software and IP assignment; separate profile attributes | [^snps-semis] [^semis-project] |
+| NASDAQ:CDNS | semiconductors | semis-design-ip | core universe | core | | | 2026-10-30 | Cadence Design Systems; proposed Chip-design software and IP assignment; separate profile attributes | [^cdns-semis] [^semis-project] |
+| NASDAQ:ARM | semiconductors | semis-design-ip | core universe | core | | | 2026-10-30 | Arm Holdings ADS; proposed Chip-design software and IP assignment; separate profile attributes | [^arm-semis] [^semis-project] |
 | NASDAQ:VSAT | space | space-satellite-communications | core universe | core | | | 2026-10-30 | Viasat; Satellite communications | [^viasat-space] [^viasat-listing] |
 | NASDAQ:SPCX | space | space-launch-systems | core universe | core | | | 2026-10-30 | SpaceX; Launch/space infrastructure; verify post-IPO issuer history only | [^spacex-history] [^spacex-listing] |
 | NASDAQ:RKLB | space | space-launch-systems | core universe | core | | | 2026-10-30 | Rocket Lab; Launch services and space systems | [^rocketlab-space] [^rocketlab-listing] |
@@ -457,6 +535,15 @@ for these NYSE Arca products. Validity dates are not inferred from review dates.
 See [Crypto and blockchain](/themes/crypto-blockchain.md#crypto-asset-etfetp-exposures)
 for price-adjustment and structural considerations.
 
+# Semiconductor attributes
+
+The 18-stock semiconductor selection has seven product subthemes.
+[Semiconductor profiles](/themes/semiconductor-profiles.md) is authoritative
+for business-model, ecosystem-role, and end-market attributes. These attributes
+are distinct from subtheme membership and may contain multiple values. Select
+chipmakers versus full ecosystem explicitly and deduplicate overlapping
+relationships; do not silently include equipment/software in a chipmaker-only study.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -568,3 +655,24 @@ The manifest review does not constitute a new holdings download.
 [^planet-space]: Planet issuer Earth data and satellite services, NYSE PL; consulted 2026-10-30.
 [^redwire-space]: Redwire issuer space/defense infrastructure and NYSE RDW; consulted 2026-10-30.
 [^lunr-space]: Intuitive Machines issuer space infrastructure results dated 2026-08-13, Nasdaq LUNR; consulted 2026-10-30.
+
+[^smh-universe]: VanEck SMH issuer holdings dated 2026-10-28; universe evidence, not project classifications; consulted 2026-10-30.
+[^smhx-model]: VanEck SMHX fabless semiconductor fund; business-model context; consulted 2026-10-30.
+[^nvda-semis]: NVIDIA issuer accelerated computing, AI, and graphics description; consulted 2026-10-30.
+[^amd-semis]: AMD issuer compute, graphics, accelerators, and embedded portfolio; consulted 2026-10-30.
+[^txn-semis]: Texas Instruments issuer analog/embedded products and manufacturing; consulted 2026-10-30.
+[^adi-semis]: Analog Devices issuer analog portfolio and hybrid manufacturing network; consulted 2026-10-30.
+[^mchp-semis]: Microchip issuer embedded control, manufacturing, and market description; consulted 2026-10-30.
+[^qcom-semis]: Qualcomm issuer processors, modems, connectivity, and licensing context; consulted 2026-10-30.
+[^mrvl-semis]: Marvell issuer compute, connectivity, and storage portfolio; consulted 2026-10-30.
+[^mu-semis]: Micron issuer memory/storage products and markets; consulted 2026-10-30.
+[^tsm-semis]: TSMC issuer dedicated foundry services; consulted 2026-10-30.
+[^gfs-semis]: GlobalFoundries issuer manufacturing and end-market description; consulted 2026-10-30.
+[^amat-semis]: Applied Materials issuer semiconductor equipment description; consulted 2026-10-30.
+[^lrcx-semis]: Lam Research issuer semiconductor manufacturing processes and equipment; consulted 2026-10-30.
+[^klac-semis]: KLA issuer process control and semiconductor manufacturing solutions; consulted 2026-10-30.
+[^asml-semis]: ASML issuer lithography and related equipment; consulted 2026-10-30.
+[^snps-semis]: Synopsys issuer EDA, IP, and system-design products; consulted 2026-10-30.
+[^cdns-semis]: Cadence issuer computational software, chip design, and IP; consulted 2026-10-30.
+[^arm-semis]: Arm issuer IP licensing and Arm-designed compute silicon portfolio; consulted 2026-10-30.
+[^semis-project]: Seven-subtheme project design and separate business/end-market attributes; consulted 2026-10-30.
