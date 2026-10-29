@@ -1,5 +1,7 @@
 # Themes
 
+- [Drones](drones.md) - Six US-listed candidates spanning drone platforms and enabling technologies.
+
 - [Themes](themes.md) - Registry and authoritative RS research checklist.
 - [Theme memberships](theme-memberships.md) - Shared dated stock relationships and existing universe references.
 - [Methodology](methodology.md) - Membership, weighting, alignment, and RS conventions.

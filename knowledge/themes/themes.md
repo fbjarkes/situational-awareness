@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:33:06Z"
+  at: "2026-10-29T22:37:54Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -15,6 +15,11 @@ sources:
     resource: User request in this project chat, 2026-10-28
     title: Theme registry and within-theme RS-high research proposal
 themes:
+  - id: drones
+    title: Drones
+    concept: /themes/drones.md
+    classification: structural_theme
+    tracking_status: proposed
   - id: ai
     title: Artificial intelligence
     concept: /themes/artificial-intelligence.md
@@ -115,6 +120,7 @@ project extensions, not OKF standard fields.
 
 | Theme ID | Theme | Tracking status | Classification | Knowledge |
 |---|---|---|---|---|
+| drones | Drones | proposed | structural_theme | [Concept](/themes/drones.md) |
 | ai | Artificial intelligence | proposed | structural_theme | [Concept](/themes/artificial-intelligence.md) |
 | robotics | Robotics and automation | proposed | structural_theme | [Concept](/themes/robotics-automation.md) |
 | cybersecurity | Cybersecurity | proposed | structural_theme | [Concept](/themes/cybersecurity.md) |

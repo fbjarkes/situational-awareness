@@ -6,8 +6,20 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:34:46Z"
+  at: "2026-10-29T22:37:54Z"
 sources:
+  - id: ondas-issuer
+    resource: https://www.ondas.com/
+    title: Ondas issuer business description and Nasdaq ONDS listing, consulted 2026-10-29
+  - id: umac-issuer
+    resource: https://www.unusualmachines.com/
+    title: Unusual Machines drone industry business, consulted 2026-10-29
+  - id: umac-listing
+    resource: https://www.sec.gov/Archives/edgar/data/1956955/000168316826000348/umac_8k.htm
+    title: Unusual Machines January 2026 Form 8-K, NYSE American UMAC listing
+  - id: dpro-release
+    resource: https://www.nasdaq.com/press-release/draganfly-announces-closing-us-10-million-strategic-investment-2026-09-30
+    title: Draganfly issuer release dated 2026-09-29, drone business and Nasdaq DPRO listing
   - id: shld-holdings
     resource: https://www.globalxetfs.com/funds/shld/
     title: Global X SHLD mandate and holdings as of 2026-10-28, consulted 2026-10-29
@@ -60,6 +72,12 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:AVAV | drones | | core universe | core | | | 2026-10-29 | AeroVironment; Uncrewed aerial systems | [^avav-issuer] |
+| NASDAQ:KTOS | drones | | core universe | diversified | | | 2026-10-29 | Kratos Defense & Security Solutions; Unmanned systems within broader defense operations | [^ktos-issuer] |
+| NASDAQ:RCAT | drones | | core universe | core | | | 2026-10-29 | Red Cat Holdings; Defense drone and robotic systems | [^rcat-issuer] |
+| NASDAQ:ONDS | drones | | core universe | core | | | 2026-10-29 | Ondas; Autonomous drone and counter-UAS technologies | [^ondas-issuer] |
+| AMEX:UMAC | drones | | core universe | core | | | 2026-10-29 | Unusual Machines; Drone products and components | [^umac-issuer] [^umac-listing] |
+| NASDAQ:DPRO | drones | | core universe | core | | | 2026-10-29 | Draganfly; Drone solutions and technologies | [^dpro-release] |
 | NASDAQ:AVAV | defense-tech | | core universe | core | | | 2026-10-29 | AeroVironment; Uncrewed systems and counter-drone technologies | [^avav-issuer] |
 | NASDAQ:KTOS | defense-tech | | core universe | core | | | 2026-10-29 | Kratos Defense & Security Solutions; Unmanned systems and defense technologies | [^ktos-issuer] |
 | NASDAQ:RCAT | defense-tech | | core universe | core | | | 2026-10-29 | Red Cat Holdings; Defense drone and robotic systems | [^rcat-issuer] |
@@ -161,3 +179,8 @@ The manifest review does not constitute a new holdings download.
 [^ktos-issuer]: Kratos issuer investor relations; Nasdaq KTOS and unmanned systems, communications, and defense technologies, consulted 2026-10-29.
 [^rcat-issuer]: Red Cat issuer investor relations; RCAT and defense drone/robotic systems, consulted 2026-10-29; provider symbol resolution remains pending.
 [^mrcy-issuer]: Mercury Systems issuer release dated 2026-01-15; Nasdaq MRCY and defense/space processing systems, consulted 2026-10-29.
+
+[^ondas-issuer]: Ondas issuer description; Nasdaq ONDS and autonomous drones/counter-UAS, consulted 2026-10-29.
+[^umac-issuer]: Unusual Machines issuer page; drone-industry products, consulted 2026-10-29.
+[^umac-listing]: SEC Form 8-K dated 2026-01-15 lists UMAC on NYSE American; current provider symbol resolution required before execution.
+[^dpro-release]: Draganfly issuer release dated 2026-09-29, distributed through Nasdaq; Nasdaq DPRO and drone systems/technology, consulted 2026-10-29.

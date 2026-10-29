@@ -2,6 +2,8 @@
 
 ## 2026-10-29
 
+- Added the Drones theme with six US-listed candidates (AVAV, KTOS, RCAT, ONDS, UMAC, DPRO), issuer sources, dated reviews, provisional classifications, and explicit Defense Technology overlap.
+
 - Added six US-listed Defense Technology core candidates and four broader defense extensions, with issuer/SHLD sources, review dates, provisional classifications, and SHLD as a proposed proxy.
 
 - Restricted theme universes to US exchange listings; replaced foreign-only robotics listings with TER, ROK, and SYM, and required a US-only filter on legacy GDX holdings.

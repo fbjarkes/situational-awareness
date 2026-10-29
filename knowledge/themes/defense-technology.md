@@ -6,7 +6,7 @@ tags: [themes, defense-tech]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:34:46Z"
+  at: "2026-10-29T22:37:54Z"
 sources:
   - id: shld-holdings
     resource: https://www.globalxetfs.com/funds/shld/
@@ -90,6 +90,12 @@ SHLD is a proposed ETF comparison proxy whose mandate includes defense software,
 cybersecurity, and military systems.[^shld-holdings] Its global portfolio differs
 from this US-only subset; the ETF is not itself a stock peer-group constituent.
 Recording the shortlist does not enable report output or a trading rule.
+
+# Related themes
+
+[Drones](/themes/drones.md) maintains a separate US-listed aerial-drone universe,
+including overlapping AVAV, KTOS, and RCAT memberships. Deduplicate within each
+universe; broader defense membership does not automatically imply drone exposure.
 
 # Interpretation and research
 
