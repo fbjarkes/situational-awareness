@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T22:33:06Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -138,6 +138,12 @@ are a proposed project synthesis. These drafts do not establish stock membership
 or implement new report sections. Gold miners remains the existing report basket.[^gdx-concept]
 
 # Shared conventions
+
+All theme stock universes use US exchange-listed stocks only, including eligible
+US-listed foreign issuers and ADRs. Exclude foreign-only and OTC listings.
+Apply this filter to linked holdings before constructing peer groups; see
+[methodology](/themes/methodology.md). This scope records the user's instruction
+of 2026-10-29 and does not imply that a global ETF proxy has a US-only portfolio.
 
 [Theme memberships](/themes/theme-memberships.md) is the shared relationship
 manifest, including links to existing dated holdings. Stocks may belong to

@@ -6,8 +6,23 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:16:10Z"
+  at: "2026-10-29T22:33:06Z"
 sources:
+  - id: teradyne-ir
+    resource: https://investors.teradyne.com/
+    title: Teradyne US listing and robotics business, consulted 2026-10-29
+  - id: rockwell-ir
+    resource: https://www.rockwellautomation.com/en-us/company/investor-relations.html
+    title: Rockwell US listing and industrial automation business, consulted 2026-10-29
+  - id: symbotic-ir
+    resource: https://ir.symbotic.com/news-releases/news-release-details/symbotic-announces-acquisition-arms-innovations-advancing-new
+    title: Symbotic US listing and warehouse automation, consulted 2026-10-29
+  - id: botz-holdings
+    resource: https://www.globalxetfs.com/funds/botz/
+    title: Global X BOTZ holdings as of 2026-10-28, consulted 2026-10-29
+  - id: botz-ucits-holdings
+    resource: https://globalxetfs.eu/funds/botz?download_full_holdings=true
+    title: Global X BOTZ UCITS holdings as of 2026-10-20, consulted 2026-10-29
   - id: nlr-holdings
     resource: https://www.vaneck.com/us/en/investments/uranium-nuclear-energy-etf-nlr/overview
     title: VanEck NLR holdings as of 2026-10-28, consulted 2026-10-29
@@ -30,6 +45,13 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:TER | robotics | | core universe | diversified | | | 2026-10-29 | Teradyne; collaborative and mobile robotics alongside automated test equipment | [^teradyne-ir] |
+| NYSE:ROK | robotics | | core universe | core | | | 2026-10-29 | Rockwell Automation; industrial automation | [^rockwell-ir] |
+| NASDAQ:SYM | robotics | | core universe | core | | | 2026-10-29 | Symbotic; warehouse robotics and automation | [^symbotic-ir] |
+| NASDAQ:ISRG | robotics | | core universe | core | | | 2026-10-29 | Intuitive Surgical; selected robotics universe constituent | [^botz-holdings] |
+| NASDAQ:CGNX | robotics | | core universe | core | | | 2026-10-29 | Cognex; selected automation universe constituent | [^botz-holdings] |
+| NASDAQ:NVDA | robotics | | extended candidate | diversified | | | 2026-10-29 | NVIDIA; optional broader ecosystem extension | [^botz-holdings] |
+| NASDAQ:TSLA | robotics | | extended candidate | diversified | | | 2026-10-29 | Tesla; optional broader ecosystem extension | [^botz-holdings] |
 | NYSE:CCJ | nuclear | | core universe | core | | | 2026-10-29 | Cameco; selected nuclear universe constituent | [^nlr-holdings] |
 | NYSE:BWXT | nuclear | | core universe | core | | | 2026-10-29 | BWX Technologies; selected nuclear universe constituent | [^nlr-holdings] |
 | AMEX:LEU | nuclear | | core universe | core | | | 2026-10-29 | Centrus Energy; selected nuclear universe constituent | [^nlr-holdings] |
@@ -71,16 +93,16 @@ Subtheme assignments and provider symbol resolution remain pending before execut
 
 # Existing universe references
 
-The nuclear selection comprises 10 core rows and two optional generation
-extensions, all present in NLR holdings dated 2026-10-28.[^nlr-holdings]
-Selection roles and exposure labels are provisional project judgments; ETF
-inclusion does not verify revenue concentration or commercial readiness.
-Subthemes and provider-qualified symbols require confirmation before execution.
-Validity dates remain unknown. This is a custom subset, not an NLR replication.
+The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
+TER, ROK, SYM) and two extended candidates (NVDA, TSLA). Teradyne, Rockwell,
+and Symbotic are supported by issuer sources rather than an inferred ETF
+membership. Foreign-only listings have been removed; subthemes and provider
+symbol resolution remain pending. Exposure labels are provisional.
+
 
 | Theme ID | Membership as of | Authoritative ticker list | Securities | Selection |
 |---|---|---|---:|---|
-| gold-miners | 2026-10-22 | [GDX holdings](/sectors/gdx.md) | 59 | Security rows; exclude cash and Other/Cash |
+| gold-miners | 2026-10-22 | [GDX holdings](/sectors/gdx.md) | US-only count pending | Filter for eligible US exchange listings; full source has 59 securities |
 
 GDX membership remains in its existing authoritative holdings table.[^gdx-holdings]
 Issuer labels require provider resolution; GDX itself is a proxy, not an additional
@@ -91,3 +113,9 @@ The manifest review does not constitute a new holdings download.
 [^cibr-holdings]: First Trust CIBR issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's exposure labels.
 [^user-selection]: User approved adding the proposed 12 core companies and three extended candidates on 2026-10-29.
 [^nlr-holdings]: VanEck NLR issuer holdings dated 2026-10-28, consulted 2026-10-29; project shortlist recorded 2026-10-29 without a historical membership claim.
+[^botz-holdings]: Global X BOTZ issuer holdings dated 2026-10-28, consulted 2026-10-29; project subset, not a fund replication.
+[^botz-ucits-holdings]: Global X BOTZ UCITS issuer holdings dated 2026-10-20, consulted 2026-10-29; supports OMRON inclusion and is distinct from the US fund snapshot.
+
+[^teradyne-ir]: Teradyne issuer investor relations; Nasdaq TER and collaborative/mobile robotics business, consulted 2026-10-29.
+[^rockwell-ir]: Rockwell Automation issuer investor relations; NYSE ROK and industrial automation, consulted 2026-10-29.
+[^symbotic-ir]: Symbotic issuer release dated 2026-07-02; Nasdaq SYM and warehouse robotics, consulted 2026-10-29.

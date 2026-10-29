@@ -6,7 +6,7 @@ tags: [themes, methodology, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-28T22:38:39Z"
+  at: "2026-10-29T22:33:06Z"
 sources:
   - id: project-design
     resource: /themes/themes.md
@@ -18,6 +18,15 @@ These are project design conventions, not validated investment findings.
 The RS utility and related research remain unimplemented.[^project-design]
 
 # Membership
+
+Theme stock universes are restricted to US exchange-listed securities, per the
+user's 2026-10-29 instruction. US-listed foreign companies and exchange-listed
+ADRs are eligible; foreign-only listings and OTC securities are excluded.
+Use one eligible US listing per company. ETF proxies may hold international
+stocks, but their holdings must be filtered before constructing a theme universe.
+The legacy full GDX holdings and existing derived breadth remain dated source
+artifacts; a US-only theme calculation must explicitly select eligible US rows
+and disclose its different denominator.
 
 Use stable theme and subtheme IDs. Store one relationship per security and
 subtheme in [Theme memberships](/themes/theme-memberships.md). A security may

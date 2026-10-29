@@ -2,6 +2,9 @@
 
 ## 2026-10-29
 
+- Restricted theme universes to US exchange listings; replaced foreign-only robotics listings with TER, ROK, and SYM, and required a US-only filter on legacy GDX holdings.
+
+- Added eight core robotics/automation candidates and two ecosystem extensions, with BOTZ and separately dated BOTZ UCITS evidence, provisional labels, local listings, and BOTZ as a proposed proxy.
 - Populated nuclear energy with 10 core stocks and two optional generation extensions from NLR holdings dated 2026-10-28; recorded source/review dates, provisional classifications, pending subthemes, and NLR as a proposed proxy.
 - Populated cybersecurity memberships with 12 core stocks and three optional extended candidates, sourced to CIBR holdings dated 2026-10-28; recorded review dates, provisional exposure labels, pending subthemes, and BUG as a proposed ETF proxy.
 
