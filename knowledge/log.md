@@ -2,6 +2,8 @@
 
 ## 2026-10-29
 
+- Added six US-listed Defense Technology core candidates and four broader defense extensions, with issuer/SHLD sources, review dates, provisional classifications, and SHLD as a proposed proxy.
+
 - Restricted theme universes to US exchange listings; replaced foreign-only robotics listings with TER, ROK, and SYM, and required a US-only filter on legacy GDX holdings.
 
 - Added eight core robotics/automation candidates and two ecosystem extensions, with BOTZ and separately dated BOTZ UCITS evidence, provisional labels, local listings, and BOTZ as a proposed proxy.

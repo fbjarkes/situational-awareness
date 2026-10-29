@@ -8,7 +8,7 @@
 - [Cybersecurity](cybersecurity.md) - Initial 12-stock universe, three extended candidates, and proposed subthemes.
 - [Quantum computing](quantum-computing.md) - Proposed theme and subthemes.
 - [Space economy](space-economy.md) - Proposed theme and subthemes.
-- [Defense technology](defense-technology.md) - Proposed theme and subthemes.
+- [Defense technology](defense-technology.md) - Six US-listed core candidates, four broader defense extensions, and proposed subthemes.
 - [Future mobility](future-mobility.md) - Proposed theme and subthemes.
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.
 - [Healthcare innovation](healthcare-innovation.md) - Proposed theme and subthemes.

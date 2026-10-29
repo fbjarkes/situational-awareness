@@ -6,8 +6,23 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T22:33:06Z"
+  at: "2026-10-29T22:34:46Z"
 sources:
+  - id: shld-holdings
+    resource: https://www.globalxetfs.com/funds/shld/
+    title: Global X SHLD mandate and holdings as of 2026-10-28, consulted 2026-10-29
+  - id: avav-issuer
+    resource: https://investor.avinc.com/news-events/press-releases
+    title: AeroVironment issuer releases and Nasdaq listing, consulted 2026-10-29
+  - id: ktos-issuer
+    resource: https://ir.kratosdefense.com/investor-relations
+    title: Kratos issuer business description and Nasdaq listing, consulted 2026-10-29
+  - id: rcat-issuer
+    resource: https://ir.redcatholdings.com/
+    title: Red Cat issuer defense drone and robotics description, consulted 2026-10-29
+  - id: mrcy-issuer
+    resource: https://newsroom.mrcy.com/posts/pressreleases/mercury-awarded-contracts-for-us-space-and-st
+    title: Mercury Systems issuer release dated 2026-01-15, consulted 2026-10-29
   - id: teradyne-ir
     resource: https://investors.teradyne.com/
     title: Teradyne US listing and robotics business, consulted 2026-10-29
@@ -45,6 +60,16 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:AVAV | defense-tech | | core universe | core | | | 2026-10-29 | AeroVironment; Uncrewed systems and counter-drone technologies | [^avav-issuer] |
+| NASDAQ:KTOS | defense-tech | | core universe | core | | | 2026-10-29 | Kratos Defense & Security Solutions; Unmanned systems and defense technologies | [^ktos-issuer] |
+| NASDAQ:RCAT | defense-tech | | core universe | core | | | 2026-10-29 | Red Cat Holdings; Defense drone and robotic systems | [^rcat-issuer] |
+| NASDAQ:MRCY | defense-tech | | core universe | core | | | 2026-10-29 | Mercury Systems; Mission-critical defense processing systems | [^mrcy-issuer] |
+| NASDAQ:PLTR | defense-tech | | core universe | diversified | | | 2026-10-29 | Palantir Technologies; Selected defense software ecosystem exposure; SHLD holding | [^shld-holdings] |
+| NYSE:LHX | defense-tech | | core universe | core | | | 2026-10-29 | L3Harris Technologies; Selected defense technology exposure; SHLD holding | [^shld-holdings] |
+| NYSE:LMT | defense-tech | | extended candidate | core | | | 2026-10-29 | Lockheed Martin; Broader defense-prime extension; SHLD holding | [^shld-holdings] |
+| NYSE:NOC | defense-tech | | extended candidate | core | | | 2026-10-29 | Northrop Grumman; Broader defense-prime extension; SHLD holding | [^shld-holdings] |
+| NYSE:RTX | defense-tech | | extended candidate | diversified | | | 2026-10-29 | RTX; Broader aerospace/defense extension; SHLD holding | [^shld-holdings] |
+| NYSE:GD | defense-tech | | extended candidate | core | | | 2026-10-29 | General Dynamics; Broader defense-prime extension; SHLD holding | [^shld-holdings] |
 | NASDAQ:TER | robotics | | core universe | diversified | | | 2026-10-29 | Teradyne; collaborative and mobile robotics alongside automated test equipment | [^teradyne-ir] |
 | NYSE:ROK | robotics | | core universe | core | | | 2026-10-29 | Rockwell Automation; industrial automation | [^rockwell-ir] |
 | NASDAQ:SYM | robotics | | core universe | core | | | 2026-10-29 | Symbotic; warehouse robotics and automation | [^symbotic-ir] |
@@ -91,6 +116,17 @@ explicit universe choice. Reviewed records the source/selection review date,
 not an independent validation of company exposure or a historical membership date.
 Subtheme assignments and provider symbol resolution remain pending before execution.
 
+# Defense technology selection
+
+The initial US-listed shortlist has six core candidates and four broader defense
+extensions. Selection role is distinct from exposure: a broad prime can have
+core defense exposure while remaining optional for a narrower technology peer
+comparison. Palantir has both government and commercial activities; its inclusion
+does not imply pure defense exposure. Classifications are provisional project
+judgments, not verified revenue thresholds. Subthemes, provider symbol resolution,
+and historical membership validity remain pending. Source review is not an
+independent validation of predictive effects or a historical membership start.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -119,3 +155,9 @@ The manifest review does not constitute a new holdings download.
 [^teradyne-ir]: Teradyne issuer investor relations; Nasdaq TER and collaborative/mobile robotics business, consulted 2026-10-29.
 [^rockwell-ir]: Rockwell Automation issuer investor relations; NYSE ROK and industrial automation, consulted 2026-10-29.
 [^symbotic-ir]: Symbotic issuer release dated 2026-07-02; Nasdaq SYM and warehouse robotics, consulted 2026-10-29.
+
+[^shld-holdings]: Global X SHLD issuer mandate and holdings dated 2026-10-28, consulted 2026-10-29; supports PLTR, LHX, LMT, NOC, RTX, and GD inclusion, not the project's core/extended split.
+[^avav-issuer]: AeroVironment issuer releases, including October 2026 uncrewed-system announcements; Nasdaq AVAV, consulted 2026-10-29.
+[^ktos-issuer]: Kratos issuer investor relations; Nasdaq KTOS and unmanned systems, communications, and defense technologies, consulted 2026-10-29.
+[^rcat-issuer]: Red Cat issuer investor relations; RCAT and defense drone/robotic systems, consulted 2026-10-29; provider symbol resolution remains pending.
+[^mrcy-issuer]: Mercury Systems issuer release dated 2026-01-15; Nasdaq MRCY and defense/space processing systems, consulted 2026-10-29.
