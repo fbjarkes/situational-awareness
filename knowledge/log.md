@@ -2,6 +2,7 @@
 
 ## 2026-10-30
 
+- Added the report theme-return table using deduplicated core universes and daily-rebalanced equal-weight price returns over 1W/1M/3M/6M/12M; documented strict coverage, one-batch provenance, US-only gold miners, and ticker-identity cutoffs. Corrected Centrus Energy to TradingView symbol NYSE:LEU.
 - Added separate AI neocloud and hyperscaler/platform categories; populated NBIS, CRWV, and IREN with issuer evidence, direct-supplier roles, and dated IREN mining-to-cloud transition context, keeping other AI segments unpopulated.
 
 - Added the Semiconductors parent theme, seven product subthemes, and 18 US-listed candidates; introduced separate security profiles for business models, ecosystem roles, and end markets, with explicit chipmaker/ecosystem RS scopes, overlapping tags, and insufficient-peer handling.

@@ -6,8 +6,11 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:43:42Z"
+  at: "2026-10-29T23:54:52Z"
 sources:
+  - id: tv-leu-resolution
+    resource: https://www.tradingview.com/symbols/NYSE-LEU/
+    title: TradingView connected symbol search resolved Centrus Energy to NYSE LEU, checked 2026-10-30
   - id: nebius-cloud
     resource: https://nebius.com/about
     title: Nebius issuer AI-cloud platform and Nasdaq NBIS listing, consulted 2026-10-30
@@ -451,7 +454,7 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 | NASDAQ:TSLA | robotics | | extended candidate | diversified | | | 2026-10-29 | Tesla; optional broader ecosystem extension | [^botz-holdings] |
 | NYSE:CCJ | nuclear | | core universe | core | | | 2026-10-29 | Cameco; selected nuclear universe constituent | [^nlr-holdings] |
 | NYSE:BWXT | nuclear | | core universe | core | | | 2026-10-29 | BWX Technologies; selected nuclear universe constituent | [^nlr-holdings] |
-| AMEX:LEU | nuclear | | core universe | core | | | 2026-10-29 | Centrus Energy; selected nuclear universe constituent | [^nlr-holdings] |
+| NYSE:LEU | nuclear | | core universe | core | | | 2026-10-30 | Centrus Energy; selected nuclear universe constituent; current provider listing resolved | [^nlr-holdings] [^tv-leu-resolution] |
 | AMEX:UEC | nuclear | | core universe | core | | | 2026-10-29 | Uranium Energy; selected nuclear universe constituent | [^nlr-holdings] |
 | NYSE:NXE | nuclear | | core universe | core | | | 2026-10-29 | NexGen Energy; selected nuclear universe constituent | [^nlr-holdings] |
 | AMEX:DNN | nuclear | | core universe | core | | | 2026-10-29 | Denison Mines; selected nuclear universe constituent | [^nlr-holdings] |
@@ -581,6 +584,7 @@ constituent. This dated snapshot is not historical point-in-time membership.
 The manifest review does not constitute a new holdings download.
 
 [^gdx-holdings]: Existing GDX holdings snapshot as of 2026-10-22; linked without duplicating the ticker list.
+[^tv-leu-resolution]: TradingView connected search_symbols for Centrus Energy returned NYSE:LEU on 2026-10-30; replaces the earlier AMEX mapping.
 [^cibr-holdings]: First Trust CIBR issuer holdings dated 2026-10-28, consulted 2026-10-29; supports company/ticker inclusion, not the project's exposure labels.
 [^user-selection]: User approved adding the proposed 12 core companies and three extended candidates on 2026-10-29.
 [^nlr-holdings]: VanEck NLR issuer holdings dated 2026-10-28, consulted 2026-10-29; project shortlist recorded 2026-10-29 without a historical membership claim.

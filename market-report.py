@@ -16,6 +16,7 @@ import yaml
 from zoneinfo import ZoneInfo
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
+from theme_returns import build_theme_returns, theme_universes
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
                          streak_is_lower_bound, lowest_close_period)
@@ -541,12 +542,26 @@ def main(argv: list[str] | None = None) -> int:
             report["spy"]["interpretation"] = spy_interpretation(report["spy"])
             report["warnings"].extend(report["spy"]["warnings"])
         attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
+        theme_provider = "alpaca" if args.provider == "alpaca" else "tradingview"
+        theme_batch = batch or (payload.get("download_date") if payload else None)
+        theme_downloads = 0
+        if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
+            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json") for s in t["symbols"]})
+            if theme_symbols:
+                fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
+                                                     requested - timedelta(days=430), tuple(theme_symbols)))
+                paths = save_bars(fresh, args.data_root)
+                theme_batch = paths[0].parent.name
+                theme_downloads = len(fresh["series"])
+        report["theme_returns"] = build_theme_returns(ROOT / "knowledge", observation_cutoff(requested, today, args.close_only),
+                                                     data_root=args.data_root, download_date=theme_batch,
+                                                     provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
         report["research_todos"] = collect_research_todos(ROOT / "knowledge")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":
             data_mode = "Alpaca · SPY " + ("downloaded" if spy_downloads else "unavailable") + " · breadth " + ("from stored TradingView data" if payload else "unavailable")
-        report["run_status"] = {"downloaded_symbols": (len(payload["series"]) if fresh_download else 0) + spy_downloads + vix_downloads,
+        report["run_status"] = {"downloaded_symbols": (len(payload["series"]) if fresh_download else 0) + spy_downloads + vix_downloads + theme_downloads,
                                 "data_mode": data_mode,
                                 "download_batch": payload.get("download_date") if payload else None}
         args.output.mkdir(parents=True, exist_ok=True)

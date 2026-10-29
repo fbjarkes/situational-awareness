@@ -167,6 +167,30 @@ def details(report, *, gdx=False):
     return f'<details class="details"><summary>Details and methodology</summary>{text}</details>'
 
 
+def theme_returns_card(section):
+    if not section:
+        return ""
+    headers = '<th scope="col">Theme</th><th scope="col">Coverage</th>' + ''.join(f'<th scope="col">{escape(h)}</th>' for h in section["horizons"])
+    rows = []
+    notes = []
+    for row in section["rows"]:
+        cells = ''.join('<td>N/A</td>' if row["returns"][h] is None else f'<td>{row["returns"][h]:+.2f}%</td>' for h in section["horizons"])
+        rows.append(f'<tr><th scope="row">{escape(row["title"])}</th><td>{row["eligible"]}/{row["count"]}</td>{cells}</tr>')
+        reason = row.get("reason")
+        if not reason and row.get("unavailable"):
+            reason = '; '.join(f'{h}: {message}' for h, message in row["unavailable"].items())
+        if reason:
+            notes.append(f'<li>{escape(row["title"])}: {escape(reason)}</li>')
+    return ('<article class="card" aria-labelledby="theme-returns-title"><div class="card-header"><div><h3 id="theme-returns-title">Theme returns</h3>'
+            '<p class="subheading">Core constituents · equal weight · price returns</p></div>'
+            f'<span class="period">{escape(section.get("as_of") or "Unavailable")}{" · provisional" if section.get("intraday") else ""}</span></div>'
+            '<div style="overflow-x:auto"><table class="metric-table" style="min-width:650px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
+            f'<p class="interpretation">{escape(section["interpretation"])}</p>'
+            '<details class="details"><summary>Universe, timing and methodology</summary><p>Daily-rebalanced equal-weight USD baskets using fixed current core memberships. Optional extensions and ETFs are excluded; each stock counts once per theme. Gold miners uses only US-listed mapped constituents.</p>'
+            '<p>1W is five trading sessions; month periods use the last SPY calendar session on or before the calendar-month anniversary. Every member must have every required session; short histories and missing data produce N/A. Coverage counts members with an endpoint price, not full-horizon availability.</p>'
+            f'<p>Provider: {escape(section["provider"])}. Download batch: {escape(str(section["download_date"]))}. Same observation date across baskets; provisional readings can change. Dividends are excluded; corporate-identity cutoffs apply to reused tickers.</p><ul>' + ''.join(notes) + '</ul></details></article>')
+
+
 def render_report(report, chart, interpretation):
     def responsive_chart(section):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
@@ -189,6 +213,7 @@ def render_report(report, chart, interpretation):
     status = ('<details class="data-status"><summary>Data availability</summary><ul>' +
               "".join(f'<li>{escape(note)}</li>' for note in dict.fromkeys(notes)) + '</ul></details>') if notes else ""
     source_symbols = set(report["series"])
+    source_symbols.update(report.get("theme_returns", {}).get("used_symbols", []))
     spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
     if "metrics" in spy:
         source_symbols.add(spy["symbol"])
@@ -200,6 +225,8 @@ def render_report(report, chart, interpretation):
     downloads = str(run["downloaded_symbols"]) if "downloaded_symbols" in run else "—"
     coverage_text = f'{gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]}' if gdx else "—"
     source_detail = f'{len(report["series"])} breadth indices' + (' · SPY' if "metrics" in spy else '') + (' · VIX' if vix and "metrics" in vix else '') + (f' · {len(set(gdx["universe"]["symbols"]) - set(gdx["universe"].get("missing_symbols", [])))} GDX constituents' if gdx else '')
+    if report.get("theme_returns", {}).get("used_symbols"):
+        source_detail += " · theme baskets"
     stats = [("Source symbols", str(len(source_symbols)), source_detail),
              ("Downloaded this run", downloads, ""),
              ("GDX coverage", coverage_text, "Eligible / constituent universe" if gdx else "Not included"),
@@ -235,6 +262,8 @@ def render_report(report, chart, interpretation):
                   f'<div class="readings">{reading("Above SMA", value, "#67ddc4")}</div><div class="chart">{responsive_chart(gdx)}</div>'
                   f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed current constituents</span><span>Share of stocks (%)</span></div>'
                   f'<p class="interpretation">{escape(gdx["interpretation"])}</p>{details(gdx, gdx=True)}</article>')
+    if report.get("theme_returns"):
+        themes = theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
     groups = [("market-breadth", "Market Breadth", breadth),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes)]
@@ -247,9 +276,13 @@ def render_report(report, chart, interpretation):
             if substituted:
                 badge = "TradingView data"
         elif key == "themes":
-            description = "Explore focused market themes, starting with gold miners."
+            description = "Compare theme returns and explore gold-miner participation."
             preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"
-            badge = "Available" if gdx else "Planned"
+            theme_rows = report.get("theme_returns", {}).get("rows", [])
+            if theme_rows:
+                count = sum(any(v is not None for v in row["returns"].values()) for row in theme_rows)
+                preview = f"{count}/{len(theme_rows)} theme baskets with returns · 1W to 12M"
+            badge = "Available" if gdx or theme_rows else "Planned"
         else:
             description = "SPY trend and streak metrics, plus VIX implied volatility."
             if "metrics" in spy:

@@ -37,6 +37,28 @@ They do not download data or add report signals.
 
 ## Report section template
 
+The Themes section includes a compact **1W, 1M, 3M, 6M, 12M** return table.
+It compounds equal-weight daily constituent returns, rebalancing every session,
+using each OKF theme's fixed current core universe. Optional extensions and
+crypto funds are excluded, and overlapping subtheme rows are deduplicated.
+Gold miners uses US-listed holdings resolved by `data/gdx-symbol-map.json`.
+Without that map its universe is unavailable. All figures are USD price returns,
+excluding dividends; daily rebalancing assumes no transaction costs.
+
+1W means five trading sessions. Months use calendar anniversaries and the last
+SPY session on or before the anniversary. Each member must have every required
+session; unavailable universes, recent listings, and missing bars produce N/A.
+All rows share one observation date and download batch/provider. The report JSON
+records member lists, start dates, reasons, raw-file hashes, and knowledge hashes.
+The Themes methodology panel explains these assumptions and coverage.
+
+Snapshot runs read archived data; live TradingView report runs also download the
+configured core theme symbols, retaining at least 430 calendar days. Alpaca report
+runs currently use **stored Alpaca theme bars** from the selected batch; missing
+theme data is shown as N/A. It does not substitute TradingView theme prices.
+The calculations are reusable through `theme_returns.basket_returns` and
+`theme_returns.build_theme_returns`. They do not enable an RS/trading signal.
+
 The S&P 500 section also includes the Cboe VIX spot index from TradingView.
 Its `Day low` metric is the longest trailing span where the latest observation
 is strictly lower than all earlier closes in that span, including the latest

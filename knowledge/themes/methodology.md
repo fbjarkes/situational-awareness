@@ -6,7 +6,7 @@ tags: [themes, methodology, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:32:00Z"
+  at: "2026-10-29T23:54:52Z"
 sources:
   - id: project-design
     resource: /themes/themes.md
@@ -73,6 +73,10 @@ Compute subtheme and parent-theme comparisons separately. Overlapping groups
 are correlated; do not treat their research results as independent replications.
 
 # Relative strength
+
+The report's descriptive [theme return table](/references/theme-returns.md)
+implements equal-weight core-universe price returns over 1W/1M/3M/6M/12M.
+It does not implement stock-versus-group RS or validate the research checklist.
 
 Normalize stock price and peer index to 1 at a common initial session:
 `RS_level = 100 * normalized_stock_price / normalized_peer_index`.
