@@ -6,7 +6,7 @@ tags: [themes, constituents, relative-strength]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:14:13Z"
+  at: "2026-10-29T23:16:22Z"
 sources:
   - id: gdx-concept
     resource: /sectors/gdx.md
@@ -66,7 +66,7 @@ themes:
     classification: structural_theme
     tracking_status: proposed
   - id: health-innovation
-    title: Healthcare innovation
+    title: Healthcare technology and innovation
     concept: /themes/healthcare-innovation.md
     classification: structural_theme
     tracking_status: proposed
@@ -134,7 +134,7 @@ project extensions, not OKF standard fields.
 | defense-tech | Defense technology | proposed | structural_theme | [Concept](/themes/defense-technology.md) |
 | mobility | Future mobility | proposed | structural_theme | [Concept](/themes/future-mobility.md) |
 | digital-finance | Digital finance | proposed | structural_theme | [Concept](/themes/digital-finance.md) |
-| health-innovation | Healthcare innovation | proposed | structural_theme | [Concept](/themes/healthcare-innovation.md) |
+| health-innovation | Healthcare technology and innovation | proposed | structural_theme | [Concept](/themes/healthcare-innovation.md) |
 | longevity | Longevity and metabolic health | proposed | structural_theme | [Concept](/themes/longevity-metabolic-health.md) |
 | electrification | Electrification and grid modernization | proposed | structural_theme | [Concept](/themes/electrification-grid.md) |
 | nuclear | Nuclear energy | proposed | structural_theme | [Concept](/themes/nuclear-energy.md) |

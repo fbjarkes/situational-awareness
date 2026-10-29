@@ -6,8 +6,32 @@ tags: [themes, tickers, membership]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:14:13Z"
+  at: "2026-10-29T23:16:22Z"
 sources:
+  - id: tempus-healthtech
+    resource: https://investors.tempus.com/news-events/news-releases
+    title: Tempus issuer precision-medicine, diagnostics, and AI descriptions; Nasdaq TEM, consulted 2026-10-30
+  - id: guardant-healthtech
+    resource: https://investors.guardanthealth.com/financials/quarterly-results/default.aspx
+    title: Guardant issuer precision oncology and screening; Nasdaq GH, consulted 2026-10-30
+  - id: natera-healthtech
+    resource: https://investor.natera.com/news/news-details/2026/Natera-Reports-Second-Quarter-2026-Financial-Results/default.aspx
+    title: Natera issuer results dated 2026-08-06; cell-free DNA/genetic testing and Nasdaq NTRA, consulted 2026-10-30
+  - id: recursion-healthtech
+    resource: https://www.recursion.com/
+    title: Recursion issuer AI-enabled drug-discovery platform description, consulted 2026-10-30
+  - id: recursion-listing
+    resource: https://www.sec.gov/Archives/edgar/data/1601830/000160183026000134/rxrx-finalprosuppxoct2026o.htm
+    title: Recursion October 2026 prospectus; Nasdaq RXRX, consulted 2026-10-30
+  - id: schrodinger-healthtech
+    resource: https://ir.schrodinger.com/press-releases/news-details/2026/Schrdinger-Provides-Update-on-Progress-Across-the-Business-and-Outlines-2026-Strategic-Priorities/default.aspx
+    title: Schrodinger issuer computational molecular discovery update, 2026-01-12; Nasdaq SDGR, consulted 2026-10-30
+  - id: hims-healthtech
+    resource: https://investors.hims.com/financials/quarterly-results/default.aspx
+    title: Hims and Hers issuer digital care platform and NYSE HIMS listing, consulted 2026-10-30
+  - id: intuitive-healthtech
+    resource: https://isrg.intuitive.com/
+    title: Intuitive issuer robotic-assisted surgery and Nasdaq ISRG listing, consulted 2026-10-30
   - id: tan-holdings
     resource: https://www.invesco.com/us/en/financial-products/etfs/invesco-solar-etf.html
     title: Invesco TAN issuer holdings snapshot dated 2026-10-12, consulted 2026-10-30
@@ -162,6 +186,14 @@ on 2026-10-29 from the user's approved shortlist.[^user-selection]
 
 | Symbol | Theme ID | Subtheme ID | Role | Exposure | Valid from | Valid to | Reviewed | Rationale | Source |
 |---|---|---|---|---|---|---|---|---|---|
+| NASDAQ:TEM | health-innovation | health-innovation-precision-medicine | core universe | core | | | 2026-10-30 | Tempus AI; AI-enabled precision medicine and diagnostics | [^tempus-healthtech] |
+| NASDAQ:GH | health-innovation | health-innovation-precision-medicine | core universe | core | | | 2026-10-30 | Guardant Health; Precision oncology and screening | [^guardant-healthtech] |
+| NASDAQ:NTRA | health-innovation | health-innovation-genomics | core universe | core | | | 2026-10-30 | Natera; Cell-free DNA and genetic testing | [^natera-healthtech] |
+| NASDAQ:RXRX | health-innovation | health-innovation-computational-drug-discovery | core universe | core | | | 2026-10-30 | Recursion Pharmaceuticals; AI-enabled drug discovery | [^recursion-healthtech] [^recursion-listing] |
+| NASDAQ:SDGR | health-innovation | health-innovation-computational-drug-discovery | core universe | core | | | 2026-10-30 | Schrodinger; Computational molecular discovery | [^schrodinger-healthtech] |
+| NYSE:HIMS | health-innovation | health-innovation-digital-health | extended candidate | core | | | 2026-10-30 | Hims and Hers Health; Digital care delivery | [^hims-healthtech] |
+| NASDAQ:ISRG | health-innovation | health-innovation-surgical-robotics | extended candidate | core | | | 2026-10-30 | Intuitive Surgical; Robotic-assisted surgery | [^intuitive-healthtech] |
+| NASDAQ:DXCM | health-innovation | health-innovation-connected-monitoring | extended candidate | core | | | 2026-10-30 | Dexcom; Connected glucose monitoring | [^dexcom-metabolic] |
 | NASDAQ:FSLR | renewables | | core universe | core | | | 2026-10-30 | First Solar; selected TAN holding for Clean Energy universe | [^tan-holdings] |
 | NASDAQ:NXT | renewables | | core universe | core | | | 2026-10-30 | Nextpower; selected TAN holding for Clean Energy universe | [^tan-holdings] |
 | NASDAQ:ENPH | renewables | | core universe | core | | | 2026-10-30 | Enphase Energy; selected TAN holding for Clean Energy universe | [^tan-holdings] |
@@ -310,6 +342,16 @@ subthemes remain pending. D-Wave is Nasdaq-listed following its July 2026 transf
 Alphabet is represented once through GOOGL. Current provider symbol resolution
 is required before execution; review dates do not establish historical membership.
 
+# Healthcare technology selection
+
+Five core candidates and three broader extensions are recorded with project
+subtheme assignments. Role is separate from exposure: a dedicated device
+company can be an extended member of a precision-medicine-led basket. Compare
+TEM with diagnostics peers separately from drug developers or care platforms.
+ISRG overlaps Robotics; DXCM overlaps Metabolic Health. Subtheme classifications
+are provisional and not independently verified revenue thresholds. Provider
+resolution remains required; review dates do not establish historical membership.
+
 # Existing universe references
 
 The US-only robotics shortlist contains five core candidates (ISRG, CGNX,
@@ -384,3 +426,12 @@ The manifest review does not constitute a new holdings download.
 [^eos-batteries]: Eos issuer zinc storage systems and Nasdaq EOSE listing, 2026-10-19; consulted 2026-10-30.
 [^fluence-batteries]: Fluence issuer battery-system integration and Nasdaq FLNC listing, 2026-09-24; consulted 2026-10-30.
 [^enersys-batteries]: EnerSys issuer stored-energy and battery manufacturing description, NYSE ENS, 2026-03-25; consulted 2026-10-30.
+
+[^tempus-healthtech]: Tempus issuer precision-medicine, diagnostics, and AI descriptions; Nasdaq TEM; consulted 2026-10-30.
+[^guardant-healthtech]: Guardant issuer precision oncology and screening; Nasdaq GH; consulted 2026-10-30.
+[^natera-healthtech]: Natera issuer results dated 2026-08-06; cell-free DNA/genetic testing and Nasdaq NTRA; consulted 2026-10-30.
+[^recursion-healthtech]: Recursion issuer AI-enabled drug-discovery platform description; consulted 2026-10-30.
+[^recursion-listing]: Recursion October 2026 prospectus; Nasdaq RXRX; consulted 2026-10-30.
+[^schrodinger-healthtech]: Schrodinger issuer computational molecular discovery update, 2026-01-12; Nasdaq SDGR; consulted 2026-10-30.
+[^hims-healthtech]: Hims and Hers issuer digital care platform and NYSE HIMS listing; consulted 2026-10-30.
+[^intuitive-healthtech]: Intuitive issuer robotic-assisted surgery and Nasdaq ISRG listing; consulted 2026-10-30.

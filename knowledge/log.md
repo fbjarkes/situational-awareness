@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Populated Healthcare Technology and Innovation with TEM, GH, NTRA, RXRX, and SDGR as core candidates plus HIMS, ISRG, and DXCM extensions; recorded issuer evidence, peer subthemes, review dates, and Robotics/Metabolic Health overlaps.
+
 - Populated Clean Energy using the existing renewables concept/ID and added a separate Batteries theme, with US-listed universes (8 and 7 names), dated issuer evidence, separate proxies, and explicit generation/storage/mobility boundaries.
 
 - Added IONQ, RGTI, QBTS, and QUBT as initial quantum core candidates, with IBM, MSFT, and GOOGL as diversified extensions; recorded issuer sources, review dates, D-Wave Nasdaq transfer, Alphabet share-class deduplication, and technical-evidence limitations.

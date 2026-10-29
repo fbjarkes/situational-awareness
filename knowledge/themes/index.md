@@ -13,7 +13,7 @@
 - [Defense technology](defense-technology.md) - Six US-listed core candidates, four broader defense extensions, and proposed subthemes.
 - [Future mobility](future-mobility.md) - Five US-listed air-mobility candidates, with piloted versus autonomous distinctions.
 - [Digital finance](digital-finance.md) - Proposed theme and subthemes.
-- [Healthcare innovation](healthcare-innovation.md) - Proposed theme and subthemes.
+- [Healthcare technology and innovation](healthcare-innovation.md) - TEM-led US-listed selection with five core candidates and three broader extensions.
 - [Longevity and metabolic health](longevity-metabolic-health.md) - Five US-listed metabolic-health core candidates, one extension, and longevity evidence gaps.
 - [Electrification and grid modernization](electrification-grid.md) - Ten US-listed core candidates, two broader extensions, and proposed subthemes.
 - [Nuclear energy](nuclear-energy.md) - Initial 10-stock selection, two generation extensions, and proposed subthemes.
