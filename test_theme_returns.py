@@ -4,11 +4,24 @@ import tempfile
 import unittest
 
 from bar_store import save_bars
-from theme_returns import basket_returns, build_theme_returns, prices_from_payload, theme_universes
-from report_design import theme_returns_card
+from theme_returns import basket_returns, build_theme_returns, prices_from_payload, theme_universes, relative_return
+from report_design import theme_returns_card, theme_rs_card
 
 
 class ThemeReturnTests(unittest.TestCase):
+    def test_relative_return_ratio_not_percentage_points(self):
+        self.assertAlmostEqual(relative_return(20, 10), 100 * (1.2 / 1.1 - 1))
+        self.assertLess(relative_return(5, 10), 0)
+        self.assertIsNone(relative_return(None, 10))
+        with self.assertRaises(ValueError):
+            relative_return(10, -100)
+
+    def test_ten_session_return(self):
+        days = [date(2026, 10, 1) + timedelta(days=i) for i in range(11)]
+        prices = {"A": {d: 100 + i for i, d in enumerate(days)}}
+        self.assertAlmostEqual(basket_returns(prices, days, days[-1], ("10D",))[0]["10D"], 10)
+        self.assertIsNone(basket_returns(prices, days[1:], days[-1], ("10D",))[0]["10D"])
+
     def test_daily_rebalancing_not_buy_and_hold_average(self):
         days = [date(2026, 10, 19) + timedelta(days=i) for i in range(6)]
         prices = {"A": dict(zip(days, [100, 200, 100, 100, 100, 100])),
@@ -69,6 +82,10 @@ class ThemeReturnTests(unittest.TestCase):
             self.assertIn("Demo &lt;theme&gt;", html)
             self.assertIn("12M", html)
             self.assertIn("N/A", html)
+            rs = result["relative_strength"]
+            self.assertAlmostEqual(rs["rows"][0]["values"]["1W"], 0)
+            self.assertIsNone(rs["rows"][0]["values"]["10D"])
+            self.assertIn("Demo &lt;theme&gt;", theme_rs_card(result))
             missing = build_theme_returns(knowledge, date(2026, 10, 24), data_root=root, download_date="2026-10-26")
             self.assertIsNone(missing["rows"][0]["returns"]["1W"])
 

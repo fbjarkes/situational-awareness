@@ -191,6 +191,33 @@ def theme_returns_card(section):
             f'<p>Provider: {escape(section["provider"])}. Download batch: {escape(str(section["download_date"]))}. Same observation date across baskets; provisional readings can change. Dividends are excluded; corporate-identity cutoffs apply to reused tickers.</p><ul>' + ''.join(notes) + '</ul></details></article>')
 
 
+def theme_rs_card(section):
+    rs = section.get("relative_strength")
+    if not rs:
+        return ""
+    headers = '<th scope="col">Theme · ranked by 10D</th>' + ''.join(
+        f'<th scope="col">{escape("5D" if h == "1W" else h)}</th>' for h in rs["horizons"])
+    rows = []
+    for row in rs["rows"]:
+        cells = []
+        for h in rs["horizons"]:
+            value = row["values"][h]
+            if value is None:
+                cells.append('<td>N/A</td>')
+            else:
+                color = '#67ddc4' if value > 0 else '#ffaaaa' if value < 0 else 'inherit'
+                cells.append(f'<td style="color:{color}">{value:+.2f}%</td>')
+        rows.append(f'<tr><th scope="row">{escape(row["title"])}</th>{"".join(cells)}</tr>')
+    return ('<article class="card" aria-labelledby="theme-rs-title"><div class="card-header"><div>'
+            '<h3 id="theme-rs-title">Theme relative strength</h3><p class="subheading">Theme / SPY ratio change · green outperforms · red underperforms</p></div>'
+            f'<span class="period">{escape(section.get("as_of") or "Unavailable")}{" · provisional" if section.get("intraday") else ""}</span></div>'
+            '<div style="overflow-x:auto"><table class="metric-table" style="min-width:650px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
+            f'<p class="interpretation">{escape(rs["interpretation"])}</p>'
+            '<details class="details"><summary>Relative-strength calculation</summary>'
+            '<p>RS = 100 × [(1 + theme return) / (1 + SPY return) − 1], using returns as fractions. This measures the change in the theme/SPY price ratio, rather than the percentage-point return difference. A common SPY benchmark makes theme rankings comparable within each column; negative RS can occur even when a theme rises.</p>'
+            '<p>5D and 10D cover five and ten trading sessions; month periods match the return table. Themes use daily-rebalanced equal-weight core stocks, fixed current membership, and price returns excluding dividends. Missing histories remain N/A. All inputs use the same archived batch and common observation date; see the return table for coverage.</p></details></article>')
+
+
 def render_report(report, chart, interpretation):
     def responsive_chart(section):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
@@ -263,7 +290,7 @@ def render_report(report, chart, interpretation):
                   f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed current constituents</span><span>Share of stocks (%)</span></div>'
                   f'<p class="interpretation">{escape(gdx["interpretation"])}</p>{details(gdx, gdx=True)}</article>')
     if report.get("theme_returns"):
-        themes = theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
+        themes = theme_rs_card(report["theme_returns"]) + theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
     groups = [("market-breadth", "Market Breadth", breadth),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes)]

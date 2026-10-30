@@ -1,12 +1,12 @@
 ---
 type: Metric
-title: Theme return table
+title: Theme returns and relative strength
 description: Report methodology for core-constituent equal-weight theme price returns over one week and one, three, six, and twelve months.
 tags: [themes, returns, report, methodology]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-29T23:54:52Z"
+  at: "2026-10-30T00:00:14Z"
 sources:
   - id: theme-members
     resource: /themes/theme-memberships.md
@@ -25,7 +25,7 @@ market_report:
   implementation_status: metrics_available
   evidence_status: descriptive
   enabled: false
-  report_metrics: [1W, 1M, 3M, 6M, 12M]
+  report_metrics: [1W, 1M, 3M, 6M, 12M, theme_rs_5d, theme_rs_10d, theme_rs_1m, theme_rs_3m, theme_rs_6m, theme_rs_12m]
 ---
 # Universe
 
@@ -54,6 +54,20 @@ do not forward-fill or shrink the basket. An unavailable cell is not zero.
 Coverage counts stocks with an endpoint close and does not certify the full
 horizon. Same-day bars are provisional when the reference was fetched before
 the US regular close.
+
+# Theme relative strength
+
+The additional report table compares each theme basket to SPY using the change
+in their price ratio: `RS = 100 * ((1 + theme_return) / (1 + SPY_return) - 1)`,
+where returns in the formula are fractions. Positive values mean outperformance;
+negative values mean underperformance. This is distinct from subtracting returns
+in percentage points. Sorting by a common benchmark ranks themes against each
+other within a horizon; it does not represent a separate theme-to-theme trade.
+The table ranks by 10-session RS and also displays 5-session, 1M, 3M, 6M, and 12M
+RS. Both series share start/end dates, provider, and download batch. Missing
+constituent or benchmark histories produce N/A. Colors supplement signed values.
+This descriptive comparison does not validate stock-versus-peer RS signals or
+execute the separate research TODO.[^shared-method]
 
 # Identity and reproducibility
 

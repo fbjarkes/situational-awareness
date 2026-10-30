@@ -77,18 +77,19 @@ def prices_from_payload(payload, symbols, cutoff):
     return prices
 
 
-def basket_returns(prices, sessions, end):
+def basket_returns(prices, sessions, end, horizons=HORIZONS):
     """Daily-rebalanced equal-weight returns; require every stock every session."""
     dates = sorted(d for d in set(sessions) if d <= end)
-    output = {h: None for h in HORIZONS}
+    output = {h: None for h in horizons}
     starts, reasons = {}, {}
     if not dates or not prices:
-        return output, starts, {h: "No eligible history" for h in HORIZONS}
+        return output, starts, {h: "No eligible history" for h in horizons}
     if end not in dates:
-        return output, starts, {h: "No benchmark session at the observation date" for h in HORIZONS}
-    for horizon in HORIZONS:
-        if horizon == "1W":
-            start = dates[-6] if len(dates) >= 6 else None
+        return output, starts, {h: "No benchmark session at the observation date" for h in horizons}
+    for horizon in horizons:
+        if horizon == "1W" or horizon.endswith("D"):
+            intervals = 5 if horizon == "1W" else int(horizon[:-1])
+            start = dates[-intervals - 1] if len(dates) > intervals else None
         else:
             target = months_before(end, int(horizon[:-1]))
             start = next((d for d in reversed(dates) if d <= target), None)
@@ -138,7 +139,14 @@ def build_theme_returns(knowledge, cutoff, *, data_root=DATA_ROOT, download_date
     except ValueError:
         sessions, end = [], None
     result["as_of"] = end.isoformat() if end else None
+    # 10D supplements the standard horizons for short-term theme comparisons.
+    rs_horizons = ("1W", "10D", "1M", "3M", "6M", "12M")
+    benchmark = {}
+    if end:
+        benchmark = basket_returns({reference_symbol: reference_prices}, sessions, end, rs_horizons)[0]
+    rs_rows = []
     for theme in themes:
+        short_return = None
         row = {**theme, "returns": {h: None for h in HORIZONS}, "eligible": 0,
                "count": len(theme["symbols"]), "reason": None}
         mapped = {s: s if provider == "tradingview" else alpaca_symbol(s) for s in theme["symbols"]}
@@ -157,6 +165,7 @@ def build_theme_returns(knowledge, cutoff, *, data_root=DATA_ROOT, download_date
                 prices = {s: {d: c for d, c in p.items() if d >= HISTORY_STARTS.get(s, date.min)} for s, p in prices.items()}
                 row["eligible"] = sum(p.get(end) is not None for p in prices.values())
                 row["returns"], row["start_dates"], row["unavailable"] = basket_returns(prices, sessions, end)
+                short_return = basket_returns(prices, sessions, end, ("10D",))[0]["10D"]
                 row["fetched_at"] = payload["fetched_at"]
                 row["adjustment"] = payload.get("adjustment", "provider split-adjusted price bars")
                 result["input_bar_files"].extend(payload["bar_files"])
@@ -164,6 +173,18 @@ def build_theme_returns(knowledge, cutoff, *, data_root=DATA_ROOT, download_date
             except ValueError as error:
                 row["reason"] = str(error)
         result["rows"].append(row)
+        returns = {**row["returns"], "10D": short_return}
+        rs_rows.append({"id": row["id"], "title": row["title"],
+                        "values": {h: relative_return(returns[h], benchmark.get(h)) for h in rs_horizons}})
+    ranked = sorted(rs_rows, key=lambda r: (r["values"]["10D"] is None, -(r["values"]["10D"] or 0), r["title"]))
+    valid = [r for r in ranked if r["values"]["10D"] is not None]
+    narrative = "No complete 10-session theme comparisons are available."
+    if valid:
+        narrative = (f'{valid[0]["title"]} leads over 10 sessions ({valid[0]["values"]["10D"]:+.1f}% versus SPY), '
+                     f'while {valid[-1]["title"]} is weakest ({valid[-1]["values"]["10D"]:+.1f}%).')
+    result["relative_strength"] = {"benchmark": reference_symbol, "horizons": list(rs_horizons),
+                                   "benchmark_returns": benchmark, "rows": ranked,
+                                   "interpretation": narrative + " Positive values indicate market outperformance; compare rows to identify stronger and weaker themes, with overlapping memberships limiting independence."}
     result["input_bar_files"] = list({(p["symbol"], p["file"]): p for p in result["input_bar_files"]}.values())
     result["used_symbols"] = sorted(set(result["used_symbols"]))
     available = [r for r in result["rows"] if r["returns"]["1M"] is not None]
@@ -174,3 +195,12 @@ def build_theme_returns(knowledge, cutoff, *, data_root=DATA_ROOT, download_date
         result["interpretation"] = "No complete one-month theme baskets are available in the selected batch. "
     result["interpretation"] += "These fixed current-universe price returns exclude dividends; overlapping memberships and incomplete histories limit comparisons."
     return result
+
+
+def relative_return(theme_return, benchmark_return):
+    """Percentage change of the theme/benchmark price ratio over one horizon."""
+    if theme_return is None or benchmark_return is None:
+        return None
+    if benchmark_return <= -100:
+        raise ValueError("Benchmark price return must exceed -100%")
+    return 100 * ((1 + theme_return / 100) / (1 + benchmark_return / 100) - 1)

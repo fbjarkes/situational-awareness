@@ -52,6 +52,13 @@ All rows share one observation date and download batch/provider. The report JSON
 records member lists, start dates, reasons, raw-file hashes, and knowledge hashes.
 The Themes methodology panel explains these assumptions and coverage.
 
+A separate **Theme relative strength** table ranks themes by 10-session RS
+versus SPY, with 5D, 10D, 1M, 3M, 6M, and 12M columns. RS is the percentage
+change in the theme/SPY price ratio: `100 * ((1 + theme_return) /
+(1 + SPY_return) - 1)`, using fractional returns. Positive values outperform
+SPY. A common benchmark makes rankings comparable between themes within each
+column; all inputs come from the same archived batch.
+
 Snapshot runs read archived data; live TradingView report runs also download the
 configured core theme symbols, retaining at least 430 calendar days. Alpaca report
 runs currently use **stored Alpaca theme bars** from the selected batch; missing
