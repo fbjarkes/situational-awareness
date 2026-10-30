@@ -5,11 +5,24 @@ import tempfile
 import unittest
 
 from bar_store import save_bars
-from market_leaders import build_market_leaders, weighted_rs
+from market_leaders import build_market_leaders, weighted_rs, closing_high_distance
 from report_design import market_leaders_card
 
 
 class MarketLeaderTests(unittest.TestCase):
+    def test_high_proximity_full_window_and_penalty(self):
+        days = [date(2025, 1, 1) + timedelta(days=i) for i in range(253)]
+        prices = {d: 100.0 for d in days}
+        prices[days[0]] = 1000  # Excluded from the trailing 252-session window.
+        prices[days[-1]] = 80
+        high = closing_high_distance(prices, days)
+        self.assertAlmostEqual(high['distance_pct'], -20)
+        self.assertEqual(high['high_close'], 100)
+        self.assertAlmostEqual(weighted_rs({'rs': 10, 'high': -20}, {'rs': .8, 'high': .2}), 4)
+        self.assertIsNone(closing_high_distance(prices, days[-251:]))
+        del prices[days[-3]]
+        self.assertIsNone(closing_high_distance(prices, days))
+
     def test_weighted_rs_and_missing_horizon(self):
         self.assertAlmostEqual(weighted_rs({"a": 10, "b": 30}, {"a": 1, "b": 3}), 25)
         self.assertIsNone(weighted_rs({"a": 10, "b": None}, {"a": 1, "b": 1}))
@@ -22,7 +35,7 @@ class MarketLeaderTests(unittest.TestCase):
             knowledge = root / "knowledge"
             (knowledge / "themes").mkdir(parents=True)
             (knowledge / "themes/themes.md").write_text('---\nthemes:\n  - id: demo\n    title: Demo\n---\n', encoding="utf-8")
-            (knowledge / "market-leaders.md").write_text('---\nmarket_report:\n  weights: {1W: 0.25, 1M: 0.25, 3M: 0.25, 6M: 0.25}\n---\n', encoding="utf-8")
+            (knowledge / "market-leaders.md").write_text('---\nmarket_report:\n  weights: {1W: 0.20, 1M: 0.20, 3M: 0.20, 6M: 0.20}\n  proximity_weight: 0.20\n---\n', encoding="utf-8")
             table = '# Memberships\n'
             symbols = [f'NASDAQ:S{i:02}' for i in range(12)]
             for symbol in symbols:
@@ -30,7 +43,7 @@ class MarketLeaderTests(unittest.TestCase):
             table += '| NASDAQ:S11 | demo | | extended candidate | core | | | | | |\n'
             table += '| NASDAQ:MISSING | demo | | extended candidate | core | | | | | |\n'
             (knowledge / "themes/theme-memberships.md").write_text(table, encoding="utf-8")
-            days = [date(2026, 1, 1) + timedelta(days=i) for i in range(305)]
+            days = [date(2025, 11, 1) + timedelta(days=i) for i in range(364)]
             days = [d for d in days if d.weekday() < 5]
             def bars(rate):
                 return [{"t": int(datetime(d.year, d.month, d.day, 14, tzinfo=timezone.utc).timestamp()),
@@ -45,7 +58,7 @@ class MarketLeaderTests(unittest.TestCase):
             self.assertEqual(result['rows'][0]['symbol'], 'NASDAQ:S11')
             self.assertEqual(result['excluded'][0]['symbol'], 'NASDAQ:MISSING')
             leader = result['rows'][0]
-            self.assertAlmostEqual(leader['score'], sum(leader['rs'].values()) / 4)
+            self.assertAlmostEqual(leader['score'], sum(leader['rs'].values()) * 0.2 + leader['high_52w']['distance_pct'] * 0.2)
             self.assertIn('Top 10 market leaders', market_leaders_card(result))
             self.assertEqual(result['start_dates']['1W'], days[-6].isoformat())
 

@@ -38,9 +38,11 @@ They do not download data or add report signals.
 ## Market leaders
 
 Market Leaders ranks unique US-listed stocks across core and extended theme
-memberships against SPY. The score averages 1W, 1M, 3M, and 6M price-ratio
-returns with weights of 25% each, configured in `knowledge/market-leaders.md`.
-The table shows the top ten and all four components. Stocks missing any required
+memberships against SPY. The score combines 1W, 1M, 3M, and 6M price-ratio
+returns (20% each) with distance below the trailing 252-session closing high
+(20%; zero at the high and negative below it), configured in `knowledge/market-leaders.md`.
+The table shows the top ten, all four return components, and distance from the high.
+A full 252-session price history is required; the composite is expressed in points. Stocks missing any required
 history are excluded with reasons in report JSON and the methodology panel.
 Stored runs do not fetch missing extended candidates; live TradingView runs
 include them in downloads. Fund exposures are excluded; mapped US-listed GDX

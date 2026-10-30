@@ -15,10 +15,22 @@ def weighted_rs(values, weights):
     return math.fsum(values[h] * w for h, w in weights.items()) / sum(weights.values())
 
 
+def closing_high_distance(prices, sessions, period=252):
+    """Distance below the highest close over a full trailing session window."""
+    window = sessions[-period:]
+    if len(window) != period or any(prices.get(d) is None for d in window):
+        return None
+    high = max(prices[d] for d in window)
+    return {"high_close": high, "distance_pct": 100 * (prices[window[-1]] / high - 1),
+            "start_date": window[0].isoformat(), "sessions": period}
+
+
 def build_market_leaders(knowledge, cutoff, *, download_date, provider="tradingview",
                          data_root=DATA_ROOT, symbol_map=None):
     concept = knowledge / "market-leaders.md"
-    weights = metadata(concept)["market_report"]["weights"]
+    config = metadata(concept)["market_report"]
+    weights = config["weights"]
+    proximity_weight = config.get("proximity_weight", 0.2)
     horizons = tuple(weights)
     themes = theme_universes(knowledge, symbol_map, include_extended=True)
     members = {}
@@ -26,6 +38,7 @@ def build_market_leaders(knowledge, cutoff, *, download_date, provider="tradingv
         for symbol in theme["symbols"]:
             members.setdefault(symbol, []).append(theme["title"])
     result = {"provider": provider, "download_date": download_date, "weights": weights,
+              "proximity_weight": proximity_weight, "high_period": 252,
               "universe_size": len(members), "rows": [], "excluded": [], "input_bar_files": [],
               "used_symbols": [], "as_of": None, "eligible": 0,
               "knowledge_sha256": {}}
@@ -65,11 +78,17 @@ def build_market_leaders(knowledge, cutoff, *, download_date, provider="tradingv
             stock_prices = prices_from_payload(canonical, [symbol], end)
             stock_returns, _, reasons = basket_returns(stock_prices, sessions, end, horizons)
             values = {h: relative_return(stock_returns[h], returns[h]) for h in horizons}
-            score = weighted_rs(values, weights)
+            high = closing_high_distance(stock_prices[symbol], sessions)
+            if high is None:
+                raise ValueError("Incomplete 252-session history for 52W closing-high proximity")
+            return_rs = weighted_rs(values, weights)
+            score = weighted_rs({**values, "proximity": high["distance_pct"]},
+                                {**weights, "proximity": proximity_weight})
             if score is None:
                 raise ValueError("Incomplete required history: " + "; ".join(reasons.values() or ["benchmark unavailable"]))
             ranked.append({"symbol": symbol, "themes": sorted(set(labels)), "score": score,
-                           "rs": values, "returns": stock_returns, "fetched_at": payload["fetched_at"]})
+                           "rs": values, "return_rs": return_rs, "high_52w": high,
+                           "returns": stock_returns, "fetched_at": payload["fetched_at"]})
             result["input_bar_files"].extend(payload["bar_files"])
             result["used_symbols"].append(mapped)
         except ValueError as error:
@@ -77,7 +96,7 @@ def build_market_leaders(knowledge, cutoff, *, download_date, provider="tradingv
     ranked.sort(key=lambda row: (-row["score"], row["symbol"]))
     result["eligible"] = len(ranked)
     result["rows"] = [{**row, "rank": i} for i, row in enumerate(ranked[:10], 1)]
-    result["interpretation"] = (f'{ranked[0]["symbol"]} leads the eligible theme stocks with a weighted RS of {ranked[0]["score"]:+.2f}% versus SPY. '
-                                if ranked else "No stocks have complete history for all four horizons. ")
-    result["interpretation"] += "This ranks past relative price performance in the selected universe; it is not a validated trading signal."
+    result["interpretation"] = (f'{ranked[0]["symbol"]} leads with a composite score of {ranked[0]["score"]:+.2f} and is {abs(ranked[0]["high_52w"]["distance_pct"]):.1f}% below its 52-week closing high. '
+                                if ranked else "No stocks have complete history for all required components. ")
+    result["interpretation"] += "The score combines relative price performance versus SPY with a penalty for distance below the high; it is not a validated trading signal."
     return result

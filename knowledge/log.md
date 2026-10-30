@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Extended Market Leaders with a 20% penalty for distance below the trailing 252-session closing high; the four return-RS components now receive 20% each, with full-window coverage required and the composite shown in points.
+
 - Added Market Leaders: all deduplicated core and extended theme stocks versus SPY, ranked by a 25%-each weighted average of 1W/1M/3M/6M relative price-ratio returns; top ten and exclusions are descriptive, not validated signals.
 
 - Added descriptive theme relative-strength rankings versus SPY over 5/10 sessions and 1/3/6/12 months, using archived same-batch price ratios; research signals remain unvalidated.

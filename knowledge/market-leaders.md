@@ -1,12 +1,12 @@
 ---
 type: Metric
 title: Market leaders
-description: Top ten theme stocks ranked by weighted multi-period relative price performance versus SPY.
+description: Top ten theme stocks ranked by weighted relative price performance versus SPY and proximity to their 52-week closing highs.
 tags: [market-leaders, relative-strength, stocks, themes]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-10-30T22:13:23Z"
+  at: "2026-10-30T22:33:06Z"
 sources:
   - id: memberships
     resource: /themes/theme-memberships.md
@@ -20,10 +20,11 @@ market_report:
   evidence_status: descriptive
   enabled: false
   weights:
-    1W: 0.25
-    1M: 0.25
-    3M: 0.25
-    6M: 0.25
+    1W: 0.20
+    1M: 0.20
+    3M: 0.20
+    6M: 0.20
+  proximity_weight: 0.20
 ---
 # Universe
 
@@ -37,10 +38,18 @@ memberships alongside its ticker.[^memberships]
 
 For each horizon, compute `RS_h = 100 * ((1 + stock_return_h) /
 (1 + SPY_return_h) - 1)`, with fractional returns inside the formula.
-The composite score is `sum(weight_h * RS_h) / sum(weight_h)` for 1W, 1M, 3M,
-and 6M. Initial weights are 25% each; these are project defaults, not optimized
-or validated coefficients. Positive scores indicate average relative
-outperformance; this score is a percentage, not a percentile or 1–99 rating.
+The composite score is `sum(weight_h * RS_h) + proximity_weight * distance`,
+with weights summing to one. Each return period has 20% weight; proximity has
+20% weight. `distance = 100 * (latest close / trailing_high_close - 1)` is zero
+at the high and negative below it. The high is the highest split-adjusted close
+in the trailing 252 SPY trading sessions, including the latest observation.
+Require a valid close for every one of those sessions; shorter listings or gaps
+are excluded instead of using a since-listing high. Record the high close,
+window start, distance, and return-only RS alongside the composite in JSON.
+This is a project scoring convention, not optimized or validated coefficients.
+The composite is expressed in points, not a pure relative-return percentage,
+percentile, or 1–99 rating. A negative score can reflect the proximity penalty
+even when the stock outperformed SPY.
 Sort descending and display the top ten; break exact ties by canonical symbol.
 The top ten may include negative scores if the entire universe lags SPY.
 
@@ -54,7 +63,7 @@ No missing-bar forward filling is permitted.[^rs-method]
 
 # Interpretation and reproducibility
 
-Display one table with composite RS and its four component RS values, followed
+Display one table with composite score, distance from the 52-week closing high, and four component RS values, followed
 by one or two descriptive sentences. Record provider, download batch, common
 observation/start dates, weights, benchmark returns, input hashes, memberships,
 eligible count, and excluded stocks in report JSON. Unavailable stored histories
