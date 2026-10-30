@@ -35,6 +35,17 @@ event exists in the supplied history. These functions count supplied observation
 so callers must handle missing sessions, adjustments, and provisional bars explicitly.
 They do not download data or add report signals.
 
+## Market leaders
+
+Market Leaders ranks unique US-listed stocks across core and extended theme
+memberships against SPY. The score averages 1W, 1M, 3M, and 6M price-ratio
+returns with weights of 25% each, configured in `knowledge/market-leaders.md`.
+The table shows the top ten and all four components. Stocks missing any required
+history are excluded with reasons in report JSON and the methodology panel.
+Stored runs do not fetch missing extended candidates; live TradingView runs
+include them in downloads. Fund exposures are excluded; mapped US-listed GDX
+holdings are included. The score is descriptive, not a percentile or trading rule.
+
 ## Report section template
 
 The Themes section includes a compact **1W, 1M, 3M, 6M, 12M** return table.

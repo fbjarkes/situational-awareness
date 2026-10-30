@@ -3,6 +3,7 @@ okf_version: "0.2"
 ---
 # Market report knowledge
 
+- [Market leaders](market-leaders.md) - Top ten theme stocks by weighted relative performance versus SPY.
 - [Breadth](breadth/index.md) - Indicator references and interpretation hypotheses.
 - [Index](index/index.md) - S&P 500 (SPY) definition and dated holdings.
 - [Sectors](sectors/index.md) - Proposed relative strength methodology.

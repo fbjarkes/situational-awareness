@@ -17,6 +17,7 @@ from zoneinfo import ZoneInfo
 from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
 from theme_returns import build_theme_returns, theme_universes
+from market_leaders import build_market_leaders
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
                          streak_is_lower_bound, lowest_close_period)
@@ -546,7 +547,7 @@ def main(argv: list[str] | None = None) -> int:
         theme_batch = batch or (payload.get("download_date") if payload else None)
         theme_downloads = 0
         if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
-            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json") for s in t["symbols"]})
+            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]})
             if theme_symbols:
                 fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
                                                      requested - timedelta(days=430), tuple(theme_symbols)))
@@ -557,6 +558,9 @@ def main(argv: list[str] | None = None) -> int:
                                                      data_root=args.data_root, download_date=theme_batch,
                                                      provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
         report["research_todos"] = collect_research_todos(ROOT / "knowledge")
+        report["market_leaders"] = build_market_leaders(ROOT / "knowledge", observation_cutoff(requested, today, args.close_only),
+                                                       data_root=args.data_root, download_date=report["theme_returns"]["download_date"],
+                                                       provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":

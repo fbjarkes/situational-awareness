@@ -218,6 +218,26 @@ def theme_rs_card(section):
             '<p>5D and 10D cover five and ten trading sessions; month periods match the return table. Themes use daily-rebalanced equal-weight core stocks, fixed current membership, and price returns excluding dividends. Missing histories remain N/A. All inputs use the same archived batch and common observation date; see the return table for coverage.</p></details></article>')
 
 
+def market_leaders_card(section):
+    if not section:
+        return '<p class="unavailable">Market leaders have not been calculated.</p>'
+    weights = section["weights"]
+    headers = '<th scope="col">Rank</th><th scope="col">Stock</th><th scope="col">Themes</th><th scope="col">Weighted RS</th>' + ''.join(f'<th scope="col">{escape(h)} RS</th>' for h in weights)
+    rows = []
+    for row in section["rows"]:
+        cells = ''.join(f'<td>{row["rs"][h]:+.2f}%</td>' for h in weights)
+        rows.append(f'<tr><td>{row["rank"]}</td><th scope="row">{escape(row["symbol"])}</th><td style="white-space:normal">{escape(", ".join(row["themes"]))}</td><td><strong>{row["score"]:+.2f}%</strong></td>{cells}</tr>')
+    excluded = ''.join(f'<li>{escape(row["symbol"])}: {escape(row["reason"])}</li>' for row in section["excluded"])
+    weighting = ', '.join(f'{h} {w / sum(weights.values()):.0%}' for h, w in weights.items())
+    return ('<article class="card" aria-labelledby="leaders-title"><div class="card-header"><div><h3 id="leaders-title">Top 10 market leaders</h3>'
+            f'<p class="subheading">Stocks versus SPY · {escape(weighting)}</p></div><span class="period">{escape(section.get("as_of") or "Unavailable")}</span></div>'
+            '<div style="overflow-x:auto"><table class="metric-table" style="min-width:850px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
+            f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Universe, weights and exclusions</summary>'
+            f'<p>{section["eligible"]} of {section["universe_size"]} unique theme stocks eligible. Includes core stocks and extended candidates; excludes funds. US-listed GDX holdings are included when mapped. Each stock counts once, irrespective of theme overlap.</p>'
+            '<p>Each component is the percentage change in the stock/SPY price ratio. The composite is their weighted average, not a percentile rating. All four periods require complete history; missing periods are not reweighted. Prices exclude dividends and use fixed current membership.</p>'
+            f'<p>Provider: {escape(section["provider"])} · batch {escape(str(section["download_date"]))}. Stored inputs and exclusions are recorded in report JSON.</p><ul>{excluded}</ul></details></article>')
+
+
 def render_report(report, chart, interpretation):
     def responsive_chart(section):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
@@ -241,6 +261,7 @@ def render_report(report, chart, interpretation):
               "".join(f'<li>{escape(note)}</li>' for note in dict.fromkeys(notes)) + '</ul></details>') if notes else ""
     source_symbols = set(report["series"])
     source_symbols.update(report.get("theme_returns", {}).get("used_symbols", []))
+    source_symbols.update(report.get("market_leaders", {}).get("used_symbols", []))
     spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
     if "metrics" in spy:
         source_symbols.add(spy["symbol"])
@@ -293,7 +314,8 @@ def render_report(report, chart, interpretation):
         themes = theme_rs_card(report["theme_returns"]) + theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
     groups = [("market-breadth", "Market Breadth", breadth),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
-              ("themes", "Themes", themes)]
+              ("themes", "Themes", themes),
+              ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders")))]
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
@@ -310,6 +332,11 @@ def render_report(report, chart, interpretation):
                 count = sum(any(v is not None for v in row["returns"].values()) for row in theme_rows)
                 preview = f"{count}/{len(theme_rows)} theme baskets with returns · 1W to 12M"
             badge = "Available" if gdx or theme_rows else "Planned"
+        elif key == "market-leaders":
+            description = "Top theme stocks by weighted relative strength versus SPY."
+            leaders = report.get("market_leaders", {})
+            preview = f'{leaders.get("eligible", 0)}/{leaders.get("universe_size", 0)} stocks eligible · 1W / 1M / 3M / 6M'
+            badge = "Available" if leaders.get("rows") else "Unavailable"
         else:
             description = "SPY trend and streak metrics, plus VIX implied volatility."
             if "metrics" in spy:

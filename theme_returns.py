@@ -21,14 +21,15 @@ def metadata(path):
     return yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
 
 
-def theme_universes(knowledge: Path, symbol_map: Path | None = None):
+def theme_universes(knowledge: Path, symbol_map: Path | None = None, *, include_extended=False):
     """Read core stock rows only; ETF table and optional extensions are excluded."""
     registry = metadata(knowledge / "themes/themes.md")["themes"]
     result = {t["id"]: {"id": t["id"], "title": t["title"], "symbols": []} for t in registry}
     table = (knowledge / "themes/theme-memberships.md").read_text(encoding="utf-8")
     for line in table.split("# Memberships", 1)[1].split("\n# ", 1)[0].splitlines():
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) != 10 or cells[3] != "core universe":
+        roles = {"core universe", "extended candidate"} if include_extended else {"core universe"}
+        if len(cells) != 10 or cells[3] not in roles:
             continue
         symbol, theme = cells[:2]
         if theme not in result or symbol.split(":")[0] not in US_EXCHANGES:

@@ -2,6 +2,8 @@
 
 ## 2026-10-30
 
+- Added Market Leaders: all deduplicated core and extended theme stocks versus SPY, ranked by a 25%-each weighted average of 1W/1M/3M/6M relative price-ratio returns; top ten and exclusions are descriptive, not validated signals.
+
 - Added descriptive theme relative-strength rankings versus SPY over 5/10 sessions and 1/3/6/12 months, using archived same-batch price ratios; research signals remain unvalidated.
 
 - Added the report theme-return table using deduplicated core universes and daily-rebalanced equal-weight price returns over 1W/1M/3M/6M/12M; documented strict coverage, one-batch provenance, US-only gold miners, and ticker-identity cutoffs. Corrected Centrus Energy to TradingView symbol NYSE:LEU.
