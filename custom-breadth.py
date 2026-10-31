@@ -1,6 +1,7 @@
 """Calculate custom breadth from archived per-symbol daily bars."""
 import argparse
 import asyncio
+from async_limits import tradingview_call_tool
 from datetime import date, datetime, timedelta, timezone
 import json
 import hashlib
@@ -37,7 +38,7 @@ async def download_history(symbols, endpoint, end=None, data_root=DATA_ROOT):
                     arguments = {"symbol": symbol, "interval": "1D", "count": 5000}
                     if cursor:
                         arguments["date_to"] = cursor
-                    result = await session.call_tool(names[0], arguments)
+                    result = await tradingview_call_tool(session, names[0], arguments)
                     if result.isError:
                         raise ValueError(f"Provider failed for {symbol}")
                     page = result.structuredContent or json.loads(next(c.text for c in result.content if c.type == "text"))

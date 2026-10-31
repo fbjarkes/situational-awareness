@@ -433,3 +433,39 @@ financials can contain later restatements, so historical report dates do not mak
 this point-in-time financial data. Report JSON records cache hashes, fetch times,
 requests, warnings, and YoY availability reasons. The reusable functions are
 `earnings_growth.quarterly_growth` and `earnings_growth.build_earnings_growth`.
+
+
+## Shared async request limits
+
+`async_limits.AsyncCallLimiter` can wrap async functions as a decorator or an
+async context manager. Share the **same instance** between functions to share
+both their concurrency limit and rolling-window request budget:
+
+```python
+from async_limits import AsyncCallLimiter
+
+limits = AsyncCallLimiter(max_concurrent=3, max_calls=40, period_seconds=60)
+
+@limits
+async def fetch_one(client, symbol):
+    return await client.fetch(symbol)
+
+# Alternatively:
+# async with limits:
+#     result = await client.fetch(symbol)
+```
+
+The TradingView calls in `market-report.py`, `custom-breadth.py`, and `earnings.py`
+use the shared `tradingview_call_tool` wrapper: **3 concurrent tool calls** and
+**40 call starts per rolling 60 seconds**, including each pagination request.
+The limiter waits asynchronously and uses monotonic time. Exceptions and
+cancellation release concurrency; calls already admitted still consume rate
+budget. Sequential `asyncio.run()` invocations in one process retain the budget.
+It bounds existing work but does not automatically parallelize sequential loops.
+
+Limits are process-local, not shared across separately launched scripts, other
+clients, or TradingView tool calls made directly in chat. Session setup and tool
+catalog requests are outside the tool-call budget. No automatic retry is applied;
+provider quota/errors are returned to callers. A provider can still impose a
+stricter or daily quota. The wrapper also works for other async services by
+creating a separate limiter instance with the desired settings.

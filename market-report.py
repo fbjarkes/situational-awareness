@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from async_limits import tradingview_call_tool
 from calendar import monthrange
 from datetime import date, datetime, time, timedelta, timezone
 from html import escape
@@ -67,7 +68,7 @@ async def fetch_tradingview(endpoint: str, as_of: date, start: date, symbols: tu
             if len(candidates) != 1:
                 raise ValueError("MCP endpoint must expose one TradingView get_ohlcv tool")
             for symbol in symbols:
-                result = await session.call_tool(candidates[0], {
+                result = await tradingview_call_tool(session, candidates[0], {
                     "symbol": symbol, "interval": "1D", "count": 5000,
                     "date_from": start.isoformat(), "date_to": as_of.isoformat(),
                 })

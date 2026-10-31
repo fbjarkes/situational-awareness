@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+from async_limits import tradingview_call_tool
 from calendar import monthrange
 from datetime import date, datetime, timezone
 import hashlib
@@ -121,7 +122,7 @@ async def fetch_financial_history(symbol: str, start: date, end: date, *, endpoi
             names = [tool.name for tool in catalog.tools if tool.name.endswith("get_financial_history")]
             if len(names) != 1:
                 raise ValueError("MCP endpoint must expose one get_financial_history tool")
-            result = await session.call_tool(names[0], {"symbol": symbol, "period": "fq",
+            result = await tradingview_call_tool(session, names[0], {"symbol": symbol, "period": "fq",
                                                        "date_from": start.isoformat(), "date_to": end.isoformat()})
             if result.isError:
                 raise ValueError(f"TradingView financial-history request failed for {symbol}")
