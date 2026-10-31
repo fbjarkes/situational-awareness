@@ -369,3 +369,41 @@ missing/stale observations, month-end arithmetic, and actual CLI artifacts.
 
 The provider functions, report calculation, and HTML renderer are separate
 so further market sections and providers can be introduced independently.
+
+
+## Quarterly earnings cache
+
+```powershell
+uv run earnings.py NASDAQ:MSFT --years 5
+uv run earnings.py NASDAQ:MSFT --years 5 --refresh
+```
+
+```python
+from earnings import download_earnings
+history = download_earnings("NASDAQ:MSFT", years=5)
+for quarter in history["quarters"]:
+    print(quarter["period_label"], quarter["revenue"], quarter["eps"])
+```
+
+Writes pretty-printed JSON to `data/earnings/NASDAQ%3AMSFT.json` (ignored by Git).
+Matching symbol/date-window caches are always reused, regardless of age.
+Use `--refresh` to force a download, or `--end YYYY-MM-DD` and `--data-root`
+to select the requested window and location. A new request replaces that symbol's snapshot;
+windows are not merged, and failures preserve the previous file without returning
+stale data as fresh. The Python `fetcher(symbol, start, end)` hook accepts another
+synchronous client; `save_earnings_response` archives connected-tool responses
+with their actual fetch timestamps.
+
+Standalone downloads use the TradingView MCP endpoint and
+`TRADINGVIEW_MCP_TOKEN` when authentication is required; chat connector access is
+not automatically inherited by the CLI. `TRADINGVIEW_MCP_URL` / `--mcp-url` can
+select an endpoint. Credentials are never written into cache files.
+
+Each snapshot contains provider/request/fetch metadata, readable quarter rows,
+revenue and EPS with provider YoY growth, the original response, and its canonical
+SHA-256 hash. Quarter labels and ordering are preserved exactly; duplicate labels,
+missing values, unspecified currency/scale and unspecified EPS basis are flagged.
+A five-year request may return fewer than 20 quarters; no complete coverage or
+fiscal-period interpretation is assumed. Historical values may be restated and
+are not point-in-time publication histories. Revenue/EPS values are unscaled as
+returned, not automatically converted to USD or normalized to GAAP/diluted EPS.
