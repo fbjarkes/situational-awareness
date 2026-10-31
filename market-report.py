@@ -18,6 +18,8 @@ from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
 from research_todos import collect_research_todos
 from theme_returns import build_theme_returns, theme_universes
 from market_leaders import build_market_leaders
+from earnings_growth import build_earnings_growth
+from earnings import download_earnings, cache_path as earnings_cache_path
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
                          streak_is_lower_bound, lowest_close_period)
@@ -561,6 +563,15 @@ def main(argv: list[str] | None = None) -> int:
         report["market_leaders"] = build_market_leaders(ROOT / "knowledge", observation_cutoff(requested, today, args.close_only),
                                                        data_root=args.data_root, download_date=report["theme_returns"]["download_date"],
                                                        provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
+        leader_symbols = [row["symbol"] for row in report["market_leaders"]["rows"]]
+        if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
+            for symbol in leader_symbols:
+                if not earnings_cache_path(symbol).exists():
+                    try:
+                        download_earnings(symbol, endpoint=args.mcp_url)
+                    except Exception:
+                        report["notes"].append(f"{symbol}: earnings download failed; quarterly growth is unavailable.")
+        report["earnings_growth"] = build_earnings_growth(leader_symbols)
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":

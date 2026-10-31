@@ -242,6 +242,37 @@ def market_leaders_card(section):
             f'<p>Provider: {escape(section["provider"])} · batch {escape(str(section["download_date"]))}. Stored inputs and exclusions are recorded in report JSON.</p><ul>{excluded}</ul></details></article>')
 
 
+def earnings_growth_card(section):
+    if not section:
+        return '<p class="unavailable">Quarterly earnings have not been loaded.</p>'
+    count = section["columns"]
+    headers = '<th scope="col" style="position:sticky;left:0;background:var(--panel);min-width:150px">Company</th>' + ''.join(
+        f'<th scope="col" style="min-width:140px;white-space:nowrap">{"Latest record" if i == 0 else "Prior record " + str(i)}</th>' for i in range(count))
+    rows, notes = [], []
+    def growth(value):
+        if value is None:
+            return 'N/A'
+        color = '#67ddc4' if value > 0 else '#ffaaaa' if value < 0 else 'inherit'
+        return f'<span style="color:{color}">{value:+.1f}%</span>'
+    for row in section["rows"]:
+        cells = []
+        for quarter in row["quarters"]:
+            reason = quarter.get("reason") or '; '.join(quarter.get("metric_notes", {}).values())
+            cells.append(f'<td style="min-width:140px;white-space:nowrap" title="{escape(reason, quote=True)}"><strong>{escape(quarter["period_label"])}</strong><br>Rev {growth(quarter["revenue_qoq_pct"])}<br>EPS {growth(quarter["eps_qoq_pct"])}</td>')
+        cells.extend('<td>N/A</td>' for _ in range(count - len(cells)))
+        rows.append(f'<tr><th scope="row" style="position:sticky;left:0;background:var(--panel)">{escape(row["symbol"])}</th>{"".join(cells)}</tr>')
+        warnings = [row["unavailable"]] if row.get("unavailable") else row.get("warnings", [])
+        if warnings:
+            notes.append(f'<li><strong>{escape(row["symbol"])}</strong>: {escape("; ".join(warnings))}</li>')
+    return ('<article class="card" aria-labelledby="earnings-title"><div class="card-header"><div><h3 id="earnings-title">Quarterly revenue and EPS growth</h3>'
+            '<p class="subheading">Current Market Leaders · Q/Q % · latest records first · scroll for history</p></div>'
+            f'<span class="period">{section["available"]}/{len(section["rows"])} companies cached</span></div>'
+            '<div role="region" aria-label="Scrollable quarterly growth table" tabindex="0" style="overflow-x:auto"><table class="metric-table" style="min-width:900px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
+            f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Growth calculation and data quality</summary>'
+            '<p>Q/Q = 100 × (current / previous − 1), only for consecutive, unique provider quarter labels and a positive prior value. Missing inputs, ambiguous labels, gaps and zero/negative bases produce N/A. Hover over a cell for its unavailable-data reason. Each company occupies one row; record columns indicate recency within that company, not shared fiscal periods.</p>'
+            '<p>Fiscal labels, EPS basis and provider revisions are not independently verified. Current cached financials are reused without expiry and may include later restatements; this is not a point-in-time earnings history for a historical report date. Currency, EPS basis and source warnings remain in cache/report JSON. Q/Q changes are not seasonally adjusted.</p><ul>' + ''.join(notes) + '</ul></details></article>')
+
+
 def render_report(report, chart, interpretation):
     def responsive_chart(section):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
@@ -319,7 +350,8 @@ def render_report(report, chart, interpretation):
     groups = [("market-breadth", "Market Breadth", breadth),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes),
-              ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders")))]
+              ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders"))),
+              ("earnings", "Quarterly Earnings", earnings_growth_card(report.get("earnings_growth")))]
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
@@ -336,6 +368,11 @@ def render_report(report, chart, interpretation):
                 count = sum(any(v is not None for v in row["returns"].values()) for row in theme_rows)
                 preview = f"{count}/{len(theme_rows)} theme baskets with returns · 1W to 12M"
             badge = "Available" if gdx or theme_rows else "Planned"
+        elif key == "earnings":
+            description = "Quarter-by-quarter revenue and EPS growth for the current Market Leaders."
+            earnings = report.get("earnings_growth", {})
+            preview = f'{earnings.get("available", 0)} companies cached · revenue / EPS Q/Q'
+            badge = "Available" if earnings.get("available") else "Unavailable"
         elif key == "market-leaders":
             description = "Top theme stocks by relative strength versus SPY and proximity to 52-week highs."
             leaders = report.get("market_leaders", {})

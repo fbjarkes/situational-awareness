@@ -407,3 +407,26 @@ A five-year request may return fewer than 20 quarters; no complete coverage or
 fiscal-period interpretation is assumed. Historical values may be restated and
 are not point-in-time publication histories. Revenue/EPS values are unscaled as
 returned, not automatically converted to USD or normalized to GAAP/diluted EPS.
+
+
+## Quarterly growth report section
+
+Quarterly Earnings shows one row per current top-ten Market Leader, with revenue
+and EPS Q/Q growth in each provider-quarter cell. All cached records are shown,
+latest first, in a horizontally scrollable table with a pinned symbol column.
+Column positions indicate provider-record recency, not matching fiscal quarters
+across companies; every cell includes its own quarter label.
+
+Growth is `100 * (current / previous - 1)` and requires unique, consecutive
+`Q1 YYYY` through `Q4 YYYY` labels and a strictly positive prior value. Missing
+values, label gaps/duplicates, and zero/negative EPS or revenue bases show N/A.
+This avoids interpreting a loss-to-profit EPS transition as a conventional growth
+percentage. Quarter comparisons are not seasonally adjusted.
+
+Snapshot reports only read `data/earnings/`; live TradingView report runs fetch
+missing leader caches and retain existing ones without expiry. No other report
+provider is substituted. Earnings and bar downloads are separate, and cached
+financials can contain later restatements, so historical report dates do not make
+this point-in-time financial data. Report JSON records cache hashes, fetch times,
+requests, warnings, and Q/Q availability reasons. The reusable functions are
+`earnings_growth.quarterly_growth` and `earnings_growth.build_earnings_growth`.
