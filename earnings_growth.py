@@ -39,6 +39,7 @@ def quarterly_growth(quarters):
         values = {metric: growth_pct(row.get(metric), previous.get(metric)) if not reason else None
                   for metric in ("revenue", "eps")}
         result.append({"period_label": label, "provider_index": row.get("provider_index", i),
+                       "revenue": row.get("revenue"), "eps": row.get("eps"),
                        "revenue_qoq_pct": values["revenue"], "eps_qoq_pct": values["eps"],
                        "reason": reason,
                        "metric_notes": {metric: "Missing value or nonpositive prior value" for metric, value in values.items()

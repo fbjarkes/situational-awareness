@@ -412,7 +412,9 @@ returned, not automatically converted to USD or normalized to GAAP/diluted EPS.
 ## Quarterly growth report section
 
 Quarterly Earnings shows one row per current top-ten Market Leader, with revenue
-and EPS Q/Q growth in each provider-quarter cell. All cached records are shown,
+and EPS Q/Q growth in each provider-quarter cell. Actual amounts appear in
+parentheses: revenue uses compact K/M/B/T formatting and EPS uses two decimals
+per share; unspecified reporting currencies are not assumed to be USD. All cached records are shown,
 latest first, in a horizontally scrollable table with a pinned symbol column.
 Column positions indicate provider-record recency, not matching fiscal quarters
 across companies; every cell includes its own quarter label.

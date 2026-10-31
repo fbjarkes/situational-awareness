@@ -254,11 +254,20 @@ def earnings_growth_card(section):
             return 'N/A'
         color = '#67ddc4' if value > 0 else '#ffaaaa' if value < 0 else 'inherit'
         return f'<span style="color:{color}">{value:+.1f}%</span>'
+    def amount(value, compact=False):
+        if value is None:
+            return 'N/A'
+        if compact:
+            for scale, suffix in ((1e12, 'T'), (1e9, 'B'), (1e6, 'M'), (1e3, 'K')):
+                if abs(value) >= scale:
+                    return f'{value / scale:,.1f}{suffix}'
+            return f'{value:,.1f}'
+        return f'{value:,.2f}'
     for row in section["rows"]:
         cells = []
         for quarter in row["quarters"]:
             reason = quarter.get("reason") or '; '.join(quarter.get("metric_notes", {}).values())
-            cells.append(f'<td style="min-width:140px;white-space:nowrap" title="{escape(reason, quote=True)}"><strong>{escape(quarter["period_label"])}</strong><br>Rev {growth(quarter["revenue_qoq_pct"])}<br>EPS {growth(quarter["eps_qoq_pct"])}</td>')
+            cells.append(f'<td style="min-width:180px;white-space:nowrap" title="{escape(reason, quote=True)}"><strong>{escape(quarter["period_label"])}</strong><br>Rev {growth(quarter["revenue_qoq_pct"])} ({amount(quarter.get("revenue"), compact=True)})<br>EPS {growth(quarter["eps_qoq_pct"])} ({amount(quarter.get("eps"))})</td>')
         cells.extend('<td>N/A</td>' for _ in range(count - len(cells)))
         rows.append(f'<tr><th scope="row" style="position:sticky;left:0;background:var(--panel)">{escape(row["symbol"])}</th>{"".join(cells)}</tr>')
         warnings = [row["unavailable"]] if row.get("unavailable") else row.get("warnings", [])
@@ -270,7 +279,7 @@ def earnings_growth_card(section):
             '<div role="region" aria-label="Scrollable quarterly growth table" tabindex="0" style="overflow-x:auto"><table class="metric-table" style="min-width:900px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
             f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Growth calculation and data quality</summary>'
             '<p>Q/Q = 100 × (current / previous − 1), only for consecutive, unique provider quarter labels and a positive prior value. Missing inputs, ambiguous labels, gaps and zero/negative bases produce N/A. Hover over a cell for its unavailable-data reason. Each company occupies one row; record columns indicate recency within that company, not shared fiscal periods.</p>'
-            '<p>Fiscal labels, EPS basis and provider revisions are not independently verified. Current cached financials are reused without expiry and may include later restatements; this is not a point-in-time earnings history for a historical report date. Currency, EPS basis and source warnings remain in cache/report JSON. Q/Q changes are not seasonally adjusted.</p><ul>' + ''.join(notes) + '</ul></details></article>')
+            '<p>Parentheses show actual provider values: revenue uses K/M/B/T, EPS uses two decimals per share. Currency is not assumed when unspecified by the provider. Fiscal labels, EPS basis and provider revisions are not independently verified. Current cached financials are reused without expiry and may include later restatements; this is not a point-in-time earnings history for a historical report date. Currency, EPS basis and source warnings remain in cache/report JSON. Q/Q changes are not seasonally adjusted.</p><ul>' + ''.join(notes) + '</ul></details></article>')
 
 
 def render_report(report, chart, interpretation):

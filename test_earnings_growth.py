@@ -22,13 +22,15 @@ class EarningsGrowthTests(unittest.TestCase):
 
     def test_one_row_per_company_with_escaped_labels(self):
         row = {'symbol': '<SYMBOL>', 'quarters': quarterly_growth([
-            {'period_label': 'Q1 2025', 'revenue': 100, 'eps': 1},
-            {'period_label': 'Q2 2025', 'revenue': 120, 'eps': 2}]), 'warnings': []}
+            {'period_label': 'Q1 2025', 'revenue': 200000000, 'eps': 1},
+            {'period_label': 'Q2 2025', 'revenue': 240000000, 'eps': 2}]), 'warnings': []}
         html = earnings_growth_card({'rows': [row], 'columns': 2, 'available': 1, 'interpretation': 'Example'})
         self.assertEqual(html.count('<tr>'), 2)
         self.assertIn('&lt;SYMBOL&gt;', html)
         self.assertIn('+20.0%', html)
         self.assertIn('+100.0%', html)
+        self.assertIn('(240.0M)', html)
+        self.assertIn('(2.00)', html)
 
 
 if __name__ == '__main__':
