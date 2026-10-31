@@ -412,15 +412,16 @@ returned, not automatically converted to USD or normalized to GAAP/diluted EPS.
 ## Quarterly growth report section
 
 Quarterly Earnings shows one row per current top-ten Market Leader, with revenue
-and EPS Q/Q growth in each provider-quarter cell. Actual amounts appear in
+and EPS YoY growth in each provider-quarter cell. Actual amounts appear in
 parentheses: revenue uses compact K/M/B/T formatting and EPS uses two decimals
 per share; unspecified reporting currencies are not assumed to be USD. All cached records are shown,
 latest first, in a horizontally scrollable table with a pinned symbol column.
 Column positions indicate provider-record recency, not matching fiscal quarters
 across companies; every cell includes its own quarter label.
 
-Growth is `100 * (current / previous - 1)` and requires unique, consecutive
-`Q1 YYYY` through `Q4 YYYY` labels and a strictly positive prior value. Missing
+Growth is `100 * (current quarter / same quarter last year - 1)`, for example
+Q2 2026 versus Q2 2025. Both labels must be unique and the prior-year value
+strictly positive. Intervening quarters are not required. Missing
 values, label gaps/duplicates, and zero/negative EPS or revenue bases show N/A.
 This avoids interpreting a loss-to-profit EPS transition as a conventional growth
 percentage. Quarter comparisons are not seasonally adjusted.
@@ -430,5 +431,5 @@ missing leader caches and retain existing ones without expiry. No other report
 provider is substituted. Earnings and bar downloads are separate, and cached
 financials can contain later restatements, so historical report dates do not make
 this point-in-time financial data. Report JSON records cache hashes, fetch times,
-requests, warnings, and Q/Q availability reasons. The reusable functions are
+requests, warnings, and YoY availability reasons. The reusable functions are
 `earnings_growth.quarterly_growth` and `earnings_growth.build_earnings_growth`.
