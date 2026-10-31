@@ -469,3 +469,25 @@ catalog requests are outside the tool-call budget. No automatic retry is applied
 provider quota/errors are returned to callers. A provider can still impose a
 stricter or daily quota. The wrapper also works for other async services by
 creating a separate limiter instance with the desired settings.
+
+
+## S&P 500 revenue-growth screen
+
+S&P 500 Earnings uses the 503 numbered security rows in
+`knowledge/index/spy-holdings.md`, not a substituted current index universe.
+`data/earnings/spy-symbol-map.json` records exact TradingView ticker resolutions.
+Cash/non-standard rows are excluded; multiple listed share classes remain separate.
+Existing financial caches are reused without expiry; this screen reads stored
+financials only and does not initiate hundreds of downloads on a report run.
+
+A security qualifies only when its **latest two** reported quarters are consecutive
+and each has revenue growth **strictly above 25% YoY**. Same-quarter prior-year
+labels must be unique, available, and have positive revenue bases. Missing or
+ambiguous comparisons are unassessable, not failures; earlier passing streaks are
+not substituted for the latest pair. EPS growth is shown but does not filter the
+universe. Matches are ordered by the weaker of the two qualifying growth rates,
+descending. The table reuses the Quarterly Earnings presentation, actual amounts,
+cache provenance, and EPS missing-base rules. Report JSON includes coverage,
+unassessable securities, and hashes for holdings, symbol map, and financial caches.
+This descriptive screen has selection/restatement bias and is not a validated
+trading signal or point-in-time financial history.

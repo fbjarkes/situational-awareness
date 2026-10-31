@@ -1,5 +1,9 @@
 # Knowledge update log
 
+## 2026-10-31
+
+- Added a descriptive SPY-holdings earnings screen requiring revenue YoY above 25% in the latest two consecutive quarters, with explicit unassessable coverage and cached-data limitations.
+
 ## 2026-10-30
 
 - Extended Market Leaders with a 20% penalty for distance below the trailing 252-session closing high; the four return-RS components now receive 20% each, with full-window coverage required and the composite shown in points.

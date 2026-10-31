@@ -242,7 +242,7 @@ def market_leaders_card(section):
             f'<p>Provider: {escape(section["provider"])} · batch {escape(str(section["download_date"]))}. Stored inputs and exclusions are recorded in report JSON.</p><ul>{excluded}</ul></details></article>')
 
 
-def earnings_growth_card(section):
+def earnings_growth_card(section, *, spy_screen=False):
     if not section:
         return '<p class="unavailable">Quarterly earnings have not been loaded.</p>'
     count = section["columns"]
@@ -273,11 +273,15 @@ def earnings_growth_card(section):
         warnings = [row["unavailable"]] if row.get("unavailable") else row.get("warnings", [])
         if warnings:
             notes.append(f'<li><strong>{escape(row["symbol"])}</strong>: {escape("; ".join(warnings))}</li>')
-    return ('<article class="card" aria-labelledby="earnings-title"><div class="card-header"><div><h3 id="earnings-title">Quarterly revenue and EPS growth</h3>'
-            '<p class="subheading">Current Market Leaders · YoY % · latest records first · scroll for history</p></div>'
-            f'<span class="period">{section["available"]}/{len(section["rows"])} companies cached</span></div>'
+    title = 'SPY revenue growth leaders' if spy_screen else 'Quarterly revenue and EPS growth'
+    heading_id = 'spy-earnings-title' if spy_screen else 'earnings-title'
+    subtitle = 'Latest two consecutive quarters · revenue YoY >25% each' if spy_screen else 'Current Market Leaders · YoY % · latest records first · scroll for history'
+    coverage = f'{len(section["rows"])} matches · {section["available"]}/{section["universe_size"]} cached' if spy_screen else f'{section["available"]}/{len(section["rows"])} companies cached'
+    screen_notes = (f'<p>Holdings snapshot: {escape(section.get("holdings_as_of", "unknown"))}. {section["assessable"]}/{section["universe_size"]} securities assessable. The latest two quarter labels must be consecutive and uniquely matched to their prior-year quarters; both revenue growth values must be strictly above {section["threshold_pct"]:g}%. EPS does not determine eligibility. Share classes are retained as separate holdings; cash and non-standard rows are excluded. Unavailable comparisons are excluded, not counted as failing; their reasons are in report JSON.</p>' if spy_screen else '')
+    return (f'<article class="card" aria-labelledby="{heading_id}"><div class="card-header"><div><h3 id="{heading_id}">{title}</h3>'
+            f'<p class="subheading">{subtitle}</p></div><span class="period">{coverage}</span></div>'
             '<div role="region" aria-label="Scrollable quarterly growth table" tabindex="0" style="overflow-x:auto"><table class="metric-table" style="min-width:900px"><thead><tr>' + headers + '</tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>'
-            f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Growth calculation and data quality</summary>'
+            f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Growth calculation and data quality</summary>{screen_notes}'
             '<p>YoY = 100 × (current quarter / same quarter last year − 1), e.g. Q2 2026 versus Q2 2025. Both quarter labels must be unique and the prior-year value positive. Missing inputs, ambiguous labels, gaps and zero/negative bases produce N/A. Hover over a cell for its unavailable-data reason. Each company occupies one row; record columns indicate recency within that company, not shared fiscal periods.</p>'
             '<p>Parentheses show actual provider values: revenue uses K/M/B/T, EPS uses two decimals per share. Currency is not assumed when unspecified by the provider. Fiscal labels, EPS basis and provider revisions are not independently verified. Current cached financials are reused without expiry and may include later restatements; this is not a point-in-time earnings history for a historical report date. Currency, EPS basis and source warnings remain in cache/report JSON. YoY changes are not seasonally adjusted.</p><ul>' + ''.join(notes) + '</ul></details></article>')
 
@@ -360,7 +364,8 @@ def render_report(report, chart, interpretation):
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes),
               ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders"))),
-              ("earnings", "Quarterly Earnings", earnings_growth_card(report.get("earnings_growth")))]
+              ("earnings", "Quarterly Earnings", earnings_growth_card(report.get("earnings_growth"))),
+              ("spy-earnings", "S&P 500 Earnings", earnings_growth_card(report.get("spy_revenue_growth"), spy_screen=True))]
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
@@ -377,6 +382,11 @@ def render_report(report, chart, interpretation):
                 count = sum(any(v is not None for v in row["returns"].values()) for row in theme_rows)
                 preview = f"{count}/{len(theme_rows)} theme baskets with returns · 1W to 12M"
             badge = "Available" if gdx or theme_rows else "Planned"
+        elif key == "spy-earnings":
+            description = "SPY holdings with revenue growth above 25% YoY in each of the latest two consecutive quarters."
+            screen = report.get("spy_revenue_growth", {})
+            preview = f'{len(screen.get("rows", []))} matches · {screen.get("assessable", 0)}/{screen.get("universe_size", 0)} assessable'
+            badge = "Available" if screen.get("available") else "Unavailable"
         elif key == "earnings":
             description = "Quarter-by-quarter revenue and EPS growth for the current Market Leaders."
             earnings = report.get("earnings_growth", {})

@@ -20,6 +20,7 @@ from research_todos import collect_research_todos
 from theme_returns import build_theme_returns, theme_universes
 from market_leaders import build_market_leaders
 from earnings_growth import build_earnings_growth
+from spy_earnings import build_spy_revenue_screen
 from earnings import download_earnings, cache_path as earnings_cache_path
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
@@ -573,6 +574,8 @@ def main(argv: list[str] | None = None) -> int:
                     except Exception:
                         report["notes"].append(f"{symbol}: earnings download failed; quarterly growth is unavailable.")
         report["earnings_growth"] = build_earnings_growth(leader_symbols)
+        report["spy_revenue_growth"] = build_spy_revenue_screen(ROOT / "knowledge/index/spy-holdings.md",
+                                                               ROOT / "data/earnings/spy-symbol-map.json")
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":
