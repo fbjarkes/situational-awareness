@@ -6,13 +6,13 @@ tags: [breadth, relative-strength, SPY, XLP]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T21:57:02Z"
+  at: "2026-11-04T22:20:22Z"
 sources:
   - id: xlp-issuer
     resource: https://www.ssga.com/us/en/intermediary/etfs/state-street-consumer-staples-select-sector-spdr-etf-xlp
     title: Official XLP fund overview
 market_report:
-  section: market-breadth
+  section: ratios
   implementation_status: metrics_available
   evidence_status: descriptive
   enabled: false

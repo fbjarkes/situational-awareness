@@ -354,7 +354,8 @@ def render_report(report, chart, interpretation):
                '<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
                '<p class="subheading">MMOH · 100-day average &nbsp; / &nbsp; MMOF · 150-day average</p></div><span class="period">Unavailable</span></div>'
                f'<div class="unavailable" role="note"><strong>No breadth data for this provider</strong>{escape(report.get("breadth_unavailable", "No observations are available."))}</div></article>')
-    breadth += "".join(ratio_card(study) for study in report.get("price_ratios", [report.get("rspd_rsps")]))
+    ratio_studies = [study for study in report.get("price_ratios", [report.get("rspd_rsps")]) if study]
+    ratios = "".join(ratio_card(study) for study in ratio_studies) or '<p class="unavailable">No ratio studies are available.</p>'
     themes = '<p class="planned"><span>Planned</span>Theme coverage will appear here as observations are added.</p>'
     if gdx:
         value = next(iter(gdx["series"].values()))
@@ -367,6 +368,7 @@ def render_report(report, chart, interpretation):
     if report.get("theme_returns"):
         themes = theme_rs_card(report["theme_returns"]) + theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
     groups = [("market-breadth", "Market Breadth", breadth),
+              ("ratios", "Ratios", ratios),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
               ("themes", "Themes", themes),
               ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders"))),
@@ -376,11 +378,16 @@ def render_report(report, chart, interpretation):
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
-            description = "Market participation with MMOH/MMOF and sector/size relative-strength ratios."
+            description = "Market participation with MMOH/MMOF moving-average breadth."
             preview = " · ".join(f'{symbol.split(":")[-1]} {value["latest"]["close"]:.2f}%' for symbol, value in report["series"].items()) or "Unavailable from the selected provider"
             badge = "Available" if report["series"] else "Unavailable"
             if substituted:
                 badge = "TradingView data"
+        elif key == "ratios":
+            description = "Compare relative price leadership across sectors and market sizes."
+            available = sum(not study.get("unavailable") for study in ratio_studies)
+            preview = " · ".join(study["ratio_label"] for study in ratio_studies) or "No ratio studies configured"
+            badge = "Available" if available else "Unavailable"
         elif key == "themes":
             description = "Compare theme returns and explore gold-miner participation."
             preview = f'GDX breadth {next(iter(gdx["series"].values()))["latest"]["close"]:.2f}% · {gdx["coverage"]["eligible"]}/{gdx["coverage"]["universe_size"]} coverage' if gdx else "Theme coverage coming next"

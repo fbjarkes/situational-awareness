@@ -552,7 +552,7 @@ prices; continuous futures can have roll effects. See `knowledge/index/cot.md`.
 
 ## Price-ratio studies
 
-Market Breadth displays RSPD/RSPS (equal-weight discretionary/staples), SPY/XLP
+The dedicated Ratios section displays RSPD/RSPS (equal-weight discretionary/staples), SPY/XLP
 (S&P 500/staples), and SPY/IWM (S&P 500/small caps). Each uses the same chart,
 latest paired reading, one-calendar-month ratio change, and concise interpretation.
 Rising means the numerator outperforms the denominator; both may rise or fall.

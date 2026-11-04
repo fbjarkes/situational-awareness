@@ -1,12 +1,12 @@
 ---
 type: Metric
 title: Consumer discretionary versus staples price ratio
-description: RSPD divided by RSPS as a descriptive equal-weight sector-leadership study in Market Breadth.
+description: RSPD divided by RSPS as a descriptive equal-weight sector-leadership study in Ratios.
 tags: [breadth, relative-strength, RSPD, RSPS, sectors]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T21:47:38Z"
+  at: "2026-11-04T22:20:22Z"
 sources:
   - id: rspd-issuer
     resource: https://www.invesco.com/us-rest/contentdetail?contentId=1e0c7c23dbd92610VgnVCM1000006e36b50aRCRD&dnsName=us
@@ -15,7 +15,7 @@ sources:
     resource: https://www.invesco.com/content/dam/invesco/us/en/product-documents/etf/fact-sheet/rsps-invesco-s-p-500-equal-weight-consumer-staples-etf-us.pdf
     title: Invesco RSPS fund factsheet
 market_report:
-  section: market-breadth
+  section: ratios
   implementation_status: metrics_available
   evidence_status: descriptive
   enabled: false
@@ -35,8 +35,8 @@ A rising ratio means discretionary has outperformed staples on a price basis;
 a falling ratio means the opposite. Both funds can rise or fall together.
 This describes relative cyclical-versus-defensive leadership, not a count of
 participating stocks, and the raw ratio's level 1 is not a signal threshold.
-The chart is placed alongside MMOH/MMOF for context without asserting that it
-measures the same thing. No predictive or contrarian trading rule is validated.
+The chart is displayed in the separate Ratios section; MMOH/MMOF remain in
+Market Breadth because they measure stock participation. No predictive or contrarian trading rule is validated.
 
 # Report and provenance
 

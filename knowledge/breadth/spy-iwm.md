@@ -6,13 +6,13 @@ tags: [breadth, relative-strength, SPY, IWM]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T21:57:02Z"
+  at: "2026-11-04T22:20:22Z"
 sources:
   - id: iwm-issuer
     resource: https://www.ishares.com/us/products/239710/ishares-russell-2000-etf
     title: Official IWM fund overview
 market_report:
-  section: market-breadth
+  section: ratios
   implementation_status: metrics_available
   evidence_status: descriptive
   enabled: false
