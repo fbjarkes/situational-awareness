@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from situational_awareness.bar_store import save_bars
-from situational_awareness.price_ratio import build_rspd_rsps, ratio_points, ratio_card
+from situational_awareness.price_ratio import build_rspd_rsps, build_price_ratio, build_breadth_ratios, RATIO_SYMBOLS, ratio_points, ratio_card
 
 
 class PriceRatioTests(unittest.TestCase):
@@ -31,6 +31,26 @@ class PriceRatioTests(unittest.TestCase):
             self.assertIn('RSPD / RSPS', html)
             self.assertIn('outperformed', html)
             self.assertNotIn('99.000', html)
+
+    def test_generic_pairs_share_layout_and_have_unique_chart_ids(self):
+        with tempfile.TemporaryDirectory(dir='reports') as folder:
+            root = Path(folder)
+            prices = dict(zip(RATIO_SYMBOLS, (10, 20, 40, 80, 160)))
+            save_bars({'provider': 'tradingview', 'fetched_at': '2026-11-04T21:00:00Z',
+                       'series': {symbol: [{'t': int(datetime(2026, 11, 3, 14, tzinfo=timezone.utc).timestamp()), 'c': value}]
+                                  for symbol, value in prices.items()}}, root)
+            studies = build_breadth_ratios(date(2026, 11, 4), data_root=root)
+            self.assertEqual(len(studies), 3)
+            self.assertEqual(len({s['chart_id'] for s in studies}), 3)
+            for study in studies:
+                self.assertEqual(study['latest'], prices[study['numerator']] / prices[study['denominator']])
+                html = ratio_card(study)
+                self.assertIn('viewBox="0 0 1000 315"', html)
+                self.assertIn('Ratio calculation and sources', html)
+            inverse = build_price_ratio('AMEX:IWM', 'AMEX:SPY', date(2026, 11, 4), data_root=root,
+                                        title='<Custom pair>')
+            self.assertEqual(inverse['latest'], 1 / studies[2]['latest'])
+            self.assertIn('&lt;Custom pair&gt;', ratio_card(inverse))
 
     def test_missing_pair_is_unavailable(self):
         with tempfile.TemporaryDirectory(dir='reports') as folder:

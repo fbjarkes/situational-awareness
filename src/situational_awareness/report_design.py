@@ -313,7 +313,8 @@ def render_report(report, chart, interpretation):
     source_symbols.update(report.get("theme_returns", {}).get("used_symbols", []))
     source_symbols.update(report.get("market_leaders", {}).get("used_symbols", []))
     source_symbols.update(report.get("cot", {}).get("used_symbols", []))
-    source_symbols.update(report.get("rspd_rsps", {}).get("used_symbols", []))
+    for study in report.get("price_ratios", [report.get("rspd_rsps", {})]):
+        source_symbols.update(study.get("used_symbols", []))
     spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
     if "metrics" in spy:
         source_symbols.add(spy["symbol"])
@@ -353,7 +354,7 @@ def render_report(report, chart, interpretation):
                '<article class="card" aria-labelledby="breadth-title"><div class="card-header"><div><h3 id="breadth-title">Stocks above their moving averages</h3>'
                '<p class="subheading">MMOH · 100-day average &nbsp; / &nbsp; MMOF · 150-day average</p></div><span class="period">Unavailable</span></div>'
                f'<div class="unavailable" role="note"><strong>No breadth data for this provider</strong>{escape(report.get("breadth_unavailable", "No observations are available."))}</div></article>')
-    breadth += ratio_card(report.get("rspd_rsps"))
+    breadth += "".join(ratio_card(study) for study in report.get("price_ratios", [report.get("rspd_rsps")]))
     themes = '<p class="planned"><span>Planned</span>Theme coverage will appear here as observations are added.</p>'
     if gdx:
         value = next(iter(gdx["series"].values()))
@@ -375,7 +376,7 @@ def render_report(report, chart, interpretation):
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
-            description = "Market participation with MMOH/MMOF and discretionary-versus-staples leadership."
+            description = "Market participation with MMOH/MMOF and sector/size relative-strength ratios."
             preview = " · ".join(f'{symbol.split(":")[-1]} {value["latest"]["close"]:.2f}%' for symbol, value in report["series"].items()) or "Unavailable from the selected provider"
             badge = "Available" if report["series"] else "Unavailable"
             if substituted:

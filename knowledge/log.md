@@ -2,6 +2,8 @@
 
 ## 2026-11-04
 
+- Added SPY/XLP and SPY/IWM descriptive ratio studies; all three Market Breadth ratios now share one configurable calculation and chart renderer, with paired-batch provenance.
+
 - Added the RSPD/RSPS same-session price-ratio study to Market Breadth, with paired-input provenance, chart gaps, and descriptive sector-leadership interpretation.
 
 - Updated COT and breadth utility references for packaged uv console commands after moving implementation into src/situational_awareness and tests into tests/.

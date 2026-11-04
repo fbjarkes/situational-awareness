@@ -550,19 +550,23 @@ at observation dates. Consolidated positions cover more contracts than E-mini
 prices; continuous futures can have roll effects. See `knowledge/index/cot.md`.
 
 
-## Discretionary / staples ratio
+## Price-ratio studies
 
-Market Breadth includes a daily `RSPD / RSPS` price-ratio chart: equal-weight
-consumer discretionary divided by equal-weight consumer staples. Rising means
-discretionary outperforms staples; it is descriptive sector leadership rather
-than a stock-count breadth measure or validated trading rule. The raw ratio is
-not rebased and excludes dividends. Latest value and one-calendar-month change
-use paired observations; missing/nonpositive inputs leave gaps without filling.
+Market Breadth displays RSPD/RSPS (equal-weight discretionary/staples), SPY/XLP
+(S&P 500/staples), and SPY/IWM (S&P 500/small caps). Each uses the same chart,
+latest paired reading, one-calendar-month ratio change, and concise interpretation.
+Rising means the numerator outperforms the denominator; both may rise or fall.
+These unrebased price ratios exclude dividends and are descriptive, not validated
+trading signals or stock-count breadth measures.
 
-Both histories are read from one complete provider/download batch. Fresh
-TradingView report runs download AMEX:RSPD and AMEX:RSPS as daily report symbols;
-stored runs use the latest complete pair. Prices are archived through the ordinary
-bar store and input hashes retained in report JSON. The chart respects report
-cutoffs and lookback, labels provisional values, and is unavailable for missing
-pairs. Alpaca reads require stored Alpaca histories for both funds.
-See `knowledge/breadth/rspd-rsps.md` for definitions and issuer sources.
+`build_price_ratio(numerator, denominator, as_of, months=6, provider="tradingview",
+download_date=None, ...)` accepts any exchange-qualified pair. `ratio_card` renders
+all pairs identically. Add report studies to `RATIO_STUDIES`; download symbols are
+derived from that configuration, with SPY reused across studies.
+
+Each pair uses one complete provider/download batch. Invalid or missing paired
+closes leave gaps; report cutoffs and lookback apply. Fresh TradingView runs fetch
+the configured symbols; stored runs read the latest complete pair, or an explicit
+`download_date` supplied to the helper. Alpaca requires archived Alpaca histories.
+Raw bars remain in the bar store and report JSON retains input hashes and dates.
+See the concepts under `knowledge/breadth/` for definitions and issuer sources.
