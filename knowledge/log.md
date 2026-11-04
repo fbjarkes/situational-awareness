@@ -2,6 +2,8 @@
 
 ## 2026-11-04
 
+- Added the RSPD/RSPS same-session price-ratio study to Market Breadth, with paired-input provenance, chart gaps, and descriptive sector-leadership interpretation.
+
 - Updated COT and breadth utility references for packaged uv console commands after moving implementation into src/situational_awareness and tests into tests/.
 
 - Added a COT TODO to download older S&P 500/Nasdaq-100 history and build historical charts, with coverage and methodology checks.

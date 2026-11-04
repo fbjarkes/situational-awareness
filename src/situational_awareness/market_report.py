@@ -23,6 +23,7 @@ from situational_awareness.market_leaders import build_market_leaders
 from situational_awareness.earnings_growth import build_earnings_growth
 from situational_awareness.spy_earnings import build_spy_revenue_screen
 from situational_awareness.cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
+from situational_awareness.price_ratio import build_rspd_rsps, RSPD_RSPS
 from situational_awareness.earnings import download_earnings, cache_path as earnings_cache_path
 from situational_awareness.providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from situational_awareness.price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
@@ -553,7 +554,7 @@ def main(argv: list[str] | None = None) -> int:
         theme_batch = batch or (payload.get("download_date") if payload else None)
         theme_downloads = 0
         if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
-            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]} | {m[1] for m in COT_MARKETS.values()})
+            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]} | {m[1] for m in COT_MARKETS.values()} | set(RSPD_RSPS))
             if theme_symbols:
                 fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
                                                      requested - timedelta(days=430), tuple(theme_symbols)))
@@ -584,6 +585,8 @@ def main(argv: list[str] | None = None) -> int:
             except Exception:
                 report["notes"].append("CFTC history refresh failed; COT uses the latest stored history when available.")
         report["cot"] = build_cot_section(observation_cutoff(requested, today, args.close_only), bar_root=args.data_root)
+        report["rspd_rsps"] = build_rspd_rsps(observation_cutoff(requested, today, args.close_only), months=args.lookback,
+                                              data_root=args.data_root, provider=theme_provider)
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":

@@ -548,3 +548,21 @@ note. The CFTC source is independent of TradingView; use `cot --refresh` to
 force a same-day CFTC update. Positioning has a weekly reporting lag and is plotted
 at observation dates. Consolidated positions cover more contracts than E-mini
 prices; continuous futures can have roll effects. See `knowledge/index/cot.md`.
+
+
+## Discretionary / staples ratio
+
+Market Breadth includes a daily `RSPD / RSPS` price-ratio chart: equal-weight
+consumer discretionary divided by equal-weight consumer staples. Rising means
+discretionary outperforms staples; it is descriptive sector leadership rather
+than a stock-count breadth measure or validated trading rule. The raw ratio is
+not rebased and excludes dividends. Latest value and one-calendar-month change
+use paired observations; missing/nonpositive inputs leave gaps without filling.
+
+Both histories are read from one complete provider/download batch. Fresh
+TradingView report runs download AMEX:RSPD and AMEX:RSPS as daily report symbols;
+stored runs use the latest complete pair. Prices are archived through the ordinary
+bar store and input hashes retained in report JSON. The chart respects report
+cutoffs and lookback, labels provisional values, and is unavailable for missing
+pairs. Alpaca reads require stored Alpaca histories for both funds.
+See `knowledge/breadth/rspd-rsps.md` for definitions and issuer sources.
