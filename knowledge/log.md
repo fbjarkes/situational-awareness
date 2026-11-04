@@ -2,6 +2,8 @@
 
 ## 2026-11-04
 
+- Set ratio charts to three years by default, configured through RATIO_LOOKBACK_MONTHS in .env or a CLI override; fresh downloads cover the ratio window and stored charts disclose incomplete history.
+
 - Moved all price-ratio charts into a dedicated Ratios report section, with its own navigation and overview entry; Market Breadth retains MMOH/MMOF.
 
 - Added SPY/XLP and SPY/IWM descriptive ratio studies; all three Market Breadth ratios now share one configurable calculation and chart renderer, with paired-batch provenance.

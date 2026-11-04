@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from situational_awareness.bar_store import ROOT as BAR_ROOT, load_bars
 from situational_awareness.theme_returns import months_before
 from situational_awareness.providers import alpaca_symbol
+from situational_awareness.config import ratio_lookback_months
 
 RSPD_RSPS = ('AMEX:RSPD', 'AMEX:RSPS')
 RATIO_STUDIES = (
@@ -34,10 +35,11 @@ def ratio_points(numerator, denominator):
     return points
 
 
-def build_price_ratio(numerator, denominator, as_of, *, months=6, data_root=BAR_ROOT,
+def build_price_ratio(numerator, denominator, as_of, *, months=None, data_root=BAR_ROOT,
                       provider='tradingview', download_date=None, title=None,
                       numerator_label=None, denominator_label=None, context=None):
     """Build any exchange-qualified US stock/ETF ratio using one paired batch."""
+    months = ratio_lookback_months(months)
     if provider not in ('tradingview', 'alpaca'):
         raise ValueError('Unsupported ratio provider')
     if not all(isinstance(s, str) and ':' in s for s in (numerator, denominator)):
@@ -70,6 +72,9 @@ def build_price_ratio(numerator, denominator, as_of, *, months=6, data_root=BAR_
         if not valid:
             raise ValueError('No paired positive closes on or before the report date')
         latest = valid[-1]
+        window_start = months_before(as_of, months)
+        result["history_incomplete"] = (date.fromisoformat(valid[0]["date"]) - window_start).days > 7
+        result["history_start"] = valid[0]["date"]
         previous = next((p for p in reversed(valid) if p['date'] <= months_before(date.fromisoformat(latest['date']), 1).isoformat()), None)
         change = 100 * (latest['value'] / previous['value'] - 1) if previous else None
         fetched = datetime.fromisoformat(payload['fetched_at'].replace('Z', '+00:00')).astimezone(ZoneInfo('America/New_York'))
@@ -125,8 +130,10 @@ def ratio_card(section):
         svg.append(f'<text x="{x(day):.1f}" y="295" text-anchor="{anchor}">{day}</text>')
     svg.append('</svg>')
     provisional = ' · provisional intraday' if section.get('intraday') else ''
+    period = f'{section["months"] // 12}-year view' if section['months'] % 12 == 0 else f'{section["months"]}-month view'
+    history_note = f'<p class="source-note">Incomplete history: paired observations start {section["history_start"]}; the requested window is {section["months"]} months.</p>' if section.get('history_incomplete') else ''
     gap_note = ' Latest input sessions are unmatched; the displayed reading is the last paired close.' if section.get('latest_pair_missing') else ''
-    return (f'<article class="card" style="margin-top:24px" aria-labelledby="{heading_id}"><div class="card-header"><div>{title}<p class="subheading">{label} · daily closing-price ratio</p></div><span class="period">{section["months"]}-month view</span></div>'
+    return (f'<article class="card" style="margin-top:24px" aria-labelledby="{heading_id}"><div class="card-header"><div>{title}<p class="subheading">{label} · daily closing-price ratio</p></div><span class="period">{period}</span></div>{history_note}'
             f'<div class="readings"><span>Ratio <strong>{section["latest"]:.3f}</strong> · {section["as_of"]}{provisional}</span></div><div class="chart">' + ''.join(svg) + '</div>'
             f'<p class="interpretation">{escape(section["interpretation"])}</p><details class="details"><summary>Ratio calculation and sources</summary>'
             f'<p>{escape(section["numerator_label"])} close divided by {escape(section["denominator_label"])} close for the same US session. Rising means the numerator outperforms the denominator; both ETFs may still be rising or falling. This is an unrebased price ratio; dividends are excluded and the level 1 has no special signal meaning.</p><p>Provider: {escape(section["provider"])} · paired download batch {section["download_date"]}. No dates or providers are mixed within this ratio; missing/invalid closes produce chart gaps.{gap_note} Raw input hashes and observation dates are in report JSON.</p></details></article>')

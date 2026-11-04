@@ -559,7 +559,7 @@ Rising means the numerator outperforms the denominator; both may rise or fall.
 These unrebased price ratios exclude dividends and are descriptive, not validated
 trading signals or stock-count breadth measures.
 
-`build_price_ratio(numerator, denominator, as_of, months=6, provider="tradingview",
+`build_price_ratio(numerator, denominator, as_of, months=None, provider="tradingview",
 download_date=None, ...)` accepts any exchange-qualified pair. `ratio_card` renders
 all pairs identically. Add report studies to `RATIO_STUDIES`; download symbols are
 derived from that configuration, with SPY reused across studies.
@@ -570,3 +570,20 @@ the configured symbols; stored runs read the latest complete pair, or an explici
 `download_date` supplied to the helper. Alpaca requires archived Alpaca histories.
 Raw bars remain in the bar store and report JSON retains input hashes and dates.
 See the concepts under `knowledge/breadth/` for definitions and issuer sources.
+
+### Ratio chart window
+
+The Ratios section defaults to three years independently of `--lookback` for other
+sections. The report reads `RATIO_LOOKBACK_MONTHS=36` from the project-root `.env`;
+copy `.env.example` to create local settings. `.env` remains ignored by Git.
+Precedence is `--ratio-lookback MONTHS`, process environment, `.env`, then 36.
+Accepted values are 1–120 calendar months. For example:
+
+```powershell
+uv run market-report --provider tradingview --ratio-lookback 36
+```
+
+Fresh TradingView runs request the configured ratio history (with a small calendar
+buffer) for the ratio ETFs, reusing SPY's longer history. Stored runs never fetch
+missing bars; charts explicitly flag incomplete history. Each report JSON records
+the resolved window and input provenance. Changing `.env` takes effect next run.

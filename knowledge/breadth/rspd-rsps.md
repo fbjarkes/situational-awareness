@@ -6,7 +6,7 @@ tags: [breadth, relative-strength, RSPD, RSPS, sectors]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T22:20:22Z"
+  at: "2026-11-04T22:26:27Z"
 sources:
   - id: rspd-issuer
     resource: https://www.invesco.com/us-rest/contentdetail?contentId=1e0c7c23dbd92610VgnVCM1000006e36b50aRCRD&dnsName=us
@@ -41,7 +41,7 @@ Market Breadth because they measure stock participation. No predictive or contra
 # Report and provenance
 
 Display one chart and one or two interpretation sentences. The chart uses the
-report lookback, with latest paired close and one-calendar-month ratio change
+ratio-specific lookback (default 36 calendar months), with latest paired close and one-calendar-month ratio change
 when available (last paired session on/before the anniversary). Exclude future
 observations relative to the report date; label intraday observations.
 Prices are provider-adjusted price closes and exclude dividend total returns;
@@ -54,3 +54,10 @@ stored Alpaca pair when available and otherwise show unavailable.
 
 [^rspd-issuer]: Invesco RSPD factsheet, consulted 2026-11-04; equal-weight S&P 500 consumer discretionary sector exposure and quarterly rebalancing.
 [^rsps-issuer]: Invesco RSPS factsheet, consulted 2026-11-04; equal-weight S&P 500 consumer staples sector exposure and quarterly rebalancing.
+
+# Chart window configuration
+
+`RATIO_LOOKBACK_MONTHS=36` in the project `.env` sets a three-year chart window.
+Process environment overrides the file; `--ratio-lookback MONTHS` overrides both.
+The setting is independent of the other report charts. Fresh TradingView runs
+request enough history; stored runs flag incomplete histories without downloading.

@@ -23,6 +23,7 @@ from situational_awareness.market_leaders import build_market_leaders
 from situational_awareness.earnings_growth import build_earnings_growth
 from situational_awareness.spy_earnings import build_spy_revenue_screen
 from situational_awareness.cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
+from situational_awareness.config import ratio_lookback_months
 from situational_awareness.price_ratio import build_breadth_ratios, RATIO_SYMBOLS
 from situational_awareness.earnings import download_earnings, cache_path as earnings_cache_path
 from situational_awareness.providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
@@ -417,12 +418,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
     parser.add_argument("--alpaca-feed", choices=["iex", "sip"], default="iex", help="Alpaca feed for --provider alpaca; iex is free but not the consolidated close")
     parser.add_argument("--lookback", type=int, default=6, metavar="MONTHS")
+    parser.add_argument("--ratio-lookback", type=int, metavar="MONTHS", help="Ratio chart window; RATIO_LOOKBACK_MONTHS or .env (default 36)")
     parser.add_argument("--format", default="html,json", help="html, json, or html,json")
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
     parser.add_argument("--refresh", action="store_true", help="Refresh live-provider cache")
     parser.add_argument("--close-only", action="store_true", help="Exclude today's bar; report previous closes only")
     parser.add_argument("--vix-period", type=int, default=365, help="Maximum closes for VIX day-low metric (default 365 sessions)")
     args = parser.parse_args(argv)
+    try:
+        args.ratio_lookback = ratio_lookback_months(args.ratio_lookback)
+    except ValueError as error:
+        parser.error(str(error))
     formats = set(args.format.split(","))
     if not formats or not formats <= {"html", "json"}:
         parser.error("--format must be html, json, or html,json")
@@ -441,7 +447,8 @@ def main(argv: list[str] | None = None) -> int:
         report = None
         spy_payload, spy_note, spy_downloads, spy_source = None, None, 0, "unavailable"
         spy_provider = "alpaca" if args.provider == "alpaca" else "tradingview"
-        spy_start = requested - timedelta(days=SPY_HISTORY_DAYS)
+        ratio_start = months_before(requested, args.ratio_lookback) - timedelta(days=20)
+        spy_start = min(requested - timedelta(days=SPY_HISTORY_DAYS), ratio_start)
         batch = args.download_date.isoformat() if args.download_date else None
         vix_downloads = 0
         vix_batch = batch
@@ -554,13 +561,17 @@ def main(argv: list[str] | None = None) -> int:
         theme_batch = batch or (payload.get("download_date") if payload else None)
         theme_downloads = 0
         if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
-            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]} | {m[1] for m in COT_MARKETS.values()} | (set(RATIO_SYMBOLS) - {'AMEX:SPY'}))
+            theme_symbols = sorted(({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]} | {m[1] for m in COT_MARKETS.values()}) - set(RATIO_SYMBOLS))
             if theme_symbols:
                 fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
                                                      requested - timedelta(days=430), tuple(theme_symbols)))
                 paths = save_bars(fresh, args.data_root)
                 theme_batch = paths[0].parent.name
                 theme_downloads = len(fresh["series"])
+            ratio_fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
+                                                       ratio_start, tuple(s for s in RATIO_SYMBOLS if s != "AMEX:SPY")))
+            save_bars(ratio_fresh, args.data_root)
+            theme_downloads += len(ratio_fresh["series"])
         report["theme_returns"] = build_theme_returns(ROOT / "knowledge", observation_cutoff(requested, today, args.close_only),
                                                      data_root=args.data_root, download_date=theme_batch,
                                                      provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
@@ -585,7 +596,7 @@ def main(argv: list[str] | None = None) -> int:
             except Exception:
                 report["notes"].append("CFTC history refresh failed; COT uses the latest stored history when available.")
         report["cot"] = build_cot_section(observation_cutoff(requested, today, args.close_only), bar_root=args.data_root)
-        report["price_ratios"] = build_breadth_ratios(observation_cutoff(requested, today, args.close_only), months=args.lookback,
+        report["price_ratios"] = build_breadth_ratios(observation_cutoff(requested, today, args.close_only), months=args.ratio_lookback,
                                               data_root=args.data_root, provider=theme_provider)
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"

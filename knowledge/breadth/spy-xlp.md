@@ -6,7 +6,7 @@ tags: [breadth, relative-strength, SPY, XLP]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T22:20:22Z"
+  at: "2026-11-04T22:26:27Z"
 sources:
   - id: xlp-issuer
     resource: https://www.ssga.com/us/en/intermediary/etfs/state-street-consumer-staples-select-sector-spdr-etf-xlp
@@ -45,3 +45,10 @@ fetch both legs, sharing the SPY download across studies. Stored runs load the
 latest complete pair; Alpaca requires an archived Alpaca pair or shows unavailable.
 
 [^xlp-issuer]: Official issuer fund overview, consulted 2026-11-04.
+
+# Chart window configuration
+
+`RATIO_LOOKBACK_MONTHS=36` in the project `.env` sets a three-year chart window.
+Process environment overrides the file; `--ratio-lookback MONTHS` overrides both.
+The setting is independent of the other report charts. Fresh TradingView runs
+request enough history; stored runs flag incomplete histories without downloading.
