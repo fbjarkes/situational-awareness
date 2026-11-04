@@ -491,3 +491,30 @@ cache provenance, and EPS missing-base rules. Report JSON includes coverage,
 unassessable securities, and hashes for holdings, symbol map, and financial caches.
 This descriptive screen has selection/restatement bias and is not a validated
 trading signal or point-in-time financial history.
+
+
+## COT charts
+
+The COT page shows S&P 500 and Nasdaq-100 daily continuous E-mini candles above
+weekly net-position bars for dealers, asset managers, leveraged funds, other
+reportables and non-reportable positions. Default view: 12 months. Hover on a
+candle/bar for values; the legend shows latest net contracts, and separate dates
+identify weekly positioning and daily prices.
+
+```powershell
+uv run cot.py --refresh
+```
+
+This downloads official CFTC TFF futures-only ZIP archives for the prior/current
+years, archives originals and fetch metadata under `data/cot/<download-date>/`,
+and derives `data/cot/sp500-nasdaq-history.json`. Exact consolidated CFTC codes
+are 13874+ and 20974+. The parser retains small reconciliation residuals and
+rejects conflicting duplicate records. Report JSON records input hashes.
+
+Stored report runs use the snapshot and archived ES/NQ prices. Fresh TradingView
+report runs also fetch ES1!/NQ1! daily bars and refresh CFTC history, reusing that
+calendar day's downloaded archives. CFTC failures retain stored history with a
+note. The CFTC source is independent of TradingView; use `cot.py --refresh` to
+force a same-day CFTC update. Positioning has a weekly reporting lag and is plotted
+at observation dates. Consolidated positions cover more contracts than E-mini
+prices; continuous futures can have roll effects. See `knowledge/index/cot.md`.

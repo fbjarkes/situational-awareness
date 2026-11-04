@@ -1,5 +1,11 @@
 # Knowledge update log
 
+## 2026-11-04
+
+- Added a COT TODO to download older S&P 500/Nasdaq-100 history and build historical charts, with coverage and methodology checks.
+
+- Added COT charts for consolidated S&P 500 and Nasdaq-100 futures-only positions: five trader groups, weekly observation dates, daily ES/NQ candles, source provenance and reporting-lag limitations.
+
 ## 2026-10-31
 
 - Added a descriptive SPY-holdings earnings screen requiring revenue YoY above 25% in the latest two consecutive quarters, with explicit unassessable coverage and cached-data limitations.

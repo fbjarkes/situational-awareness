@@ -1,5 +1,7 @@
 # Index
 
+- [COT positioning](cot.md) - Consolidated S&P 500 and Nasdaq futures-only positions and daily price context.
+
 - [SPY earnings screen](spy-earnings.md) - Two latest consecutive quarters above 25% revenue growth YoY.
 
 - [VIX](vix.md) - Cboe S&P 500 implied-volatility index and trailing closing-low metric.

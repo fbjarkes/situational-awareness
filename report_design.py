@@ -1,6 +1,7 @@
 """Presentation layer for the self-contained daily briefing."""
 from datetime import date
 from html import escape
+from cot_design import cot_cards
 
 
 CSS = """
@@ -297,11 +298,11 @@ def render_report(report, chart, interpretation):
         all_series.append(vix)
     if gdx:
         all_series += list(gdx["series"].values())
-    dates = sorted({s["latest"]["date"] for s in all_series})
+    dates = sorted({s["latest"]["date"] for s in all_series} | {m["prices"][-1]["date"] for m in report.get("cot", {}).get("markets", []) if m["prices"]})
     freshness = ("Latest observation " + date.fromisoformat(dates[-1]).strftime("%d %b %Y")) if dates else "No observations available"
     if len(dates) > 1:
         freshness += " · mixed observation dates"
-    if any(s.get("latest_status") == "intraday" for s in all_series):
+    if any(s.get("latest_status") == "intraday" for s in all_series) or any(m.get("price_intraday") for m in report.get("cot", {}).get("markets", [])):
         freshness += " · includes provisional intraday values"
     warnings = "".join(f'<div class="warning"><strong>Data warning:</strong> {escape(w)}</div>' for w in report["warnings"])
     notes = list(report.get("notes", [])) + (list(gdx.get("notes", [])) if gdx else [])
@@ -310,6 +311,7 @@ def render_report(report, chart, interpretation):
     source_symbols = set(report["series"])
     source_symbols.update(report.get("theme_returns", {}).get("used_symbols", []))
     source_symbols.update(report.get("market_leaders", {}).get("used_symbols", []))
+    source_symbols.update(report.get("cot", {}).get("used_symbols", []))
     spy = report.get("spy") or {"symbol": "SPY", "unavailable": "SPY was not loaded for this report."}
     if "metrics" in spy:
         source_symbols.add(spy["symbol"])
@@ -365,7 +367,8 @@ def render_report(report, chart, interpretation):
               ("themes", "Themes", themes),
               ("market-leaders", "Market Leaders", market_leaders_card(report.get("market_leaders"))),
               ("earnings", "Quarterly Earnings", earnings_growth_card(report.get("earnings_growth"))),
-              ("spy-earnings", "S&P 500 Earnings", earnings_growth_card(report.get("spy_revenue_growth"), spy_screen=True))]
+              ("spy-earnings", "S&P 500 Earnings", earnings_growth_card(report.get("spy_revenue_growth"), spy_screen=True)),
+              ("cot", "COT", cot_cards(report.get("cot")))]
     cards = []
     for key, title, _ in groups:
         if key == "market-breadth":
@@ -382,6 +385,12 @@ def render_report(report, chart, interpretation):
                 count = sum(any(v is not None for v in row["returns"].values()) for row in theme_rows)
                 preview = f"{count}/{len(theme_rows)} theme baskets with returns · 1W to 12M"
             badge = "Available" if gdx or theme_rows else "Planned"
+        elif key == "cot":
+            description = "S&P 500 and Nasdaq-100 futures prices and weekly positioning by trader group."
+            markets = report.get("cot", {}).get("markets", [])
+            latest = max((m["as_of"] for m in markets), default="unavailable")
+            preview = f'{len(markets)} markets · latest positioning {latest}'
+            badge = "Available" if markets else "Unavailable"
         elif key == "spy-earnings":
             description = "SPY holdings with revenue growth above 25% YoY in each of the latest two consecutive quarters."
             screen = report.get("spy_revenue_growth", {})

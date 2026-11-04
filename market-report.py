@@ -21,6 +21,7 @@ from theme_returns import build_theme_returns, theme_universes
 from market_leaders import build_market_leaders
 from earnings_growth import build_earnings_growth
 from spy_earnings import build_spy_revenue_screen
+from cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
 from earnings import download_earnings, cache_path as earnings_cache_path
 from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
 from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
@@ -551,7 +552,7 @@ def main(argv: list[str] | None = None) -> int:
         theme_batch = batch or (payload.get("download_date") if payload else None)
         theme_downloads = 0
         if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
-            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]})
+            theme_symbols = sorted({s for t in theme_universes(ROOT / "knowledge", ROOT / "data/gdx-symbol-map.json", include_extended=True) for s in t["symbols"]} | {m[1] for m in COT_MARKETS.values()})
             if theme_symbols:
                 fresh = asyncio.run(fetch_tradingview(args.mcp_url, observation_cutoff(requested, today, args.close_only),
                                                      requested - timedelta(days=430), tuple(theme_symbols)))
@@ -576,6 +577,12 @@ def main(argv: list[str] | None = None) -> int:
         report["earnings_growth"] = build_earnings_growth(leader_symbols)
         report["spy_revenue_growth"] = build_spy_revenue_screen(ROOT / "knowledge/index/spy-holdings.md",
                                                                ROOT / "data/earnings/spy-symbol-map.json")
+        if args.provider == "tradingview" and source == "TradingView MCP (fresh)":
+            try:
+                download_cot_history()
+            except Exception:
+                report["notes"].append("CFTC history refresh failed; COT uses the latest stored history when available.")
+        report["cot"] = build_cot_section(observation_cutoff(requested, today, args.close_only), bar_root=args.data_root)
         fresh_download = args.provider == "tradingview" and source == "TradingView MCP (fresh)"
         data_mode = "Fresh download" if fresh_download else "Stored data"
         if args.provider == "alpaca":
