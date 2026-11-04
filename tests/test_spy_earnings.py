@@ -1,8 +1,8 @@
 from pathlib import Path
 import unittest
 
-from earnings_growth import quarterly_growth
-from spy_earnings import revenue_streak, spy_holdings
+from situational_awareness.earnings_growth import quarterly_growth
+from situational_awareness.spy_earnings import revenue_streak, spy_holdings
 
 
 class SpyEarningsTests(unittest.TestCase):

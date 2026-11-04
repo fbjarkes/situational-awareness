@@ -5,7 +5,7 @@ import json
 import math
 import re
 
-from earnings import ROOT, cache_path
+from situational_awareness.earnings import ROOT, cache_path
 
 
 def quarter_number(label):

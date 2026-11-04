@@ -5,14 +5,44 @@ Python + uv proof of concept, starting with TradingView `INDEX:MMOH` and
 a JSON report containing the plotted observations and metadata, and a terminal
 summary. No browser assets or external chart service are required.
 
+## Project layout and commands
+
+```text
+src/situational_awareness/  Python package and CLI implementations
+tests/                     unittest test suite
+knowledge/                 OKF knowledge bundle
+data/                      Downloaded/derived data and caches (Git-ignored)
+reports/                   Generated reports (Git-ignored)
+pyproject.toml              Package metadata, dependencies and commands
+uv.lock                    Locked dependency versions
+```
+
+```powershell
+uv sync --locked
+uv run market-report --help
+uv run market-report --provider tradingview --refresh
+uv run --locked python -m unittest discover -s tests -v
+```
+
+Other commands: `uv run custom-breadth`, `uv run breadth-study`, `uv run earnings`,
+and `uv run cot`. These replace the previous root-level `.py` scripts; CLI
+arguments stay the same. Reusable imports now start with `situational_awareness`,
+for example `from situational_awareness.earnings import download_earnings`.
+
+uv installs the package in editable mode from `src/`. Default data, reports and
+knowledge paths resolve to this checkout, independently of the command's current
+working directory. Set `SITUATIONAL_AWARENESS_HOME` to use another workspace
+(required when installing a wheel separately from the checkout). Explicit CLI
+path arguments retain their normal meaning. Build distributions with `uv build`.
+
 ## Reusable research price statistics
 
-`price_stats.py` accepts price sequences ordered oldest to newest, independent
+`src/situational_awareness/price_stats.py` accepts price sequences ordered oldest to newest, independent
 of symbol or provider. Load histories through `bar_store.load_bars` and select
 the intended price field and session cutoff before passing arrays.
 
 ```python
-from price_stats import kma_compression, new_52w_high, days_since_52w_high
+from situational_awareness.price_stats import kma_compression, new_52w_high, days_since_52w_high
 
 kma_compression(closes)        # SMA periods 5, 10, 20, 50, 100, 150, 200
 new_52w_high(highs)            # strict daily-high breakout
@@ -87,7 +117,7 @@ across 365 observations. The report defaults to a 365-session cap; change it
 with `--vix-period`. Intraday VIX readings and their metrics are provisional.
 
 ```python
-from price_utils import lowest_close
+from situational_awareness.price_utils import lowest_close
 
 lowest_close("CBOE:VIX", 365, as_of="2026-10-26")
 ```
@@ -124,7 +154,7 @@ The S&P 500 section shows an SPY card with distance from the 200- and 50-day
 SMAs, consecutive days above or below the 50-day SMA, and consecutive down
 days. It reads `AMEX:SPY` from the bar store (or downloads it with a live
 provider); without stored SPY history the card says it is unavailable.
-Helpers live in `price_stats.py`. Readings are descriptive; the related
+Helpers live in `src/situational_awareness/price_stats.py`. Readings are descriptive; the related
 studies are Research TODOs in `knowledge/index/spy.md`.
 
 Next planned section: SPDR sector analysis, using a sector table with RS-1,
@@ -156,9 +186,9 @@ for interpretation and records the knowledge content and hashes in JSON.
 From this directory:
 
 ```powershell
-uv run market-report.py --date 2026-10-23
-uv run market-report.py daily --lookback 3 --format html,json
-uv run market-report.py --help
+uv run market-report --date 2026-10-23
+uv run market-report daily --lookback 3 --format html,json
+uv run market-report --help
 ```
 
 uv creates and maintains `.venv` using `pyproject.toml` and `uv.lock`.
@@ -182,7 +212,7 @@ on Windows without filename collisions.
 
 Each file contains one symbol's daily history with provider, fetch timestamp,
 timeframe, and retrieval ranges. Same-day downloads merge by timestamp,
-retaining longer history and the newer retrieved values. `bar_store.py`
+retaining longer history and the newer retrieved values. `src/situational_awareness/bar_store.py`
 provides `save_bars` and `load_bars` for every utility to reuse.
 Default reads select the latest batch containing every requested symbol;
 they never silently combine different download dates. An explicit incomplete
@@ -197,7 +227,7 @@ Derived breadth snapshots and symbol maps remain outside the raw bar store.
 
 ```powershell
 $env:TRADINGVIEW_MCP_TOKEN = '<your independently provisioned bearer token>'
-uv run market-report.py --provider tradingview --refresh
+uv run market-report --provider tradingview --refresh
 ```
 
 The default Streamable HTTP endpoint is `https://mcp.tradingview.com/mcp`, as
@@ -229,8 +259,8 @@ Downloads use the bar store with plain tickers (`NEM`, not `NYSE:NEM`)
 and record the feed and price adjustment.
 
 ```powershell
-uv run market-report.py --provider alpaca
-uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --alpaca --alpaca-feed sip --ma 50 --output data/gdx-breadth-sma50-alpaca.json
+uv run market-report --provider alpaca
+uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --alpaca --alpaca-feed sip --ma 50 --output data/gdx-breadth-sma50-alpaca.json
 ```
 
 With `--provider alpaca`, the report downloads SPY from Alpaca for the S&P 500
@@ -243,7 +273,7 @@ section; with no stored batch the section is shown as unavailable. Alpaca has
 no foreign listings, so GDX breadth from Alpaca covers at most 32 of 59
 constituents; the missing ones are listed in the snapshot and the report.
 The free `iex` feed's close is IEX-only; use `--alpaca-feed sip` for research.
-Use `--provider alpaca` with stored reads of `custom-breadth.py` to select
+Use `--provider alpaca` with stored reads of `custom-breadth` to select
 Alpaca files. See the [data providers reference](knowledge/references/data-providers.md).
 
 ## Dates and interpretation
@@ -280,7 +310,7 @@ No scheduled task is installed by this PoC.
 Windows Task Scheduler example (daily at 07:00 Stockholm local time):
 
 - Program: full path returned by `Get-Command uv`.
-- Arguments: `run --project "C:\projects\situational-awareness" "C:\projects\situational-awareness\market-report.py" --provider tradingview --refresh`
+- Arguments: `run --project "C:\projects\situational-awareness" market-report --provider tradingview --refresh`
 - Start in: `C:\projects\situational-awareness` (replace with your checkout path).
 - Configure authentication in the scheduler account's environment. Do not put
   the token in command arguments. Capture failures with your scheduler's logs.
@@ -289,18 +319,18 @@ Equivalent cron example on a machine whose scheduler timezone is Stockholm
 (replace the paths; provision the token in the execution environment):
 
 ```cron
-0 7 * * * cd /path/to/situational-awareness && /path/to/uv run market-report.py --provider tradingview --refresh >> market-report.log 2>&1
+0 7 * * * cd /path/to/situational-awareness && /path/to/uv run market-report --provider tradingview --refresh >> market-report.log 2>&1
 ```
 
 ## Custom constituent breadth
 
-The reusable `calculate_breadth` function in `breadth.py` accepts a list of
+The reusable `calculate_breadth` function in `src/situational_awareness/breadth.py` accepts a list of
 symbols and `{symbol: {"YYYY-MM-DD": close}}` histories. It calculates daily
 equal-weight participation above/below/equal to an N-observation simple moving
 average (including the current close). Date filters preserve prior warmup data.
 
 ```python
-from breadth import calculate_breadth
+from situational_awareness.breadth import calculate_breadth
 
 snapshot = calculate_breadth(
     symbols, prices, window=50,
@@ -312,14 +342,14 @@ snapshot = calculate_breadth(
 CLI using archived daily bar files:
 
 ```powershell
-uv run custom-breadth.py --symbols NYSE:NEM NYSE:AEM --ma 50 --download-date 2026-10-25 --output data/custom-breadth.json
+uv run custom-breadth --symbols NYSE:NEM NYSE:AEM --ma 50 --download-date 2026-10-25 --output data/custom-breadth.json
 ```
 
 The two-stock example only demonstrates syntax; a GDX constituent index should
 instead select the full holdings list and supply its exchange-qualified map:
 
 ```powershell
-uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
+uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
 ```
 
 The symbol map is a JSON object mapping every issuer ticker label to exactly
@@ -349,7 +379,7 @@ See the [methodology](knowledge/references/gdx-breadth.md).
 
 ## Breadth event study
 
-`uv run breadth-study.py` reproduces the threshold study using local TradingView
+`uv run breadth-study` reproduces the threshold study using local TradingView
 downloads from the latest complete `data/research/day/<date>/` batch.
 Use `--download-date` to pin a batch and `--data PATH` to change the store root.
 It writes event-level CSV, summary CSV, methodology,
@@ -361,7 +391,7 @@ The script analyzes existing downloads; it does not refresh them.
 ## Verification
 
 ```powershell
-uv run python -m unittest -v
+uv run --locked python -m unittest discover -s tests -v
 ```
 
 Tests cover historical cutoffs, current-day exclusion, session changes,
@@ -374,12 +404,12 @@ so further market sections and providers can be introduced independently.
 ## Quarterly earnings cache
 
 ```powershell
-uv run earnings.py NASDAQ:MSFT --years 5
-uv run earnings.py NASDAQ:MSFT --years 5 --refresh
+uv run earnings NASDAQ:MSFT --years 5
+uv run earnings NASDAQ:MSFT --years 5 --refresh
 ```
 
 ```python
-from earnings import download_earnings
+from situational_awareness.earnings import download_earnings
 history = download_earnings("NASDAQ:MSFT", years=5)
 for quarter in history["quarters"]:
     print(quarter["period_label"], quarter["revenue"], quarter["eps"])
@@ -442,7 +472,7 @@ async context manager. Share the **same instance** between functions to share
 both their concurrency limit and rolling-window request budget:
 
 ```python
-from async_limits import AsyncCallLimiter
+from situational_awareness.async_limits import AsyncCallLimiter
 
 limits = AsyncCallLimiter(max_concurrent=3, max_calls=40, period_seconds=60)
 
@@ -455,7 +485,7 @@ async def fetch_one(client, symbol):
 #     result = await client.fetch(symbol)
 ```
 
-The TradingView calls in `market-report.py`, `custom-breadth.py`, and `earnings.py`
+The TradingView calls in `market-report`, `custom-breadth`, and `earnings`
 use the shared `tradingview_call_tool` wrapper: **3 concurrent tool calls** and
 **40 call starts per rolling 60 seconds**, including each pagination request.
 The limiter waits asynchronously and uses monotonic time. Exceptions and
@@ -502,7 +532,7 @@ candle/bar for values; the legend shows latest net contracts, and separate dates
 identify weekly positioning and daily prices.
 
 ```powershell
-uv run cot.py --refresh
+uv run cot --refresh
 ```
 
 This downloads official CFTC TFF futures-only ZIP archives for the prior/current
@@ -514,7 +544,7 @@ rejects conflicting duplicate records. Report JSON records input hashes.
 Stored report runs use the snapshot and archived ES/NQ prices. Fresh TradingView
 report runs also fetch ES1!/NQ1! daily bars and refresh CFTC history, reusing that
 calendar day's downloaded archives. CFTC failures retain stored history with a
-note. The CFTC source is independent of TradingView; use `cot.py --refresh` to
+note. The CFTC source is independent of TradingView; use `cot --refresh` to
 force a same-day CFTC update. Positioning has a weekly reporting lag and is plotted
 at observation dates. Consolidated positions cover more contracts than E-mini
 prices; continuous futures can have roll effects. See `knowledge/index/cot.md`.

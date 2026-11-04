@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock
 
-from earnings import cache_path, download_earnings, request_window, save_earnings_response
+from situational_awareness.earnings import cache_path, download_earnings, request_window, save_earnings_response
 
 
 def response():

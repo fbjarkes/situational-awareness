@@ -3,9 +3,9 @@ import hashlib
 import json
 import re
 
-from earnings import ROOT as EARNINGS_ROOT
-from earnings_growth import build_earnings_growth, quarter_number
-from theme_returns import metadata
+from situational_awareness.earnings import ROOT as EARNINGS_ROOT
+from situational_awareness.earnings_growth import build_earnings_growth, quarter_number
+from situational_awareness.theme_returns import metadata
 
 
 def spy_holdings(path):

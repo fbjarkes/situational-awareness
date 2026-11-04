@@ -8,8 +8,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import yaml
-from bar_store import load_bars, ROOT as DATA_ROOT
-from providers import alpaca_symbol
+from situational_awareness.bar_store import load_bars, ROOT as DATA_ROOT
+from situational_awareness.providers import alpaca_symbol
 
 HORIZONS = ("1W", "1M", "3M", "6M", "12M")
 US_EXCHANGES = {"NYSE", "NASDAQ", "AMEX"}

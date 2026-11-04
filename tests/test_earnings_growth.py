@@ -1,6 +1,6 @@
 import unittest
-from earnings_growth import quarterly_growth, growth_pct
-from report_design import earnings_growth_card
+from situational_awareness.earnings_growth import quarterly_growth, growth_pct
+from situational_awareness.report_design import earnings_growth_card
 
 
 class EarningsGrowthTests(unittest.TestCase):

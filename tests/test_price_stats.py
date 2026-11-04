@@ -1,12 +1,12 @@
 import unittest
 
-from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, cons_up_days,
+from situational_awareness.price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, cons_up_days,
                          distance_from_ma, sma, streak_is_lower_bound, lowest_close_period)
 
 
 class PriceStatsTests(unittest.TestCase):
     def test_kma_compression(self):
-        from price_stats import kma_compression
+        from situational_awareness.price_stats import kma_compression
         self.assertEqual(kma_compression([10] * 200), 0)
         self.assertIsNone(kma_compression([10] * 199))
         self.assertAlmostEqual(kma_compression([1, 2, 3, 4], (2, 4)), 25)
@@ -17,7 +17,7 @@ class PriceStatsTests(unittest.TestCase):
                 kma_compression([10] * 200, periods)
 
     def test_52w_high_events_and_age(self):
-        from price_stats import new_52w_high, days_since_52w_high
+        from situational_awareness.price_stats import new_52w_high, days_since_52w_high
         self.assertIsNone(new_52w_high([10] * 252))
         self.assertTrue(new_52w_high([10] * 252 + [11]))
         self.assertFalse(new_52w_high([10] * 253))

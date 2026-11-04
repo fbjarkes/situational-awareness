@@ -6,7 +6,7 @@ tags: [COT, futures, SPY, Nasdaq, positioning]
 status: draft
 generated:
   by: codex/market-report-poc
-  at: "2026-11-04T20:46:07Z"
+  at: "2026-11-04T20:51:29Z"
 sources:
   - id: cftc-history
     resource: https://www.cftc.gov/MarketReports/CommitmentsofTraders/HistoricalCompressed/index.htm
@@ -54,7 +54,7 @@ A 12-month chart does not establish a validated historical extreme.
 # Storage and refresh
 
 Download the prior and current calendar-year CFTC TFF futures-only ZIP archives
-with `uv run cot.py --refresh`. Preserve source files, actual fetch timestamps,
+with `uv run cot --refresh`. Preserve source files, actual fetch timestamps,
 URLs and SHA-256 hashes under `data/cot/<download-date>/`.[^cftc-history]
 The derived snapshot records all weekly values for both indexes. Duplicate
 conflicts fail validation; source net-reconciliation residuals of up to five
@@ -62,7 +62,7 @@ contracts are retained without forcing equality, while larger residuals fail.
 
 Snapshot report runs read stored COT data and prices. Fresh TradingView report
 runs additionally refresh ES/NQ price bars and check the CFTC archives, reusing
-same-download-day archives unless `cot.py --refresh` is explicitly used. A failed
+same-download-day archives unless `cot --refresh` is explicitly used. A failed
 CFTC refresh is reported and retains the stored snapshot. This weekly dataset
 has a separate source and cadence from daily prices and earnings caches.
 

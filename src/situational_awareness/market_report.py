@@ -1,10 +1,11 @@
-"""Generate an archived market breadth report with uv run market-report.py."""
+"""Generate an archived market breadth report with uv run market-report."""
 
 from __future__ import annotations
+from situational_awareness.paths import PROJECT_ROOT
 
 import argparse
 import asyncio
-from async_limits import tradingview_call_tool
+from situational_awareness.async_limits import tradingview_call_tool
 from calendar import monthrange
 from datetime import date, datetime, time, timedelta, timezone
 from html import escape
@@ -15,19 +16,19 @@ import sys
 import hashlib
 import yaml
 from zoneinfo import ZoneInfo
-from bar_store import ROOT as DATA_ROOT, load_bars, save_bars
-from research_todos import collect_research_todos
-from theme_returns import build_theme_returns, theme_universes
-from market_leaders import build_market_leaders
-from earnings_growth import build_earnings_growth
-from spy_earnings import build_spy_revenue_screen
-from cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
-from earnings import download_earnings, cache_path as earnings_cache_path
-from providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
-from price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
+from situational_awareness.bar_store import ROOT as DATA_ROOT, load_bars, save_bars
+from situational_awareness.research_todos import collect_research_todos
+from situational_awareness.theme_returns import build_theme_returns, theme_universes
+from situational_awareness.market_leaders import build_market_leaders
+from situational_awareness.earnings_growth import build_earnings_growth
+from situational_awareness.spy_earnings import build_spy_revenue_screen
+from situational_awareness.cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
+from situational_awareness.earnings import download_earnings, cache_path as earnings_cache_path
+from situational_awareness.providers import alpaca_symbol, alpaca_unavailable_reason, fetch_alpaca_daily, provider_label
+from situational_awareness.price_stats import (cons_days_above_ma, cons_days_below_ma, cons_down_days, distance_from_ma,
                          streak_is_lower_bound, lowest_close_period)
 
-ROOT = Path(__file__).resolve().parent
+ROOT = PROJECT_ROOT
 SYMBOLS = ("INDEX:MMOH", "INDEX:MMOF")
 COLORS = ("#67ddc4", "#ffc078")
 NY = ZoneInfo("America/New_York")
@@ -398,7 +399,7 @@ def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool
 
 
 def render_html(report: dict) -> str:
-    from report_design import render_report
+    from situational_awareness.report_design import render_report
     return render_report(report, chart_svg, breadth_interpretation)
 
 

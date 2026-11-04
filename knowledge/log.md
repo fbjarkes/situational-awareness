@@ -2,6 +2,8 @@
 
 ## 2026-11-04
 
+- Updated COT and breadth utility references for packaged uv console commands after moving implementation into src/situational_awareness and tests into tests/.
+
 - Added a COT TODO to download older S&P 500/Nasdaq-100 history and build historical charts, with coverage and methodology checks.
 
 - Added COT charts for consolidated S&P 500 and Nasdaq-100 futures-only positions: five trader groups, weekly observation dates, daily ES/NQ candles, source provenance and reporting-lag limitations.

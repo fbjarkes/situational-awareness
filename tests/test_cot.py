@@ -2,8 +2,8 @@ from datetime import date, datetime
 from pathlib import Path
 import unittest
 
-from cot import GROUPS, parse_history, build_cot_section, futures_session_date
-from cot_design import cot_chart
+from situational_awareness.cot import GROUPS, parse_history, build_cot_section, futures_session_date
+from situational_awareness.cot_design import cot_chart
 
 
 def row(code='13874+', observed='2026-10-27'):

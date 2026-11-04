@@ -58,7 +58,7 @@ Each cell below is mean return / median return / positive-return frequency (N ma
 
 # Reproduction and snapshot provenance
 
-Run `uv run breadth-study.py` from the repository root. Inputs are local
+Run `uv run breadth-study` from the repository root. Inputs are local
 `data/research/AMEX-SPY.json`, `INDEX-MMOH.json`, and `INDEX-MMOF.json`;
 raw downloads and generated CSVs are ignored by Git.
 Data source: TradingView daily bars.[^tradingview-data]

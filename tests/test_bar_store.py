@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bar_store import save_bars, load_bars, symbol_filename
+from situational_awareness.bar_store import save_bars, load_bars, symbol_filename
 
 
 class BarStoreTests(unittest.TestCase):

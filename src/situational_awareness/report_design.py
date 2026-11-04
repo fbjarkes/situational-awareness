@@ -1,7 +1,7 @@
 """Presentation layer for the self-contained daily briefing."""
 from datetime import date
 from html import escape
-from cot_design import cot_cards
+from situational_awareness.cot_design import cot_cards
 
 
 CSS = """

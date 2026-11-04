@@ -2,9 +2,9 @@
 import hashlib
 import math
 
-from bar_store import load_bars, ROOT as DATA_ROOT
-from providers import alpaca_symbol
-from theme_returns import theme_universes, prices_from_payload, basket_returns, relative_return, metadata
+from situational_awareness.bar_store import load_bars, ROOT as DATA_ROOT
+from situational_awareness.providers import alpaca_symbol
+from situational_awareness.theme_returns import theme_universes, prices_from_payload, basket_returns, relative_return, metadata
 
 
 def weighted_rs(values, weights):

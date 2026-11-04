@@ -4,3 +4,7 @@ reports/
 data/
 .cache/
 .env
+
+dist/
+build/
+*.egg-info/

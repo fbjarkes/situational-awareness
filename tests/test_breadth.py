@@ -1,9 +1,8 @@
 from datetime import date
-import importlib.util
 from pathlib import Path
 import unittest
 
-from breadth import calculate_breadth
+from situational_awareness.breadth import calculate_breadth
 
 
 class BreadthTests(unittest.TestCase):
@@ -35,10 +34,8 @@ class BreadthTests(unittest.TestCase):
             calculate_breadth(["a"], {"a": {"2026-01-01": float("nan")}}, 1)
 
     def test_gdx_universe_excludes_cash(self):
-        spec = importlib.util.spec_from_file_location("custom_breadth", Path(__file__).with_name("custom-breadth.py"))
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        symbols = module.holdings_symbols(Path(__file__).parent / "knowledge/sectors/gdx.md")
+        from situational_awareness import custom_breadth as module
+        symbols = module.holdings_symbols(Path(__file__).resolve().parents[1] / "knowledge/sectors/gdx.md")
         self.assertEqual(len(symbols), 59)
         self.assertIn("PE&OLES* MM", symbols)
         self.assertEqual(len(set(symbols)), 59)

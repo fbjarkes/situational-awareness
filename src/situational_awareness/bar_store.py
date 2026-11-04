@@ -1,12 +1,13 @@
 """Dated, per-symbol raw bar storage shared by reports and research utilities."""
 from datetime import date, datetime
+from situational_awareness.paths import PROJECT_ROOT
 import hashlib
 import json
 from pathlib import Path
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parent / "data/research"
+ROOT = PROJECT_ROOT / "data/research"
 
 
 def symbol_filename(symbol: str) -> str:

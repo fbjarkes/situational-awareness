@@ -1,12 +1,13 @@
 """Download and cache TradingView quarterly revenue and EPS as readable JSON.
 
-Run: uv run earnings.py NASDAQ:MSFT --years 5
+Run: uv run earnings NASDAQ:MSFT --years 5
 """
 from __future__ import annotations
+from situational_awareness.paths import PROJECT_ROOT
 
 import argparse
 import asyncio
-from async_limits import tradingview_call_tool
+from situational_awareness.async_limits import tradingview_call_tool
 from calendar import monthrange
 from datetime import date, datetime, timezone
 import hashlib
@@ -19,7 +20,7 @@ import tempfile
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
-ROOT = Path(__file__).resolve().parent / "data/earnings"
+ROOT = PROJECT_ROOT / "data/earnings"
 ENDPOINT = "https://mcp.tradingview.com/mcp"
 
 

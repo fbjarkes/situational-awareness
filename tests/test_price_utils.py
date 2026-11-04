@@ -3,8 +3,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bar_store import save_bars
-from price_utils import lowest_close
+from situational_awareness.bar_store import save_bars
+from situational_awareness.price_utils import lowest_close
 
 
 class SymbolPriceUtilsTests(unittest.TestCase):

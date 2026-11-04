@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from research_todos import collect_research_todos
+from situational_awareness.research_todos import collect_research_todos
 
 
 class ResearchTodoTests(unittest.TestCase):

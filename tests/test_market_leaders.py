@@ -4,9 +4,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bar_store import save_bars
-from market_leaders import build_market_leaders, weighted_rs, closing_high_distance
-from report_design import market_leaders_card
+from situational_awareness.bar_store import save_bars
+from situational_awareness.market_leaders import build_market_leaders, weighted_rs, closing_high_distance
+from situational_awareness.report_design import market_leaders_card
 
 
 class MarketLeaderTests(unittest.TestCase):

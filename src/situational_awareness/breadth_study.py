@@ -1,4 +1,5 @@
 """Reproduce the breadth threshold event study from local TradingView downloads."""
+from situational_awareness.paths import PROJECT_ROOT
 import argparse
 import csv
 from datetime import datetime, timezone
@@ -6,9 +7,9 @@ import hashlib
 import json
 from pathlib import Path
 from statistics import mean, median
-from bar_store import ROOT as DATA_ROOT, load_bars
+from situational_awareness.bar_store import ROOT as DATA_ROOT, load_bars
 
-ROOT = Path(__file__).resolve().parent
+ROOT = PROJECT_ROOT
 HORIZONS = (10, 20, 30, 50, 100, 200)
 THRESHOLDS = (30, 25, 20)
 

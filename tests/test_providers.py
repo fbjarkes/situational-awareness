@@ -1,4 +1,3 @@
-import importlib.util
 import io
 import json
 import os
@@ -9,12 +8,10 @@ import tempfile
 import unittest
 from unittest import mock
 
-from bar_store import load_bars, save_bars
-from providers import alpaca_symbol, fetch_alpaca_daily
+from situational_awareness.bar_store import load_bars, save_bars
+from situational_awareness.providers import alpaca_symbol, fetch_alpaca_daily
 
-spec = importlib.util.spec_from_file_location("custom_breadth", Path(__file__).with_name("custom-breadth.py"))
-custom = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(custom)
+from situational_awareness import custom_breadth as custom
 
 CREDS = {"APCA_API_KEY_ID": "key", "APCA_API_SECRET_KEY": "secret"}
 

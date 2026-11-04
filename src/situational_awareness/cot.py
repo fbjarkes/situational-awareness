@@ -1,7 +1,8 @@
 """CFTC consolidated futures-only history and optional TradingView price context.
 
-Download/update: uv run cot.py --refresh
+Download/update: uv run cot --refresh
 """
+from situational_awareness.paths import PROJECT_ROOT
 import argparse
 import csv
 from datetime import date, datetime, timedelta, timezone
@@ -13,9 +14,9 @@ from urllib.request import Request, urlopen
 import zipfile
 from zoneinfo import ZoneInfo
 
-from bar_store import load_bars, ROOT as BAR_ROOT
+from situational_awareness.bar_store import load_bars, ROOT as BAR_ROOT
 
-ROOT = Path(__file__).resolve().parent / "data/cot"
+ROOT = PROJECT_ROOT / "data/cot"
 MARKETS = {"13874+": ("S&P 500", "CME_MINI:ES1!"), "20974+": ("Nasdaq-100", "CME_MINI:NQ1!")}
 GROUPS = {"dealers": ("Dealers", "Dealer", "#ff7676"),
           "asset_managers": ("Asset managers", "Asset_Mgr", "#67ddc4"),
@@ -94,7 +95,7 @@ def build_cot_section(as_of, *, root=ROOT, bar_root=BAR_ROOT, months=12):
     result = {"provider": "CFTC", "markets": [], "used_symbols": [], "months": months}
     path = root / "sp500-nasdaq-history.json"
     if not path.exists():
-        result["unavailable"] = "COT history unavailable; run uv run cot.py --refresh."
+        result["unavailable"] = "COT history unavailable; run uv run cot --refresh."
         return result
     raw = path.read_bytes()
     payload = json.loads(raw)
@@ -137,10 +138,14 @@ def build_cot_section(as_of, *, root=ROOT, bar_root=BAR_ROOT, months=12):
     return result
 
 
-if __name__ == '__main__':
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--refresh', action='store_true')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     history = download_history(refresh=args.refresh)
     for code, points in history['markets'].items():
         print(MARKETS[code][0], len(points), 'weekly observations through', points[-1]['date'])
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

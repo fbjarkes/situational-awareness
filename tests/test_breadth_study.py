@@ -1,10 +1,7 @@
-import importlib.util
 from pathlib import Path
 import unittest
 
-spec = importlib.util.spec_from_file_location("breadth_study", Path(__file__).with_name("breadth-study.py"))
-study = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(study)
+from situational_awareness import breadth_study as study
 
 
 class EventStudyTests(unittest.TestCase):

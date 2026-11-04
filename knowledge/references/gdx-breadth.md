@@ -6,7 +6,7 @@ status: draft
 tags: [breadth, methodology, custom, GDX]
 generated:
   by: claude-code/claude-opus-5-5
-  at: "2026-10-26T12:00:00Z"
+  at: "2026-11-04T20:51:29Z"
 market_report:
   symbol: CUSTOM:GDX-SMA50
   section: gdx_breadth
@@ -18,7 +18,7 @@ market_report:
 
 The reusable `calculate_breadth` helper in repository file `breadth.py` accepts
 symbol identifiers, daily closing histories, an SMA window, and optional
-inclusive start/end dates. The CLI is `custom-breadth.py`.
+inclusive start/end dates. The CLI is `custom-breadth`.
 
 For each security with a current price and sufficient history, compare its
 close with the simple average of its latest N observations, including the
@@ -71,7 +71,7 @@ The 59 securities should not be conflated with the issuer's reported 65 holdings
 
 # Alpaca constituent data
 
-`custom-breadth.py --alpaca` downloads constituents from Alpaca instead of
+`custom-breadth --alpaca` downloads constituents from Alpaca instead of
 TradingView. Alpaca carries US listings only, so foreign listings are
 recorded in `universe.provider_unavailable` and counted as missing; at most
 32 of the 59 constituents are covered. With the default 0.8 minimum
@@ -88,7 +88,7 @@ minimum coverage 0.8. It shows daily coverage and suppresses percentages below
 that cutoff. Generate the local snapshot with:
 
 ```powershell
-uv run custom-breadth.py --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
+uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
 ```
 
 The daily report includes this snapshot automatically when present; use

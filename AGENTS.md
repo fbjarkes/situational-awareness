@@ -59,3 +59,14 @@
   session-date treatment, and input hashes when generating derived results.
 - Keep the report format concise: one chart or table and one or two sentences
   of interpretation per section. See README.md and the OKF knowledge bundle.
+
+
+## Python project layout
+
+- Keep application and reusable Python modules under `src/situational_awareness/`
+  and tests under `tests/`; import the installed package rather than loading files
+  dynamically by path.
+- Maintain uv console commands in `pyproject.toml`. Use `uv sync --locked`,
+  `uv run market-report ...`, and `uv run --locked python -m unittest discover -s tests -v`.
+- Centralize workspace defaults in `situational_awareness.paths.PROJECT_ROOT`;
+  preserve `knowledge/`, `data/`, and `reports/` locations when reorganizing code.

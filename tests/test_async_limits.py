@@ -2,7 +2,7 @@ import asyncio
 import time
 import unittest
 
-from async_limits import AsyncCallLimiter
+from situational_awareness.async_limits import AsyncCallLimiter
 
 
 class AsyncLimitTests(unittest.TestCase):

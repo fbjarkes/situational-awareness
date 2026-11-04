@@ -3,9 +3,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bar_store import save_bars
-from theme_returns import basket_returns, build_theme_returns, prices_from_payload, theme_universes, relative_return
-from report_design import theme_returns_card, theme_rs_card
+from situational_awareness.bar_store import save_bars
+from situational_awareness.theme_returns import basket_returns, build_theme_returns, prices_from_payload, theme_universes, relative_return
+from situational_awareness.report_design import theme_returns_card, theme_rs_card
 
 
 class ThemeReturnTests(unittest.TestCase):
@@ -56,8 +56,8 @@ class ThemeReturnTests(unittest.TestCase):
         self.assertEqual(list(prices["NASDAQ:SPCX"]), [date(2026, 6, 12)])
 
     def test_registry_deduplication_and_fund_exclusion(self):
-        root = Path(__file__).parent / "knowledge"
-        themes = theme_universes(root, Path(__file__).parent / "data/gdx-symbol-map.json")
+        root = Path(__file__).resolve().parents[1] / "knowledge"
+        themes = theme_universes(root, Path(__file__).resolve().parents[1] / "data/gdx-symbol-map.json")
         crypto = next(t for t in themes if t["id"] == "crypto-blockchain")
         self.assertNotIn("AMEX:BITO", crypto["symbols"])
         self.assertNotIn("NASDAQ:HOOD", crypto["symbols"])

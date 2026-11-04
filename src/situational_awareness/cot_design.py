@@ -2,7 +2,7 @@
 from datetime import date
 from html import escape
 
-from cot import GROUPS
+from situational_awareness.cot import GROUPS
 
 
 def cot_chart(market):
@@ -50,7 +50,7 @@ def cot_chart(market):
 
 def cot_cards(section):
     if not section or not section.get('markets'):
-        return '<p class="unavailable">COT history is unavailable. Download the CFTC history with uv run cot.py --refresh.</p>'
+        return '<p class="unavailable">COT history is unavailable. Download the CFTC history with uv run cot --refresh.</p>'
     cards = []
     for market in section['markets']:
         latest = market['points'][-1]

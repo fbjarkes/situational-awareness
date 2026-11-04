@@ -1,4 +1,3 @@
-import importlib.util
 import json
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -6,9 +5,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-spec = importlib.util.spec_from_file_location("market_report", Path(__file__).with_name("market-report.py"))
-report = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(report)
+from situational_awareness import market_report as report
 
 
 def spy_bars(n=260, end=date(2026, 10, 23)):
@@ -124,7 +121,7 @@ class ReportTests(unittest.TestCase):
         self.assertIn('viewBox="0 0 520 350"', report.chart_svg(result, compact=True))
 
     def test_gdx_section_respects_date_and_retains_coverage(self):
-        from breadth import calculate_breadth
+        from situational_awareness.breadth import calculate_breadth
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
         prices = {"a": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23, 24)},
                   "b": {f"2026-10-{d:02}": 50.0 - d for d in (19, 20, 21, 22, 23, 24)}}
@@ -168,7 +165,7 @@ class ReportTests(unittest.TestCase):
             self.assertIn("MMOF", html)
 
     def test_alpaca_labels_tradingview_only_breadth(self):
-        from bar_store import save_bars
+        from situational_awareness.bar_store import save_bars
         (report.ROOT / "reports").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
             root = Path(folder) / "store"
@@ -205,7 +202,7 @@ class ReportTests(unittest.TestCase):
             self.assertEqual({c["status"] for c in data["provider_coverage"]}, {"unavailable"})
 
     def test_gdx_alpaca_snapshot_shows_unavailable_constituents(self):
-        from breadth import calculate_breadth
+        from situational_awareness.breadth import calculate_breadth
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
         prices = {"NYSE:NEM": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23)}}
         payload = calculate_breadth(["NYSE:NEM", "TSX:LUG"], prices, 2, name="CUSTOM:GDX-SMA2")
@@ -221,7 +218,7 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Constituent prices: Alpaca.", html)
 
     def test_spy_card_from_stored_tradingview_bars(self):
-        from bar_store import save_bars
+        from situational_awareness.bar_store import save_bars
         (report.ROOT / "reports").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
             root = Path(folder) / "store"
