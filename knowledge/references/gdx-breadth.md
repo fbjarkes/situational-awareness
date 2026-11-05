@@ -1,22 +1,24 @@
 ---
 type: Reference
 title: GDX breadth calculation
-description: Equal-weight daily above/below SMA methodology for a supplied security universe.
+description: US-listed GDX constituent breadth, calculated from daily bars and refreshed only in weekly report runs.
 status: draft
 tags: [breadth, methodology, custom, GDX]
 generated:
-  by: claude-code/claude-opus-5-5
-  at: "2026-11-04T20:51:29Z"
+  by: codex/market-report-poc
+  at: "2026-11-04T22:50:06Z"
 market_report:
   symbol: CUSTOM:GDX-SMA50
-  section: gdx_breadth
+  section: themes
+  cadence: weekly
+  universe_scope: US-listed GDX constituents
   implementation_status: report_available
   evidence_status: exploratory
   enabled: false
 ---
 # Calculation
 
-The reusable `calculate_breadth` helper in repository file `breadth.py` accepts
+The reusable `calculate_breadth` helper in package module `situational_awareness.breadth` accepts
 symbol identifiers, daily closing histories, an SMA window, and optional
 inclusive start/end dates. The CLI is `custom-breadth`.
 
@@ -69,42 +71,37 @@ membership bias and is not historical GDX portfolio breadth. Inception dates,
 holidays, mixed exchanges, currencies, and data gaps can change coverage.
 The 59 securities should not be conflated with the issuer's reported 65 holdings.
 
-# Alpaca constituent data
+# Report scope and cadence
 
-`custom-breadth --alpaca` downloads constituents from Alpaca instead of
-TradingView. Alpaca carries US listings only, so foreign listings are
-recorded in `universe.provider_unavailable` and counted as missing; at most
-32 of the 59 constituents are covered. With the default 0.8 minimum
-coverage, percentages are suppressed. A lower cutoff yields a US-listed
-subset that must not be compared or merged with the TradingView series.
-See [data providers](/references/data-providers.md).
+The report uses only the US-listed subset of the fixed GDX holdings, selected
+through the same symbol map and US-exchange filter as the gold-miners theme.
+Foreign listings are excluded from the denominator, not counted as unavailable.
+This subset differs from historical full-international GDX breadth; do not join
+or compare the two series as if their universes were identical. The full issuer
+holdings table remains a reference, not a foreign-price download instruction.
+
+GDX breadth is a **weekly study** calculated from daily closing prices and a
+50-session SMA; weekly refresh cadence does not turn the SMA into 50 weeks.
+Both daily and weekly reports show the same saved study, a Weekly badge and the
+last observation date. Daily reports do not recalculate or overwrite the snapshot.
+Only `market-report --weekly` updates it. The default local file is
+`data/gdx-breadth-us-sma50.json`; `--gdx-breadth PATH` can select another US-only
+snapshot. A legacy snapshot containing foreign symbols is not displayed.
+
+A fresh TradingView weekly run shares the US stock bars already needed by theme
+returns; it does not fetch a second international GDX basket. A snapshot-provider
+weekly run recalculates from one complete stored provider/download batch, without
+network calls. Missing inputs retain the previous snapshot with an availability
+note. Alpaca also requires a complete stored US subset for weekly calculation.
+
+Weekly and daily reports have separate output filenames. Record the snapshot
+update time separately from its last market observation, and preserve input bar
+hashes, provider, fetch time, download date, fixed membership date and subset scope.
+Minimum eligible coverage is 80% of the selected US universe; percentages are
+suppressed below that cutoff. No predictive threshold has been validated.
 
 # Limits
 
 The planned event study is tracked in [GDX research TODOs](/sectors/gdx.md#research-todos).
-
-The GDX report defaults to a 50-day SMA, the 2026-10-22 fixed universe, and
-minimum coverage 0.8. It shows daily coverage and suppresses percentages below
-that cutoff. Generate the local snapshot with:
-
-```powershell
-uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
-```
-
-The daily report includes this snapshot automatically when present; use
-`--gdx-breadth PATH` to select another. It does not refresh constituent data.
-
-Raw histories are stored per symbol under `data/research/day/<download-date>/`,
-using Stockholm download dates and Windows-safe percent-encoded filenames.
-The helper defaults to the latest complete batch; `--download-date` pins it.
-Live downloads save each symbol automatically to the same store. Derived
-breadth JSON retains input file paths and hashes for reproducibility.
-
-The live downloader pages all available daily history from the configured
-TradingView MCP endpoint; standalone authentication is still required.
-Inputs must have consistent price-adjustment treatment; splits can distort
-an SMA if unadjusted. Provider notices and input hashes are retained.
-For live downloads, today's bar can still be forming: use a completed-session
-`--end` date when closing-only breadth is required. The helper has no exchange
-calendar or historical constituent membership service. No predictive threshold
-or trading rule has been validated for this custom series.
+The generic custom-breadth helper can still accept explicit research universes;
+the report itself uses US listings only.

@@ -292,6 +292,7 @@ def render_report(report, chart, interpretation):
     def responsive_chart(section):
         return f'<div class="chart-wide">{chart(section)}</div><div class="chart-narrow">{chart(section, compact=True)}</div>'
     requested = date.fromisoformat(report["requested_date"])
+    briefing = "Weekly market briefing" if report.get("edition") == "weekly" else "Daily market briefing"
     gdx = report.get("gdx_breadth")
     vix = report.get("vix")
     all_series = list(report["series"].values())
@@ -356,17 +357,17 @@ def render_report(report, chart, interpretation):
                f'<div class="unavailable" role="note"><strong>No breadth data for this provider</strong>{escape(report.get("breadth_unavailable", "No observations are available."))}</div></article>')
     ratio_studies = [study for study in report.get("price_ratios", [report.get("rspd_rsps")]) if study]
     ratios = "".join(ratio_card(study) for study in ratio_studies) or '<p class="unavailable">No ratio studies are available.</p>'
-    themes = '<p class="planned"><span>Planned</span>Theme coverage will appear here as observations are added.</p>'
+    themes = '<article class="card"><h3>GDX breadth <span class="period">Weekly</span></h3><p>No saved US-listed observation. Run with --weekly to create it.</p></article>'
     if gdx:
         value = next(iter(gdx["series"].values()))
         coverage = gdx["coverage"]
-        themes = (f'<p class="theme-name">Gold miners / GDX</p><article class="card" aria-labelledby="gdx-title"><div class="card-header"><div><h3 id="gdx-title">GDX breadth</h3>'
-                  f'<p class="subheading">Constituents above their {gdx["definition"]["window"]}-day SMA</p></div><span class="period">{gdx["lookback_months"]}-month view</span></div>'
-                  f'<div class="readings">{reading("Above SMA", value, "#67ddc4")}</div><div class="chart">{responsive_chart(gdx)}</div>'
-                  f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed current constituents</span><span>Share of stocks (%)</span></div>'
+        themes = (f'<p class="theme-name">Gold miners / GDX</p><article class="card" aria-labelledby="gdx-title"><div class="card-header"><div><h3 id="gdx-title">GDX breadth <span class="period">Weekly</span></h3>'
+                  f'<p class="subheading">US-listed constituents above their {gdx["definition"]["window"]}-day SMA</p></div><span class="period">{gdx["lookback_months"]}-month view</span></div>'
+                  f'<p class="source-note"><strong>Last datapoint: {value["latest"]["date"]}</strong> · Saved weekly study; refreshed only with --weekly.</p><div class="readings">{reading("Above SMA", value, "#67ddc4")}</div><div class="chart">{responsive_chart(gdx)}</div>'
+                  f'<div class="chart-caption"><span>Coverage {coverage["eligible"]}/{coverage["universe_size"]}</span><span>Equal-weight · fixed US-listed subset</span><span>Share of stocks (%)</span></div>'
                   f'<p class="interpretation">{escape(gdx["interpretation"])}</p>{details(gdx, gdx=True)}</article>')
     if report.get("theme_returns"):
-        themes = theme_rs_card(report["theme_returns"]) + theme_returns_card(report["theme_returns"]) + (themes if gdx else "")
+        themes = theme_rs_card(report["theme_returns"]) + theme_returns_card(report["theme_returns"]) + themes
     groups = [("market-breadth", "Market Breadth", breadth),
               ("ratios", "Ratios", ratios),
               ("sp500", "S&P 500", spy_card(spy) + vix_card(vix) + '<p class="planned"><span>Planned</span>Sector relative strength</p>'),
@@ -433,5 +434,5 @@ def render_report(report, chart, interpretation):
     navigation += "".join(f'<a href="#{key}"><span>{escape(title)}</span>' + ('<span class="nav-tag">Unavailable</span>' if key == 'sp500' and "metrics" not in spy else '') + '</a>' for key, title, _ in groups)
     body = overview + "".join(f'<section class="group report-page" id="{key}" aria-labelledby="{key}-heading"><a class="back-overview" href="#overview">← All sections</a><div class="group-heading"><span class="group-number">0{i+1}</span><h2 id="{key}-heading" tabindex="-1">{escape(title)}</h2></div>{content}</section>' for i, (key, title, content) in enumerate(groups))
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Market report · {report['requested_date']}</title><style>{CSS}</style></head>
-<body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">Daily market briefing</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>
-<main id="main"><header class="report-header"><p class="eyebrow">Daily market briefing</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{limitations_panel(report)}{status_strip}{research_status}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''
+<body><a class="skip" href="#main">Skip to report</a><div class="shell"><aside class="sidebar"><div class="brand">Situational awareness</div><div class="edition">{briefing}</div><div class="nav-label">In this report</div><nav aria-label="Report sections">{navigation}</nav></aside>
+<main id="main"><header class="report-header"><p class="eyebrow">{briefing}</p><h1>Daily situational awareness</h1><div class="metadata"><strong>{requested.strftime('%A, %d %B %Y')}</strong><span>{escape(freshness)}</span>{data_mode}</div>{limitations_panel(report)}{status_strip}{research_status}{status}</header>{warnings}{body}<footer>Generated {escape(report['generated_at'])} · Observations and interpretation archived with this edition.</footer></main></div><script>{NAV_SCRIPT}</script></body></html>'''

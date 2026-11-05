@@ -6,8 +6,8 @@ resource: https://www.vaneck.com/us/en/investments/gold-miners-etf-gdx/overview
 tags: [gold, miners, GDX, equities]
 status: draft
 generated:
-  by: claude-code/claude-opus-5-5
-  at: "2026-10-26T12:00:00Z"
+  by: codex/market-report-poc
+  at: "2026-11-04T22:50:06Z"
 sources:
   - id: vaneck-overview
     resource: https://www.vaneck.com/us/en/investments/gold-miners-etf-gdx/overview
@@ -20,7 +20,9 @@ sources:
     title: TradingView US GDX instrument
 market_report:
   symbol: AMEX:GDX
-  section: sectors
+  section: themes
+  cadence: weekly
+  report_universe: US-listed constituents only
   instrument_scope: US-listed ETF
   currency: USD
   definition_status: issuer_sourced
@@ -189,3 +191,13 @@ GDX price/relative-strength analysis is not yet included; constituent breadth is
 [^vaneck-overview]: VanEck US overview, consulted 2026-10-25; holdings dated 2026-10-22.
 [^vaneck-factsheet]: VanEck US factsheet retrieved through search, dated 2026-04-30.
 [^tradingview-symbol]: TradingView MCP symbol search for GDX, consulted 2026-10-25.
+
+# Report cadence and scope
+
+The report calculates breadth for the US-listed subset of these fixed holdings,
+not the full international portfolio. Only `--weekly` refreshes this derived
+study; daily reports reuse its saved snapshot with a Weekly badge and last
+observation date. The input remains daily closes with a 50-session SMA.
+See [GDX breadth methodology](/references/gdx-breadth.md) for scope, provenance
+and the separation from legacy international-universe history. Foreign listings
+remain in this reference holdings table but are excluded from report downloads.

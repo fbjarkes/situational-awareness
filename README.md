@@ -164,12 +164,11 @@ points, with matched observation dates and a consistent adjustment policy.
 Positive values indicate outperformance. The sector section is not yet
 implemented.
 
-GDX breadth is included when `data/gdx-breadth-sma50.json` exists. It uses
-the current holdings snapshot, with a six-month chart of the percentage above
-the 50-day SMA, latest coverage, and a two-sentence participation summary.
-Override its snapshot with `--gdx-breadth PATH`. Both sections use the report's
-date cutoff and lookback. Constituent prices are not refreshed by the daily
-report; regenerate the custom snapshot when refreshing.
+GDX breadth is included from `data/gdx-breadth-us-sma50.json`. It uses only
+US-listed holdings, a six-month chart of the percentage above the 50-day SMA,
+coverage, and a concise participation summary. Both report editions show its
+Weekly badge and last datapoint date. Only `--weekly` recalculates the snapshot;
+daily editions reuse it. Override the US-only snapshot with `--gdx-breadth PATH`.
 
 ## Knowledge library
 
@@ -260,7 +259,7 @@ and record the feed and price adjustment.
 
 ```powershell
 uv run market-report --provider alpaca
-uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --alpaca --alpaca-feed sip --ma 50 --output data/gdx-breadth-sma50-alpaca.json
+uv run custom-breadth --symbols NYSE:NEM NYSE:AEM --alpaca --alpaca-feed sip --ma 50 --output data/us-miners-example.json
 ```
 
 With `--provider alpaca`, the report downloads SPY from Alpaca for the S&P 500
@@ -345,17 +344,10 @@ CLI using archived daily bar files:
 uv run custom-breadth --symbols NYSE:NEM NYSE:AEM --ma 50 --download-date 2026-10-25 --output data/custom-breadth.json
 ```
 
-The two-stock example only demonstrates syntax; a GDX constituent index should
-instead select the full holdings list and supply its exchange-qualified map:
-
-```powershell
-uv run custom-breadth --holdings-md knowledge/sectors/gdx.md --symbol-map data/gdx-symbol-map.json --ma 50 --min-coverage 0.8 --universe-as-of 2026-10-22 --name CUSTOM:GDX-SMA50 --download-date 2026-10-25 --output data/gdx-breadth-sma50.json
-```
-
-The symbol map is a JSON object mapping every issuer ticker label to exactly
-one provider symbol, e.g. `{"NEM": "NYSE:NEM", ...}`. All 59 security rows are
-selected; cash is excluded. Missing mappings fail. GDX symbol mappings,
-downloaded histories, and calculated snapshots stay local under ignored `data/`.
+The two-stock example demonstrates syntax. For the report's complete US-listed
+GDX subset, use `uv run market-report --weekly`. This uses the issuer holdings
+and local symbol map, filters out foreign listings, and writes the weekly cache.
+The map, raw histories, and derived snapshots stay under ignored `data/`.
 
 To fetch all available history, replace `--download-date` and its value with
 `--mcp-url https://mcp.tradingview.com/mcp`. Every completed symbol is archived
@@ -587,3 +579,32 @@ Fresh TradingView runs request the configured ratio history (with a small calend
 buffer) for the ratio ETFs, reusing SPY's longer history. Stored runs never fetch
 missing bars; charts explicitly flag incomplete history. Each report JSON records
 the resolved window and input provenance. Changing `.env` takes effect next run.
+
+## Daily and weekly editions
+
+Report price downloads use US-listed stocks/ETFs plus the existing US breadth,
+VIX and S&P/Nasdaq futures series. Foreign GDX listings are excluded. GDX breadth
+uses the fixed **US-listed subset**, so it is not comparable with the older full
+international universe.
+
+```powershell
+uv run market-report --provider tradingview
+uv run market-report --provider tradingview --weekly
+```
+
+Both editions contain the same sections. GDX breadth is currently the weekly
+study: it displays a **Weekly** badge and **Last datapoint** date in both editions.
+A daily run only reads its saved snapshot. `--weekly` rebuilds it from daily bars
+using the 50-session SMA and writes `market-report-YYYY-MM-DD-weekly.html/json`;
+daily filenames remain `market-report-YYYY-MM-DD.html/json`.
+
+US gold-miner stock bars are also needed for daily theme returns and are shared
+with the weekly calculation. They are not downloaded twice. The weekly snapshot
+is `data/gdx-breadth-us-sma50.json`; legacy international snapshots are not shown.
+If no weekly snapshot exists, the report asks for a `--weekly` run. Failed weekly
+refreshes keep the previous valid snapshot and show an availability note.
+
+With the default `--provider snapshot`, neither edition downloads data; `--weekly`
+recalculates using a complete stored US batch. For fresh prices choose TradingView.
+Earnings caches retain their existing reuse policy. Other report sections retain
+their existing cadence; additional studies can be classified as weekly later.

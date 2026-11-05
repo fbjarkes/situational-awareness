@@ -123,9 +123,9 @@ class ReportTests(unittest.TestCase):
     def test_gdx_section_respects_date_and_retains_coverage(self):
         from situational_awareness.breadth import calculate_breadth
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
-        prices = {"a": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23, 24)},
-                  "b": {f"2026-10-{d:02}": 50.0 - d for d in (19, 20, 21, 22, 23, 24)}}
-        payload = calculate_breadth(["a", "b"], prices, 2, name="CUSTOM:GDX-SMA2", universe_as_of="2026-10-22")
+        prices = {"NYSE:A": {f"2026-10-{d:02}": float(d) for d in (19, 20, 21, 22, 23, 24)},
+                  "NYSE:B": {f"2026-10-{d:02}": 50.0 - d for d in (19, 20, 21, 22, 23, 24)}}
+        payload = calculate_breadth(["NYSE:A", "NYSE:B"], prices, 2, name="CUSTOM:GDX-SMA2", universe_as_of="2026-10-22")
         with tempfile.TemporaryDirectory(dir=report.ROOT / "reports") as folder:
             path = Path(folder) / "gdx.json"
             path.write_text(json.dumps(payload), encoding="utf-8")
@@ -138,6 +138,8 @@ class ReportTests(unittest.TestCase):
         html = report.render_html(result)
         self.assertIn("GDX breadth", html)
         self.assertIn("Coverage 2/2", html)
+        self.assertIn("Weekly</span>", html)
+        self.assertIn("Last datapoint: 2026-10-23", html)
 
     def test_knowledge_distinguishes_level_from_crossing(self):
         result = report.build_report(self.payload(), date(2026, 10, 23), 6, "test", self.ny(24))
@@ -212,10 +214,8 @@ class ReportTests(unittest.TestCase):
             path = Path(folder) / "gdx.json"
             path.write_text(json.dumps(payload), encoding="utf-8")
             report.attach_gdx_breadth(result, path, self.ny(24), False)
-        self.assertEqual(result["provider_coverage"][0]["status"], "partial")
-        html = report.render_html(result)
-        self.assertIn("1 of 2 GDX constituents", html)
-        self.assertIn("Constituent prices: Alpaca.", html)
+        self.assertNotIn("gdx_breadth", result)
+        self.assertTrue(any("non-US listings" in note for note in result["notes"]))
 
     def test_spy_card_from_stored_tradingview_bars(self):
         from situational_awareness.bar_store import save_bars

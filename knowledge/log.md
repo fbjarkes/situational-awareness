@@ -2,6 +2,8 @@
 
 ## 2026-11-04
 
+- Restricted report GDX breadth to US-listed holdings and made it a weekly study: --weekly refreshes the derived snapshot and writes a separate weekly edition, while daily editions reuse it with a Weekly badge and last observation date. Legacy international breadth is kept separate.
+
 - Set ratio charts to three years by default, configured through RATIO_LOOKBACK_MONTHS in .env or a CLI override; fresh downloads cover the ratio window and stored charts disclose incomplete history.
 
 - Moved all price-ratio charts into a dedicated Ratios report section, with its own navigation and overview entry; Market Breadth retains MMOH/MMOF.

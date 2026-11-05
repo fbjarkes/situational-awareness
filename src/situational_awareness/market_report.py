@@ -23,6 +23,7 @@ from situational_awareness.market_leaders import build_market_leaders
 from situational_awareness.earnings_growth import build_earnings_growth
 from situational_awareness.spy_earnings import build_spy_revenue_screen
 from situational_awareness.cot import build_cot_section, download_history as download_cot_history, MARKETS as COT_MARKETS
+from situational_awareness.weekly_studies import update_gdx_breadth
 from situational_awareness.config import ratio_lookback_months
 from situational_awareness.price_ratio import build_breadth_ratios, RATIO_SYMBOLS
 from situational_awareness.earnings import download_earnings, cache_path as earnings_cache_path
@@ -62,6 +63,8 @@ async def fetch_tradingview(endpoint: str, as_of: date, start: date, symbols: tu
     from mcp import ClientSession
     from mcp.client.streamable_http import streamablehttp_client
 
+    if any(symbol.split(":", 1)[0] not in {"NYSE", "NASDAQ", "AMEX", "INDEX", "CBOE", "CME_MINI"} for symbol in symbols):
+        raise ValueError("Report downloads only support US listings and US market indices/futures")
     token = os.environ.get("TRADINGVIEW_MCP_TOKEN")
     headers = {"Authorization": f"Bearer {token}"} if token else None
     series = {}
@@ -364,9 +367,12 @@ def render_section(title: str, visual: str, interpretation: str) -> str:
 
 def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool) -> None:
     if not path.exists():
-        report["notes"].append("GDX breadth snapshot is unavailable; generate data/gdx-breadth-sma50.json first.")
+        report["notes"].append("Weekly US-listed GDX breadth is unavailable; run market-report --weekly to generate it.")
         return
     payload = read_snapshot(path)
+    if any(s.split(":", 1)[0] not in {"NYSE", "NASDAQ", "AMEX"} for s in payload.get("universe", {}).get("symbols", [])):
+        report["notes"].append("Legacy GDX snapshot includes non-US listings and is not displayed; run --weekly to build the US-listed subset.")
+        return
     symbols = tuple(payload["series"])
     if len(symbols) != 1 or payload.get("definition", {}).get("average") != "SMA":
         raise ValueError("GDX breadth snapshot must contain one custom SMA series")
@@ -375,6 +381,9 @@ def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool
     series = section["series"][symbols[0]]
     latest = next(b for b in payload["series"][symbols[0]] if bar_date(b).isoformat() == series["latest"]["date"])
     section["coverage"] = {k: latest[k] for k in ("above", "below", "equal", "eligible", "universe_size", "coverage")}
+    section["cadence"] = "weekly"
+    section["updated_at"] = payload.get("updated_at", payload.get("fetched_at"))
+    section["universe_scope"] = "US-listed GDX constituents only"
     section["definition"] = payload["definition"]
     section["input_provider"] = payload.get("input_provider")
     section["provider_unavailable"] = payload["universe"].get("provider_unavailable", {})
@@ -384,12 +393,12 @@ def attach_gdx_breadth(report: dict, path: Path, now: datetime, close_only: bool
             "symbol": "CUSTOM:GDX-SMA50", "label": f"{n} of {size} GDX constituents", "section": "Gold miners",
             "requested_provider": section["input_provider"], "provider_used": section["input_provider"], "status": "partial",
             "source": "breadth uses the remaining listings, so it is not comparable with full-universe history",
-            "reason": "Foreign listings are not carried by this provider."})
+            "reason": "; ".join(sorted(set(section["provider_unavailable"].values())))})
     section["universe"] = payload["universe"]
     delta = series["five_session_change"]
     direction = (f"up {delta:.2f} percentage points over five observations" if delta > 0 else f"down {abs(delta):.2f} percentage points over five observations") if delta is not None else "with insufficient history for a five-observation comparison"
-    section["interpretation"] = (f'{latest["above"]} of {latest["eligible"]} eligible GDX constituents ({series["latest"]["close"]:.2f}%) are above their {payload["definition"]["window"]}-day SMA, {direction}. '
-                                  f'This describes participation within the fixed {payload["universe"].get("as_of") or "supplied"} holdings universe; it is not historical fund membership or a validated trading signal.')
+    section["interpretation"] = (f'{latest["above"]} of {latest["eligible"]} eligible US-listed GDX constituents ({series["latest"]["close"]:.2f}%) are above their {payload["definition"]["window"]}-day SMA, {direction}. '
+                                  f'This describes participation within the US-listed subset of the fixed {payload["universe"].get("as_of") or "supplied"} holdings universe; it is not historical fund membership or a validated trading signal.')
     section["knowledge_sources"] = ["/sectors/gdx.md", "/references/gdx-breadth.md"]
     section["knowledge_context"] = []
     for relative in section["knowledge_sources"]:
@@ -414,13 +423,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--snapshot", type=Path, help="Optional legacy combined snapshot; default reads the per-symbol bar store")
     parser.add_argument("--data-root", type=Path, default=DATA_ROOT)
     parser.add_argument("--download-date", type=date.fromisoformat, help="Select a stored download batch")
-    parser.add_argument("--gdx-breadth", type=Path, default=ROOT / "data/gdx-breadth-sma50.json", help="GDX custom breadth snapshot")
+    parser.add_argument("--gdx-breadth", type=Path, default=ROOT / "data/gdx-breadth-us-sma50.json", help="Saved weekly US-listed GDX breadth snapshot")
     parser.add_argument("--mcp-url", default=os.environ.get("TRADINGVIEW_MCP_URL", "https://mcp.tradingview.com/mcp"), help="Streamable HTTP MCP endpoint; or TRADINGVIEW_MCP_URL")
     parser.add_argument("--alpaca-feed", choices=["iex", "sip"], default="iex", help="Alpaca feed for --provider alpaca; iex is free but not the consolidated close")
     parser.add_argument("--lookback", type=int, default=6, metavar="MONTHS")
     parser.add_argument("--ratio-lookback", type=int, metavar="MONTHS", help="Ratio chart window; RATIO_LOOKBACK_MONTHS or .env (default 36)")
     parser.add_argument("--format", default="html,json", help="html, json, or html,json")
     parser.add_argument("--output", type=Path, default=ROOT / "reports")
+    parser.add_argument("--weekly", action="store_true", help="Refresh weekly studies and write a separate weekly report; daily runs reuse their snapshots")
     parser.add_argument("--refresh", action="store_true", help="Refresh live-provider cache")
     parser.add_argument("--close-only", action="store_true", help="Exclude today's bar; report previous closes only")
     parser.add_argument("--vix-period", type=int, default=365, help="Maximum closes for VIX day-low metric (default 365 sessions)")
@@ -556,7 +566,6 @@ def main(argv: list[str] | None = None) -> int:
         if "metrics" in report["spy"]:
             report["spy"]["interpretation"] = spy_interpretation(report["spy"])
             report["warnings"].extend(report["spy"]["warnings"])
-        attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
         theme_provider = "alpaca" if args.provider == "alpaca" else "tradingview"
         theme_batch = batch or (payload.get("download_date") if payload else None)
         theme_downloads = 0
@@ -572,6 +581,16 @@ def main(argv: list[str] | None = None) -> int:
                                                        ratio_start, tuple(s for s in RATIO_SYMBOLS if s != "AMEX:SPY")))
             save_bars(ratio_fresh, args.data_root)
             theme_downloads += len(ratio_fresh["series"])
+        report["edition"] = "weekly" if args.weekly else "daily"
+        try:
+            report["weekly_studies"] = {"gdx_breadth": update_gdx_breadth(
+                weekly=args.weekly, knowledge=ROOT / "knowledge", symbol_map=ROOT / "data/gdx-symbol-map.json",
+                output=args.gdx_breadth, data_root=args.data_root, provider=theme_provider,
+                cutoff=observation_cutoff(requested, today, args.close_only), download_date=theme_batch)}
+        except (ValueError, OSError, StopIteration) as error:
+            report["weekly_studies"] = {"gdx_breadth": {"status": "unavailable", "updated": False}}
+            report["notes"].append(f"Weekly GDX refresh unavailable: {error}. Previous saved snapshot retained.")
+        attach_gdx_breadth(report, args.gdx_breadth, now, args.close_only)
         report["theme_returns"] = build_theme_returns(ROOT / "knowledge", observation_cutoff(requested, today, args.close_only),
                                                      data_root=args.data_root, download_date=theme_batch,
                                                      provider=theme_provider, symbol_map=ROOT / "data/gdx-symbol-map.json")
@@ -607,7 +626,8 @@ def main(argv: list[str] | None = None) -> int:
                                 "download_batch": payload.get("download_date") if payload else None}
         args.output.mkdir(parents=True, exist_ok=True)
         for fmt in sorted(formats):
-            path = args.output / f"market-report-{requested}.{fmt}"
+            suffix = "-weekly" if args.weekly else ""
+            path = args.output / f"market-report-{requested}{suffix}.{fmt}"
             content = render_html(report) if fmt == "html" else json.dumps(report, indent=2, allow_nan=False)
             path.write_text(content, encoding="utf-8")
             print(f"Saved {path.resolve()}")
